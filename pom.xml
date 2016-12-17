@@ -27,12 +27,13 @@
         <hikaricp.version>2.5.1</hikaricp.version>
         <metrics.version>3.1.0</metrics.version>
         <mysql.version>5.1.34</mysql.version>
+        <spring.version>4.3.4.RELEASE</spring.version>
         <springfox-swagger.version>2.3.1</springfox-swagger.version>
 
         <junit.version>4.12</junit.version>
         <assertj.version>3.0.0</assertj.version>
         <mockito.version>1.9.5</mockito.version>
-        <restassured.version>2.4.0</restassured.version>
+        <restassured.version>3.0.1</restassured.version>
     </properties>
 
     <dependencies>
@@ -105,6 +106,12 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
+            <version>${spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -126,7 +133,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.jayway.restassured</groupId>
+            <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
             <version>${restassured.version}</version>
             <scope>test</scope>
@@ -347,12 +354,12 @@
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.10</minimum>
+                                            <minimum>0.70</minimum>
                                         </limit>
                                         <limit>
                                             <counter>CLASS</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.10</minimum>
+                                            <minimum>0.70</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

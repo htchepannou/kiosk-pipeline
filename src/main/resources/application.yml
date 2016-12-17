@@ -1,13 +1,10 @@
 kiosk:
   namespace: "io.tchepannou"
-  aws:
-    bucket: "${kiosk.namespace}.kiosk"
-
-spring:
-  http:
-    multipart:
-      max-file-size: 200000000  # 200Mb
-      max-request-size: 200000000  # 200Mb
+  pipeline:
+    LoadFeedsProcessor:
+      bucket: "${kiosk.namespace}.kiosk"
+      key: "${kiosk.environment}/feeds"
+      queue: "kiosk-${kiosk.environment}-feed"
 
 swagger:
   version: "1.0"
@@ -23,8 +20,6 @@ endpoints:
   health:
     sensitive: false
   info:
-    sensitive: false
-  shutdown:
     sensitive: false
   metrics:
     sensitive: false

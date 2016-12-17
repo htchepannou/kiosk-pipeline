@@ -1,0 +1,21 @@
+{
+  "name": "kiosk-pipeline",
+  "template": "javaapp",
+  "runAs": "kiosk-ec2-role",
+  "healthCheckPath": "/health",
+  "jvmOptions": "-Xmx728M -Xms728M",
+  "instances": [
+    {
+      "region": "us-east-1",
+      "type": "t2.micro"
+    }
+  ],
+  "services": {
+    "http": true,
+    "httpPort": 8080,
+    "https": false,
+    "httpsPort": 8443,
+    "ssh": true,
+    "sshPort": 22
+  }
+}

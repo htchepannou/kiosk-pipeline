@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.tchepannou.kiosk.pipeline.processor.LoadFeedsProcessor;
+import io.tchepannou.kiosk.pipeline.processor.UrlExtractorProcessor;
+import io.tchepannou.kiosk.pipeline.service.HttpService;
 import io.tchepannou.kiosk.pipeline.service.ShutdownService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,9 +39,19 @@ public class AppConfiguration {
         return new LoadFeedsProcessor();
     }
 
+    @Bean
+    UrlExtractorProcessor urlExtractorProcessor(){
+        return new UrlExtractorProcessor();
+    }
+
     //-- Services
     @Bean
     public ShutdownService shutdownService(){
         return new ShutdownService();
+    }
+
+    @Bean
+    public HttpService httpService(){
+        return new HttpService();
     }
 }

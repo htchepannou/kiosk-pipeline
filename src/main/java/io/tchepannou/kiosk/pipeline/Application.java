@@ -1,5 +1,6 @@
 package io.tchepannou.kiosk.pipeline;
 
+import io.tchepannou.kiosk.pipeline.processor.UrlExtractorProcessor;
 import io.tchepannou.kiosk.pipeline.processor.LoadFeedsProcessor;
 import io.tchepannou.kiosk.pipeline.service.ShutdownService;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ public class Application {
 
         try {
             ctx.getBean(LoadFeedsProcessor.class).process();
+            ctx.getBean(UrlExtractorProcessor.class).process();
         } catch (final Exception e) {
             LOGGER.error("Unexpected error", e);
         } finally {

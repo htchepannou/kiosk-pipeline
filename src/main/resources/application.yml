@@ -5,6 +5,9 @@ kiosk:
       bucket: "${kiosk.namespace}.kiosk"
       key: "${kiosk.environment}/feeds"
       queue: "kiosk-${kiosk.environment}-feed"
+    UrlExtractorProcessor:
+      inputQueue: "kiosk-${kiosk.environment}-feed"
+      outputQueue: "kiosk-${kiosk.environment}-url"
 
 swagger:
   version: "1.0"

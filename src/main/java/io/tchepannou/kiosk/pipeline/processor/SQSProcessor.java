@@ -20,13 +20,9 @@ public abstract class SQSProcessor {
     @Autowired
     HttpService http;
 
-
     public void process() {
         final String inputQueue = getInputQueue();
-        final ReceiveMessageRequest request = new ReceiveMessageRequest()
-                .withQueueUrl(inputQueue)
-                .withMaxNumberOfMessages(10)
-                .withWaitTimeSeconds(20);
+        final ReceiveMessageRequest request = createReceiveMessageRequest();
 
         while (true) {
             final ReceiveMessageResult result = sqs.receiveMessage(request);
@@ -43,6 +39,14 @@ public abstract class SQSProcessor {
                 }
             }
         }
+    }
+
+    private ReceiveMessageRequest createReceiveMessageRequest() {
+        final String inputQueue = getInputQueue();
+        return new ReceiveMessageRequest()
+                .withQueueUrl(inputQueue)
+                .withMaxNumberOfMessages(10)
+                .withWaitTimeSeconds(20);
     }
 
     protected abstract void process(final String body) throws IOException;

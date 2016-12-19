@@ -8,6 +8,11 @@ kiosk:
     UrlExtractorProcessor:
       inputQueue: "kiosk-${kiosk.environment}-feed"
       outputQueue: "kiosk-${kiosk.environment}-url"
+    DownloadArticleProcessor:
+      inputQueue: "kiosk-${kiosk.environment}-url"
+      bucket: "${kiosk.namespace}.kiosk"
+      key: "${kiosk.environment}/articles/"
+
 
 swagger:
   version: "1.0"
@@ -37,5 +42,5 @@ logging:
     springfix: WARN
 
   pattern:
-    console: "%d Type=%level TransactionId=%X{TransactionId} Message='%m'%n"
-    file: "%d Type=%level TransactionId=%X{TransactionId} Message='%m'%n"
+    console: "%d Type=%level Thread=%thread Message='%m'%n"
+    file: "%d Type=%level Thread=%thread Message='%m'%n"

@@ -1,5 +1,7 @@
 kiosk:
   namespace: "io.tchepannou"
+  threadPool:
+    size: 100
   pipeline:
     LoadFeedsProcessor:
       bucket: "${kiosk.namespace}.kiosk"
@@ -8,10 +10,10 @@ kiosk:
     UrlExtractorProcessor:
       inputQueue: "kiosk-${kiosk.environment}-feed"
       outputQueue: "kiosk-${kiosk.environment}-url"
-    DownloadArticleProcessor:
+    HtmlDownloadProcessor:
       inputQueue: "kiosk-${kiosk.environment}-url"
-      bucket: "${kiosk.namespace}.kiosk"
-      key: "${kiosk.environment}/articles/"
+      outputS3Bucket: "${kiosk.namespace}.kiosk"
+      outputS3Key: "${kiosk.environment}/html/"
 
 
 swagger:

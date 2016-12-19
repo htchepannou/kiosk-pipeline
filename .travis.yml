@@ -8,8 +8,8 @@ sudo:
 
 install: true
 
-#script:
-#  - mvn clean install
+script:
+  - mvn clean install
 
 after_success:
   - ./deploy_before.sh

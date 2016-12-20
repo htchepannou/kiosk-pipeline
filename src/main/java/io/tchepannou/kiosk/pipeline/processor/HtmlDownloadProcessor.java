@@ -2,14 +2,13 @@ package io.tchepannou.kiosk.pipeline.processor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@ConfigurationProperties("kiosk.pipeline.DownloadWebPageProcessor")
+@Deprecated
 public class HtmlDownloadProcessor extends SQSProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(HtmlDownloadProcessor.class);
 

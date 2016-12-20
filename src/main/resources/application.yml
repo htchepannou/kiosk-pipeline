@@ -1,19 +1,25 @@
 kiosk:
   namespace: "io.tchepannou"
-  threadPool:
-    size: 100
+  aws:
+    s3:
+      bucket: "${kiosk.namespace}.kiosk"
+    sqs:
+      feed: "kiosk-${kiosk.environment}-feed"
+      url: "kiosk-${kiosk.environment}-url"
+
   pipeline:
     LoadFeedsProcessor:
       bucket: "${kiosk.namespace}.kiosk"
       key: "${kiosk.environment}/feeds"
       queue: "kiosk-${kiosk.environment}-feed"
-    UrlExtractorProcessor:
-      inputQueue: "kiosk-${kiosk.environment}-feed"
-      outputQueue: "kiosk-${kiosk.environment}-url"
-    HtmlDownloadProcessor:
-      inputQueue: "kiosk-${kiosk.environment}-url"
+
+    UrlExtractorConsumer:
+      inputQueue: "${kiosk.aws.sqs.feed}"
+      outputQueue: "${kiosk.aws.sqs.url}"
+    HtmlDownloadConsumer:
+      inputQueue: "${kiosk.aws.sqs.url}"
       outputS3Bucket: "${kiosk.namespace}.kiosk"
-      outputS3Key: "${kiosk.environment}/html/"
+      outputS3Key: "${kiosk.environment}/html"
 
 
 swagger:

@@ -1,7 +1,8 @@
-package io.tchepannou.kiosk.pipeline.processor;
+package io.tchepannou.kiosk.pipeline.consumer;
 
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.tchepannou.kiosk.pipeline.aws.sqs.SqsConsumer;
 import io.tchepannou.kiosk.pipeline.model.Feed;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import org.jsoup.Jsoup;
@@ -9,6 +10,7 @@ import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -17,9 +19,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Deprecated
-public class UrlExtractorProcessor extends SQSProcessor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(UrlExtractorProcessor.class);
+@ConfigurationProperties("kiosk.pipeline.UrlExtractorConsumer")
+public class UrlExtractorConsumer implements SqsConsumer{
+    private static final Logger LOGGER = LoggerFactory.getLogger(UrlExtractorConsumer.class);
 
     @Autowired
     AmazonSQS sqs;
@@ -30,19 +32,20 @@ public class UrlExtractorProcessor extends SQSProcessor {
     @Autowired
     HttpService http;
 
-    private String inputQueue;
     private String outputQueue;
 
+    //-- SqsConsumer overrides
     @Override
-    protected void process(final String msg) throws IOException {
-        final Feed feed = objectMapper.readValue(msg, Feed.class);
+    public void consume(final String body) throws IOException {
+        final Feed feed = objectMapper.readValue(body, Feed.class);
         final List<String> urls = extractUrls(feed);
         for (final String url : urls) {
-            LOGGER.info("Sending {} to {}", url, outputQueue);
+            LOGGER.info("Sending {} to queue: {}", url, outputQueue);
             sqs.sendMessage(outputQueue, url);
         }
     }
 
+    //-- Private
     private List<String> extractUrls(final Feed feed) throws IOException {
         LOGGER.info("Extracting URL from {}", feed.getUrl());
 
@@ -59,16 +62,6 @@ public class UrlExtractorProcessor extends SQSProcessor {
                 .collect(Collectors.toSet());
 
         return new ArrayList<>(urls);
-    }
-
-    //-- Getter/Setter
-    @Override
-    public String getInputQueue() {
-        return inputQueue;
-    }
-
-    public void setInputQueue(final String inputQueue) {
-        this.inputQueue = inputQueue;
     }
 
     public String getOutputQueue() {

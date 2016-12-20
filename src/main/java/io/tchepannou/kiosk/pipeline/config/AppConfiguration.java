@@ -4,17 +4,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.tchepannou.kiosk.pipeline.processor.LoadFeedsProcessor;
-import io.tchepannou.kiosk.pipeline.processor.UrlExtractorProcessor;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import io.tchepannou.kiosk.pipeline.service.ShutdownService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
+import java.time.Clock;
 import java.util.TimeZone;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 @Configuration
 public class AppConfiguration {
@@ -32,34 +29,30 @@ public class AppConfiguration {
     }
 
     @Bean
-    ObjectMapper objectMapper(){
+    ObjectMapper objectMapper() {
         return jackson2ObjectMapperBuilder().build();
     }
 
     @Bean
-    Executor executor (@Value("kiosk.threadPool.size") int size){
-        return Executors.newFixedThreadPool(size);
+    Clock clock() {
+        return Clock.systemUTC();
     }
 
     //-- Pipeline
     @Bean
-    LoadFeedsProcessor loadFeedsProcessor(){
+    LoadFeedsProcessor loadFeedsProcessor() {
         return new LoadFeedsProcessor();
     }
 
-    @Bean
-    UrlExtractorProcessor urlExtractorProcessor(){
-        return new UrlExtractorProcessor();
-    }
 
     //-- Services
     @Bean
-    public ShutdownService shutdownService(){
+    public ShutdownService shutdownService() {
         return new ShutdownService();
     }
 
     @Bean
-    public HttpService httpService(){
+    public HttpService httpService() {
         return new HttpService();
     }
 }

@@ -14,13 +14,17 @@ public class Link {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
+    @Column(columnDefinition = "TEXT")
     private String url;
 
-    @Column(columnDefinition = "char(32)")
-    private String keyhash;
+    @Column(name = "s3_key", columnDefinition = "TEXT")
+    private String s3Key;
+
+    @Column(name="url_hash", columnDefinition = "char(32)")
+    private String urlHash;
 
     //-- Public
-    public static String generateKeyHash(final String url){
+    public static String hash(final String url) {
         return DigestUtils.md5Hex(url);
     }
 
@@ -41,11 +45,19 @@ public class Link {
         this.url = url;
     }
 
-    public String getKeyhash() {
-        return keyhash;
+    public String getUrlHash() {
+        return urlHash;
     }
 
-    public void setKeyhash(final String keyhash) {
-        this.keyhash = keyhash;
+    public void setUrlHash(final String urlHash) {
+        this.urlHash = urlHash;
+    }
+
+    public String getS3Key() {
+        return s3Key;
+    }
+
+    public void setS3Key(final String s3Key) {
+        this.s3Key = s3Key;
     }
 }

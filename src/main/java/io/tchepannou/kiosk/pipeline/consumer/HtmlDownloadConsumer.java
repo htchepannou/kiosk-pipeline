@@ -52,15 +52,15 @@ public class HtmlDownloadConsumer implements SqsConsumer {
 
         // Store
         final String id = DigestUtils.md5Hex(body);
-        final String key = generateKey(id);
+        final String s3Key = generateKey(id);
         final byte[] bytes = out.toByteArray();
         final ByteArrayInputStream in = new ByteArrayInputStream(bytes);
         final ObjectMetadata meta = createObjectMetadata(bytes.length);
 
-        LOGGER.info("Storing {} to s3://{}/{}", body, outputS3Bucket, key);
-        s3.putObject(outputS3Bucket, key, in, meta);
+        LOGGER.info("Storing {} to s3://{}/{}", body, outputS3Bucket, s3Key);
+        s3.putObject(outputS3Bucket, s3Key, in, meta);
 
-        downloaded(body);
+        downloaded(body, s3Key);
     }
 
     //-- Private
@@ -78,14 +78,15 @@ public class HtmlDownloadConsumer implements SqsConsumer {
     }
 
     private boolean alreadyDownloaded(final String url){
-        final String keyhash = Link.generateKeyHash(url);
-        return linkRepository.findByKeyhash(keyhash) != null;
+        final String keyhash = Link.hash(url);
+        return linkRepository.findByUrlHash(keyhash) != null;
     }
 
-    private void downloaded(final String url){
+    private void downloaded(final String url, final String s3Key){
         final Link link = new Link();
         link.setUrl(url);
-        link.setKeyhash(Link.generateKeyHash(url));
+        link.setUrlHash(Link.hash(url));
+        link.setS3Key(s3Key);
         linkRepository.save(link);
     }
 

@@ -65,7 +65,7 @@ public class HtmlDownloadConsumerTest {
 
         doAnswer(get("hello")).when(http).get(eq(url), any(OutputStream.class));
 
-        when(linkRepository.findByKeyhash(any())).thenReturn(null);
+        when(linkRepository.findByUrlHash(any())).thenReturn(null);
 
         // Given
         consumer.consume(url);
@@ -83,7 +83,8 @@ public class HtmlDownloadConsumerTest {
         final ArgumentCaptor<Link> link = ArgumentCaptor.forClass(Link.class);
         verify(linkRepository).save(link.capture());
         assertThat(link.getValue().getUrl()).isEqualTo(url);
-        assertThat(link.getValue().getKeyhash()).isEqualTo(Link.generateKeyHash(url));
+        assertThat(link.getValue().getUrlHash()).isEqualTo(Link.hash(url));
+        assertThat(link.getValue().getS3Key()).isEqualTo("html/2013/04/05/13/" + key + ".html");
     }
 
     @Test
@@ -92,7 +93,7 @@ public class HtmlDownloadConsumerTest {
         final String url = "http://www.goo.com/test.html";
         doAnswer(get("hello")).when(http).get(eq(url), any(OutputStream.class));
 
-        when(linkRepository.findByKeyhash(any())).thenReturn(new Link());
+        when(linkRepository.findByUrlHash(any())).thenReturn(new Link());
 
         // Given
         consumer.consume(url);

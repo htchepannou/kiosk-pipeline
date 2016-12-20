@@ -21,6 +21,24 @@ kiosk:
       outputS3Bucket: "${kiosk.namespace}.kiosk"
       outputS3Key: "${kiosk.environment}/html"
 
+spring:
+  datasource:
+    poolName: Kiosk.CP
+    driverClassName: com.mysql.jdbc.Driver
+    jdbcUrl: jdbc:mysql://127.0.0.1:3306/kiosk
+    username: root
+    #password:
+    connectionTimeout: 30000
+    connectionTestQuery: SELECT 1
+    maximumPoolSize: 10
+    idleTimeout: 15000
+    maxLifetime: 60000
+    leakDetectionThreshold: 30000
+    dataSourceProperties:
+      cachePrepStmts: true
+      prepStmtCacheSize: 250
+      prepStmtCacheSqlLimit: 2048
+
 
 swagger:
   version: "1.0"

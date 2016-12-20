@@ -58,9 +58,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
 
         <!-- === DATABASE === -->
-        <!--
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
@@ -81,7 +84,6 @@
             <artifactId>flyway-core</artifactId>
             <version>${flyway.version}</version>
         </dependency>
-        -->
 
         <!-- SWAGGER -->
         <dependency>
@@ -204,7 +206,6 @@
             </plugin>
 
             <!-- DATABASE -->
-            <!--
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>sql-maven-plugin</artifactId>
@@ -273,7 +274,6 @@
                     </execution>
                 </executions>
             </plugin>
-            -->
 
             <!-- UNIT TEST -->
             <plugin>

@@ -1,4 +1,4 @@
-package io.tchepannou.kiosk.pipeline.processor;
+package io.tchepannou.kiosk.pipeline.consumer;
 
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,6 +14,7 @@ import org.mockito.stubbing.Answer;
 
 import java.io.OutputStream;
 
+import static io.tchepannou.kiosk.pipeline.Fixtures.createFeed;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
@@ -21,7 +22,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UrlExtractorProcessorTest {
+public class UrlExtractorConsumerTest {
     private static final String HTML = "<body>"
             + "<a href='/article/test_123.html'>"
             + "<a href='http://www.google.ca/article/test_456.html'>"
@@ -38,36 +39,33 @@ public class UrlExtractorProcessorTest {
     HttpService http;
 
     @InjectMocks
-    UrlExtractorProcessor processor;
+    UrlExtractorConsumer consumer;
 
     @Before
-    public void setUp() {
-        processor.setInputQueue("input-queue");
-        processor.setOutputQueue("output-queue");
+    public void setUp (){
+        consumer.setOutputQueue("output-queue");
     }
 
     @Test
-    public void testProcess() throws Exception {
+    public void shouldExtractUrls() throws Exception {
         // Given
-        final Feed feed = new Feed();
-        feed.setUrl("http://www.google.ca");
-        feed.setPath("/article/*.html");
+        final Feed feed = createFeed("test", "http://www.google.ca", "/article/*.html");
         when(objectMapper.readValue(anyString(), any(Class.class))).thenReturn(feed);
 
-        doAnswer(httpGet()).when(http).get(any(), any());
+        doAnswer(get(HTML)).when(http).get(any(), any());
 
         // When
-        processor.process("Sample-Message");
+        consumer.consume("sample-json");
 
         // Then
         verify(sqs).sendMessage("output-queue", "http://www.google.ca/article/test_123.html");
         verify(sqs).sendMessage("output-queue", "http://www.google.ca/article/test_456.html");
     }
 
-    private Answer httpGet() {
-        return (invocationOnMock) -> {
-            final OutputStream out = (OutputStream) invocationOnMock.getArguments()[1];
-            out.write((HTML).getBytes());
+    private Answer get(final String html) {
+        return (inv) -> {
+            final OutputStream out = (OutputStream) inv.getArguments()[1];
+            out.write((html).getBytes());
             return null;
         };
     }

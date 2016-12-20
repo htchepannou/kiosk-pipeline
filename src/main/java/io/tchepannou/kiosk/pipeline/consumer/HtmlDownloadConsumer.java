@@ -3,6 +3,8 @@ package io.tchepannou.kiosk.pipeline.consumer;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import io.tchepannou.kiosk.pipeline.aws.sqs.SqsConsumer;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
+import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
@@ -31,11 +33,18 @@ public class HtmlDownloadConsumer implements SqsConsumer {
     @Autowired
     Clock clock;
 
+    @Autowired
+    LinkRepository linkRepository;
+
     private String outputS3Bucket;
     private String outputS3Key;
 
     @Override
     public void consume(final String body) throws IOException {
+        if (alreadyDownloaded(body)){
+            return;
+        }
+
         // Download
         LOGGER.info("Downloading {}", body);
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -50,8 +59,9 @@ public class HtmlDownloadConsumer implements SqsConsumer {
 
         LOGGER.info("Storing {} to s3://{}/{}", body, outputS3Bucket, key);
         s3.putObject(outputS3Bucket, key, in, meta);
-    }
 
+        downloaded(body);
+    }
 
     //-- Private
     private String generateKey(final String id) {
@@ -65,6 +75,18 @@ public class HtmlDownloadConsumer implements SqsConsumer {
         metadata.setContentType("text/html");
         metadata.setContentLength(len);
         return metadata;
+    }
+
+    private boolean alreadyDownloaded(final String url){
+        final String keyhash = Link.generateKeyHash(url);
+        return linkRepository.findByKeyhash(keyhash) != null;
+    }
+
+    private void downloaded(final String url){
+        final Link link = new Link();
+        link.setUrl(url);
+        link.setKeyhash(Link.generateKeyHash(url));
+        linkRepository.save(link);
     }
 
     //-- Getter/Setter

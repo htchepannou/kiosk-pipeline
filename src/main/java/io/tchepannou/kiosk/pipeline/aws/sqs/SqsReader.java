@@ -4,6 +4,7 @@ import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
+import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,20 +44,23 @@ public class SqsReader implements Runnable {
     }
 
     //-- Private
-    private int process() {
+    @VisibleForTesting
+    protected int process() {
         final ReceiveMessageRequest request = createReceiveMessageRequest(queueName);
         final ReceiveMessageResult result = sqs.receiveMessage(request);
+        int count = 0;
         for (final Message message : result.getMessages()) {
             try {
 
                 consumer.consume(message.getBody());
                 sqs.deleteMessage(queueName, message.getReceiptHandle());
+                count++;
 
             } catch (final Exception e) {
                 LOGGER.error("Unexpected error when processing Message#{}:\n{}", message.getReceiptHandle(), message.getBody(), e);
             }
         }
-        return result.getMessages().size();
+        return count;
     }
 
     private ReceiveMessageRequest createReceiveMessageRequest(final String queueName) {

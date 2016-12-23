@@ -1,2 +1,10 @@
 kiosk:
   environment: prod
+
+spring:
+  datasource:
+    poolName: Kiosk.CP
+    driverClassName: com.mysql.jdbc.Driver
+    jdbcUrl: jdbc:mysql://kiosk.cwj11t2vidmo.us-east-1.rds.amazonaws.com:3306/kiosk
+    username: kioskadmin
+    password: kioskadmin

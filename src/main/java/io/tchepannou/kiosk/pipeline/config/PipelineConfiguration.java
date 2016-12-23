@@ -3,8 +3,10 @@ package io.tchepannou.kiosk.pipeline.config;
 import com.amazonaws.services.sqs.AmazonSQS;
 import io.tchepannou.kiosk.pipeline.aws.sqs.SqsConsumer;
 import io.tchepannou.kiosk.pipeline.aws.sqs.SqsReader;
+import io.tchepannou.kiosk.pipeline.consumer.ContentExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.HtmlDownloadConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.UrlExtractorConsumer;
+import io.tchepannou.kiosk.pipeline.processor.LoadFeedsProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +30,15 @@ public class PipelineConfiguration {
     @Value("${kiosk.aws.sqs.url}")
     String urlQueue;
 
+    @Value("${kiosk.aws.sqs.html}")
+    String htmlQueue;
+
     //-- Bean
+    @Bean
+    LoadFeedsProcessor loadFeedsProcessor() {
+        return new LoadFeedsProcessor();
+    }
+
     @Bean
     @Scope("prototype")
     UrlExtractorConsumer urlExtractorConsumer() {
@@ -41,11 +51,20 @@ public class PipelineConfiguration {
         return new HtmlDownloadConsumer();
     }
 
+    @Bean
+    @Scope("prototype")
+    ContentExtractorConsumer contentExtractorConsumer() {
+        return new ContentExtractorConsumer();
+    }
+
+
+
     //-- Startup
     @PostConstruct
     public void init() {
         startUrlExtractor(5);
         startHtmlDownloader(10);
+        startContentExtractor(10);
     }
 
     //-- Thread
@@ -68,6 +87,18 @@ public class PipelineConfiguration {
 
             final SqsConsumer consumer = htmlDownloadConsumer();
             final SqsReader reader = new SqsReader(urlQueue, sqs, consumer);
+            final Thread thread = createThread(group, reader);
+            thread.start();
+        }
+    }
+
+    private void startContentExtractor(final int threadCount) {
+        final ThreadGroup group = new ThreadGroup(ContentExtractorConsumer.class.getSimpleName());
+        for (int i = 0; i < threadCount; i++) {
+            LOGGER.info("Starting Thread{} #{}", group.getName(), i);
+
+            final SqsConsumer consumer = contentExtractorConsumer();
+            final SqsReader reader = new SqsReader(htmlQueue, sqs, consumer);
             final Thread thread = createThread(group, reader);
             thread.start();
         }

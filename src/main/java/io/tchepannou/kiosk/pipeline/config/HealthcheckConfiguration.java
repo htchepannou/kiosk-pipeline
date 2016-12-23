@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 public class HealthcheckConfiguration {
     @Bean
     S3HealthCheck s3HealthCheck(
-            @Value("${kribi.aws.bucket}") final String bucket,
+            @Value("${kiosk.aws.s3.bucket}") final String bucket,
             final AmazonS3 s3
     ) {
         return new S3HealthCheck(bucket, s3);

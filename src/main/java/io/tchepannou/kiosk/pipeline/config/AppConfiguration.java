@@ -4,9 +4,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaxxer.hikari.HikariDataSource;
-import io.tchepannou.kiosk.pipeline.processor.LoadFeedsProcessor;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import io.tchepannou.kiosk.pipeline.service.ShutdownService;
+import io.tchepannou.kiosk.pipeline.service.extractor.ContentExtractor;
+import io.tchepannou.kiosk.pipeline.service.extractor.ContentFilter;
+import io.tchepannou.kiosk.pipeline.service.extractor.HtmlEntityFilter;
+import io.tchepannou.kiosk.pipeline.service.extractor.SanitizeFilter;
+import io.tchepannou.kiosk.pipeline.service.extractor.TrimFilter;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +20,7 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 import javax.sql.DataSource;
 import java.time.Clock;
+import java.util.Arrays;
 import java.util.TimeZone;
 
 @Configuration
@@ -56,14 +61,17 @@ public class AppConfiguration {
         return Clock.systemUTC();
     }
 
-    //-- Pipeline
+    //-- Services
     @Bean
-    LoadFeedsProcessor loadFeedsProcessor() {
-        return new LoadFeedsProcessor();
+    ContentExtractor contentExtractor(){
+        return new ContentExtractor(Arrays.asList(
+                new SanitizeFilter(),
+                new ContentFilter(255),
+                new TrimFilter(),
+                new HtmlEntityFilter()
+        ));
     }
 
-
-    //-- Services
     @Bean
     public ShutdownService shutdownService() {
         return new ShutdownService();

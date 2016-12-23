@@ -6,20 +6,28 @@ kiosk:
     sqs:
       feed: "kiosk-${kiosk.environment}-feed"
       url: "kiosk-${kiosk.environment}-url"
+      html: "kiosk-${kiosk.environment}-html"
 
   pipeline:
     LoadFeedsProcessor:
-      bucket: "${kiosk.namespace}.kiosk"
+      bucket: "${kiosk.aws.s3.bucket}"
       key: "${kiosk.environment}/feeds"
       queue: "kiosk-${kiosk.environment}-feed"
 
     UrlExtractorConsumer:
       inputQueue: "${kiosk.aws.sqs.feed}"
       outputQueue: "${kiosk.aws.sqs.url}"
+
     HtmlDownloadConsumer:
       inputQueue: "${kiosk.aws.sqs.url}"
-      outputS3Bucket: "${kiosk.namespace}.kiosk"
+      outputS3Bucket: "${kiosk.aws.s3.bucket}"
       outputS3Key: "${kiosk.environment}/html"
+
+    ContentExtractorConsumer:
+      inputQueue: "${kiosk.aws.sqs.html}"
+      htmlS3Key: "${kiosk.pipeline.HtmlDownloadConsumer.outputS3Key}"
+      outputS3Bucket: "${kiosk.aws.s3.bucket}"
+      outputS3Key: "${kiosk.environment}/content"
 
 spring:
   datasource:

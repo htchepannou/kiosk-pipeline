@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -108,6 +109,23 @@ public class HtmlDownloadConsumerTest {
         // Then
         verify(s3, never()).putObject(anyString(), anyString(), any(InputStream.class), any(ObjectMetadata.class));
         verify(linkRepository, never()).save(any(Link.class));
+        verify(sns, never()).publish(anyString(), anyString());
+    }
+
+    @Test
+    public void shouldNotConsumeMessageIfDataIntegrityViolationException() throws Exception {
+        // Given
+        final String url = "http://www.goo.com/test.html";
+        doAnswer(get("hello")).when(http).get(eq(url), any(OutputStream.class));
+
+        when(linkRepository.save(any(Link.class))).thenThrow(new DataIntegrityViolationException("error"));
+
+        // Given
+        consumer.consume(url);
+
+        // Then
+        verify(s3).putObject(anyString(), anyString(), any(InputStream.class), any(ObjectMetadata.class));
+        verify(linkRepository).save(any(Link.class));
         verify(sns, never()).publish(anyString(), anyString());
     }
 

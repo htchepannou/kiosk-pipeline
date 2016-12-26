@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import javax.transaction.Transactional;
 import java.io.ByteArrayInputStream;
@@ -52,23 +53,26 @@ public class HtmlDownloadConsumer implements SqsConsumer {
         if (alreadyDownloaded(body)){
             return;
         }
+        try {
+            // Download
+            LOGGER.info("Downloading {}", body);
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();
+            http.get(body, out);
 
-        // Download
-        LOGGER.info("Downloading {}", body);
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        http.get(body, out);
+            // Store
+            final String id = DigestUtils.md5Hex(body);
+            final String s3Key = generateKey(id);
+            final byte[] bytes = out.toByteArray();
+            final ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+            final ObjectMetadata meta = createObjectMetadata(bytes.length);
 
-        // Store
-        final String id = DigestUtils.md5Hex(body);
-        final String s3Key = generateKey(id);
-        final byte[] bytes = out.toByteArray();
-        final ByteArrayInputStream in = new ByteArrayInputStream(bytes);
-        final ObjectMetadata meta = createObjectMetadata(bytes.length);
+            LOGGER.info("Storing {} to s3://{}/{}", body, s3Bucket, s3Key);
+            s3.putObject(s3Bucket, s3Key, in, meta);
 
-        LOGGER.info("Storing {} to s3://{}/{}", body, s3Bucket, s3Key);
-        s3.putObject(s3Bucket, s3Key, in, meta);
-
-        downloaded(body, s3Key);
+            downloaded(body, s3Key);
+        } catch (DataIntegrityViolationException e){
+            LOGGER.warn("{} already downloaded", body);
+        }
     }
 
     //-- Private

@@ -4,7 +4,8 @@ import com.amazonaws.services.s3.event.S3EventNotification;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import io.tchepannou.kiosk.pipeline.aws.sqs.SqsS3Consumer;
-import io.tchepannou.kiosk.pipeline.service.extractor.ContentExtractor;
+import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
+import io.tchepannou.kiosk.pipeline.service.content.ContentExtractor;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,11 +23,16 @@ public class ContentExtractorConsumer extends SqsS3Consumer {
     @Autowired
     ContentExtractor extractor;
 
-    private String htmlS3Key;
+    @Autowired
+    LinkRepository linkRepository;
+
+    private String inputQueue;
     private String outputS3Bucket;
     private String outputS3Key;
+    private String htmlS3Key;
 
-    //-- SqsS3Consumer
+    //-- SqsConsumer
+
     @Override
     protected void consume(final S3Object s3Object) throws IOException {
         LOGGER.info("Extracting content from s3://{}/{}", s3Object.getBucketName(), s3Object.getKey());
@@ -91,5 +97,13 @@ public class ContentExtractorConsumer extends SqsS3Consumer {
 
     public void setHtmlS3Key(final String htmlS3Key) {
         this.htmlS3Key = htmlS3Key;
+    }
+
+    public String getInputQueue() {
+        return inputQueue;
+    }
+
+    public void setInputQueue(final String inputQueue) {
+        this.inputQueue = inputQueue;
     }
 }

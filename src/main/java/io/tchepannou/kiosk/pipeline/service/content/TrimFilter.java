@@ -1,4 +1,4 @@
-package io.tchepannou.kiosk.pipeline.service.extractor;
+package io.tchepannou.kiosk.pipeline.service.content;
 
 public class TrimFilter implements Filter<String> {
     @Override

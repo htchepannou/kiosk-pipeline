@@ -2,6 +2,7 @@ package io.tchepannou.kiosk.pipeline.consumer;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.sns.AmazonSNS;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
@@ -37,6 +38,9 @@ public class HtmlDownloadConsumerTest {
     AmazonS3 s3;
 
     @Mock
+    AmazonSNS sns;
+
+    @Mock
     HttpService http;
 
     @Mock
@@ -52,6 +56,7 @@ public class HtmlDownloadConsumerTest {
     public void setUp() throws Exception {
         consumer.setOutputS3Bucket("bucket");
         consumer.setOutputS3Key("html");
+        consumer.setOutputTopic("topic");
 
         final Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2013-04-05 13:20:50");
         when(clock.millis()).thenReturn(date.getTime());
@@ -85,6 +90,8 @@ public class HtmlDownloadConsumerTest {
         assertThat(link.getValue().getUrl()).isEqualTo(url);
         assertThat(link.getValue().getUrlHash()).isEqualTo(Link.hash(url));
         assertThat(link.getValue().getS3Key()).isEqualTo("html/2013/04/05/13/" + key + ".html");
+
+        verify(sns).publish("topic", String.valueOf(link.getValue().getId()));
     }
 
     @Test
@@ -101,6 +108,7 @@ public class HtmlDownloadConsumerTest {
         // Then
         verify(s3, never()).putObject(anyString(), anyString(), any(InputStream.class), any(ObjectMetadata.class));
         verify(linkRepository, never()).save(any(Link.class));
+        verify(sns, never()).publish(anyString(), anyString());
     }
 
     private Answer get(final String str) {

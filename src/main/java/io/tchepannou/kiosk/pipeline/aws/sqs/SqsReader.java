@@ -25,6 +25,12 @@ public class SqsReader implements Runnable {
     }
 
     //-- Runnable
+    public void start () {
+        final Thread thread = new Thread(this);
+        thread.setDaemon(true);
+        thread.start();
+    }
+
     @Override
     public void run() {
         long delay = minDelay;

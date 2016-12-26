@@ -29,7 +29,7 @@ public class LoadFeedsProcessor {
 
     private String bucket;
     private String key;
-    private String queue;
+    private String outputQueue;
 
     public void process(){
         final ObjectListing list = s3.listObjects(bucket, key);
@@ -54,7 +54,7 @@ public class LoadFeedsProcessor {
 
         try(final S3Object obj = s3.getObject(bucket, key)){
             final Feed feed = objectMapper.readValue(obj.getObjectContent(), Feed.class);
-            sqs.sendMessage(queue, objectMapper.writeValueAsString(feed));
+            sqs.sendMessage(outputQueue, objectMapper.writeValueAsString(feed));
         }
     }
 
@@ -75,11 +75,11 @@ public class LoadFeedsProcessor {
         this.key = key;
     }
 
-    public String getQueue() {
-        return queue;
+    public String getOutputQueue() {
+        return outputQueue;
     }
 
-    public void setQueue(final String queue) {
-        this.queue = queue;
+    public void setOutputQueue(final String outputQueue) {
+        this.outputQueue = outputQueue;
     }
 }

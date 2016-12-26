@@ -1,4 +1,4 @@
-package io.tchepannou.kiosk.pipeline.service.extractor;
+package io.tchepannou.kiosk.pipeline.service.content;
 
 import io.tchepannou.kiosk.pipeline.support.JsoupHelper;
 import org.jsoup.Jsoup;

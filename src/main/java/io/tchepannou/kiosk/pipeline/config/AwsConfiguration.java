@@ -5,6 +5,8 @@ import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.auth.PropertiesFileCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.sns.AmazonSNS;
+import com.amazonaws.services.sns.AmazonSNSAsyncClient;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,11 @@ public class AwsConfiguration {
     @Bean
     AmazonSQS amazonSQS() {
         return new AmazonSQSClient(awsCredentialsProvider());
+    }
+
+    @Bean
+    AmazonSNS amazonSNS (){
+        return new AmazonSNSAsyncClient(awsCredentialsProvider());
     }
 
     @Bean

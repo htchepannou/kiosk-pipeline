@@ -2,6 +2,8 @@ package io.tchepannou.kiosk.pipeline.consumer;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.sns.AmazonSNS;
+import com.amazonaws.services.sns.model.PublishRequest;
 import io.tchepannou.kiosk.pipeline.aws.sqs.SqsConsumer;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
@@ -12,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import javax.transaction.Transactional;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -21,11 +24,15 @@ import java.time.Clock;
 import java.util.Date;
 
 @ConfigurationProperties("kiosk.pipeline.HtmlDownloadConsumer")
+@Transactional
 public class HtmlDownloadConsumer implements SqsConsumer {
     public static final Logger LOGGER = LoggerFactory.getLogger(HtmlDownloadConsumer.class);
 
     @Autowired
     AmazonS3 s3;
+
+    @Autowired
+    AmazonSNS sns;
 
     @Autowired
     HttpService http;
@@ -36,8 +43,10 @@ public class HtmlDownloadConsumer implements SqsConsumer {
     @Autowired
     LinkRepository linkRepository;
 
+    private String inputQueue;
     private String outputS3Bucket;
     private String outputS3Key;
+    private String outputTopic;
 
     @Override
     public void consume(final String body) throws IOException {
@@ -88,6 +97,12 @@ public class HtmlDownloadConsumer implements SqsConsumer {
         link.setUrlHash(Link.hash(url));
         link.setS3Key(s3Key);
         linkRepository.save(link);
+
+        sns.publish(
+            new PublishRequest()
+                .withMessage(String.valueOf(link.getId()))
+                .withTopicArn(outputTopic)
+        );
     }
 
     //-- Getter/Setter
@@ -106,5 +121,21 @@ public class HtmlDownloadConsumer implements SqsConsumer {
 
     public void setOutputS3Key(final String outputS3Key) {
         this.outputS3Key = outputS3Key;
+    }
+
+    public String getInputQueue() {
+        return inputQueue;
+    }
+
+    public void setInputQueue(final String inputQueue) {
+        this.inputQueue = inputQueue;
+    }
+
+    public String getOutputTopic() {
+        return outputTopic;
+    }
+
+    public void setOutputTopic(final String outputTopic) {
+        this.outputTopic = outputTopic;
     }
 }

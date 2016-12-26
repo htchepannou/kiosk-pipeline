@@ -32,6 +32,7 @@ public class UrlExtractorConsumer implements SqsConsumer{
     @Autowired
     HttpService http;
 
+    private String inputQueue;
     private String outputQueue;
 
     //-- SqsConsumer overrides
@@ -62,6 +63,14 @@ public class UrlExtractorConsumer implements SqsConsumer{
                 .collect(Collectors.toSet());
 
         return new ArrayList<>(urls);
+    }
+
+    public String getInputQueue() {
+        return inputQueue;
+    }
+
+    public void setInputQueue(final String inputQueue) {
+        this.inputQueue = inputQueue;
     }
 
     public String getOutputQueue() {

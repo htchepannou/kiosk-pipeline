@@ -53,7 +53,7 @@ public class LoadFeedsProcessorTest {
     public void setUp() {
         processor.setBucket("bucket");
         processor.setKey("feeds");
-        processor.setQueue("feed-queue");
+        processor.setOutputQueue("feed-queue");
     }
 
     @Test

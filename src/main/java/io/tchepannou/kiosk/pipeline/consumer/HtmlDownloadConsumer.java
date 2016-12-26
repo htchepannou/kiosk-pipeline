@@ -3,7 +3,6 @@ package io.tchepannou.kiosk.pipeline.consumer;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.sns.AmazonSNS;
-import com.amazonaws.services.sns.model.PublishRequest;
 import io.tchepannou.kiosk.pipeline.aws.sqs.SqsConsumer;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
@@ -44,9 +43,9 @@ public class HtmlDownloadConsumer implements SqsConsumer {
     LinkRepository linkRepository;
 
     private String inputQueue;
-    private String outputS3Bucket;
-    private String outputS3Key;
     private String outputTopic;
+    private String s3Bucket;
+    private String s3Key;
 
     @Override
     public void consume(final String body) throws IOException {
@@ -66,8 +65,8 @@ public class HtmlDownloadConsumer implements SqsConsumer {
         final ByteArrayInputStream in = new ByteArrayInputStream(bytes);
         final ObjectMetadata meta = createObjectMetadata(bytes.length);
 
-        LOGGER.info("Storing {} to s3://{}/{}", body, outputS3Bucket, s3Key);
-        s3.putObject(outputS3Bucket, s3Key, in, meta);
+        LOGGER.info("Storing {} to s3://{}/{}", body, s3Bucket, s3Key);
+        s3.putObject(s3Bucket, s3Key, in, meta);
 
         downloaded(body, s3Key);
     }
@@ -76,7 +75,7 @@ public class HtmlDownloadConsumer implements SqsConsumer {
     private String generateKey(final String id) {
         final DateFormat fmt = new SimpleDateFormat("yyyy/MM/dd/HH");
         final Date now = new Date(clock.millis());
-        return String.format("%s/%s/%s.html", outputS3Key, fmt.format(now), id);
+        return String.format("%s/%s/%s.html", s3Key, fmt.format(now), id);
     }
 
     private ObjectMetadata createObjectMetadata(int len){
@@ -98,29 +97,25 @@ public class HtmlDownloadConsumer implements SqsConsumer {
         link.setS3Key(s3Key);
         linkRepository.save(link);
 
-        sns.publish(
-            new PublishRequest()
-                .withMessage(String.valueOf(link.getId()))
-                .withTopicArn(outputTopic)
-        );
+        sns.publish(outputTopic, String.valueOf(link.getId()));
     }
 
     //-- Getter/Setter
 
-    public String getOutputS3Bucket() {
-        return outputS3Bucket;
+    public String getS3Bucket() {
+        return s3Bucket;
     }
 
-    public void setOutputS3Bucket(final String outputS3Bucket) {
-        this.outputS3Bucket = outputS3Bucket;
+    public void setS3Bucket(final String s3Bucket) {
+        this.s3Bucket = s3Bucket;
     }
 
-    public String getOutputS3Key() {
-        return outputS3Key;
+    public String getS3Key() {
+        return s3Key;
     }
 
-    public void setOutputS3Key(final String outputS3Key) {
-        this.outputS3Key = outputS3Key;
+    public void setS3Key(final String s3Key) {
+        this.s3Key = s3Key;
     }
 
     public String getInputQueue() {

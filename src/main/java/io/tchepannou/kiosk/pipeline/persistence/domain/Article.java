@@ -22,10 +22,14 @@ public class Article {
     @Column(name = "s3_key", columnDefinition = "TEXT")
     private String s3Key;
 
+    @Column(columnDefinition = "TEXT")
     private String title;
 
     @Column(columnDefinition = "TEXT")
-    private String description;
+    private String displayTitle;
+
+    @Column(columnDefinition = "TEXT")
+    private String summary;
 
     private int status;
 
@@ -65,12 +69,20 @@ public class Article {
         this.title = title;
     }
 
-    public String getDescription() {
-        return description;
+    public String getDisplayTitle() {
+        return displayTitle;
     }
 
-    public void setDescription(final String description) {
-        this.description = description;
+    public void setDisplayTitle(final String displayTitle) {
+        this.displayTitle = displayTitle;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(final String summary) {
+        this.summary = summary;
     }
 
     public int getStatus() {

@@ -51,33 +51,30 @@ public class PipelineConfiguration {
     //-- Startup
     @PostConstruct
     public void init() {
-        startUrlExtractor(5);
+        startUrlExtractor(10);
         startHtmlDownloader(10);
-//        startContentExtractor(10);
+        startContentExtractor(10);
     }
 
     //-- Thread
     private void startUrlExtractor(final int threadCount) {
         for (int i = 0; i < threadCount; i++) {
             final UrlExtractorConsumer consumer = urlExtractorConsumer();
-            final SqsReader reader = new SqsReader(consumer.getInputQueue(), sqs, consumer);
-            reader.start();
+            SqsReader.start(consumer.getInputQueue(), sqs, consumer);
         }
     }
 
     private void startHtmlDownloader(final int threadCount) {
         for (int i = 0; i < threadCount; i++) {
             final HtmlDownloadConsumer consumer = htmlDownloadConsumer();
-            final SqsReader reader = new SqsReader(consumer.getInputQueue(), sqs, consumer);
-            reader.start();
+            SqsReader.start(consumer.getInputQueue(), sqs, consumer);
         }
     }
 
     private void startContentExtractor(final int threadCount) {
         for (int i = 0; i < threadCount; i++) {
             final ContentExtractorConsumer consumer = contentExtractorConsumer();
-            final SqsReader reader = new SqsReader(consumer.getInputQueue(), sqs, consumer);
-            reader.start();
+            SqsReader.start(consumer.getInputQueue(), sqs, consumer);
         }
     }
 }

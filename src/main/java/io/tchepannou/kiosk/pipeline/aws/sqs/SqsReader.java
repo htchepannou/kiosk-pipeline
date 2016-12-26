@@ -14,8 +14,8 @@ public class SqsReader implements Runnable {
     private final String queueName;
     private final AmazonSQS sqs;
     private final SqsConsumer consumer;
-    long minDelay = 1000 * 15;
-    long maxDelay = 60000 * 2;
+    long minDelay = 1000 * 30;
+    long maxDelay = 60000 * 1;
 
     //-- Constructor
     public SqsReader(final String queueName, final AmazonSQS sqs, final SqsConsumer consumer) {
@@ -25,8 +25,9 @@ public class SqsReader implements Runnable {
     }
 
     //-- Runnable
-    public void start () {
-        final Thread thread = new Thread(this);
+    public static void start (final String queueName, final AmazonSQS sqs, final SqsConsumer consumer){
+        final SqsReader reader = new SqsReader(queueName, sqs, consumer);
+        final Thread thread = new Thread(reader);
         thread.setDaemon(true);
         thread.start();
     }

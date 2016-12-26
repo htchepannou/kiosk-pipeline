@@ -16,15 +16,15 @@ kiosk:
 
     HtmlDownloadConsumer:
       inputQueue: "kiosk-${kiosk.environment}-url-queue"
-      outputS3Bucket: "${kiosk.aws.s3.bucket}"
-      outputS3Key: "${kiosk.environment}/html"
       outputTopic: "arn:aws:sns:us-east-1:828725992074:kiosk-dev-downloaded-topic"
+      s3Bucket: "${kiosk.aws.s3.bucket}"
+      s3Key: "${kiosk.environment}/html"
 
     ContentExtractorConsumer:
       inputQueue: "kiosk-${kiosk.environment}-content-extraction-queue"
-      htmlS3Key: "${kiosk.pipeline.HtmlDownloadConsumer.outputS3Key}"
-      outputS3Bucket: "${kiosk.aws.s3.bucket}"
-      outputS3Key: "${kiosk.environment}/content"
+      s3Bucket: "${kiosk.aws.s3.bucket}"
+      s3Key: "${kiosk.environment}/content"
+      s3KeyHtml: "${kiosk.pipeline.HtmlDownloadConsumer.s3Key}"
 
 spring:
   datasource:

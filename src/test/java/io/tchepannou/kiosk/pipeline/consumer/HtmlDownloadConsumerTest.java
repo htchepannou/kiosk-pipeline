@@ -54,8 +54,8 @@ public class HtmlDownloadConsumerTest {
 
     @Before
     public void setUp() throws Exception {
-        consumer.setOutputS3Bucket("bucket");
-        consumer.setOutputS3Key("html");
+        consumer.setS3Bucket("bucket");
+        consumer.setS3Key("html");
         consumer.setOutputTopic("topic");
 
         final Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2013-04-05 13:20:50");

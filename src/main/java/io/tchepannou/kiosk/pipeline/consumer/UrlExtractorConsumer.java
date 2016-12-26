@@ -4,6 +4,8 @@ import com.amazonaws.services.sqs.AmazonSQS;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.tchepannou.kiosk.pipeline.aws.sqs.SqsConsumer;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
+import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -32,6 +34,9 @@ public class UrlExtractorConsumer implements SqsConsumer{
     @Autowired
     HttpService http;
 
+    @Autowired
+    LinkRepository linkRepository;
+
     private String inputQueue;
     private String outputQueue;
 
@@ -41,12 +46,21 @@ public class UrlExtractorConsumer implements SqsConsumer{
         final Feed feed = objectMapper.readValue(body, Feed.class);
         final List<String> urls = extractUrls(feed);
         for (final String url : urls) {
+            if (alreadyDownloaded(url)){
+                continue;
+            }
+
             LOGGER.info("Sending {} to queue: {}", url, outputQueue);
             sqs.sendMessage(outputQueue, url);
         }
     }
 
     //-- Private
+    private boolean alreadyDownloaded(final String url){
+        final String keyhash = Link.hash(url);
+        return linkRepository.findByUrlHash(keyhash) != null;
+    }
+
     private List<String> extractUrls(final Feed feed) throws IOException {
         LOGGER.info("Extracting URL from {}", feed.getUrl());
 

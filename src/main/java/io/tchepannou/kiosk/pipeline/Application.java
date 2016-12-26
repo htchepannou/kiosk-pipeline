@@ -17,7 +17,7 @@ public class Application {
         final ConfigurableApplicationContext ctx = SpringApplication.run(Application.class, args);
 
         try {
-            Thread.sleep(5 * 60 * 1000);
+            Thread.sleep(15 * 60 * 1000);
         } catch (final Exception e) {
             LOGGER.error("Unexpected error", e);
         } finally {

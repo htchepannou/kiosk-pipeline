@@ -3,6 +3,7 @@ package io.tchepannou.kiosk.pipeline.consumer;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.sqs.AmazonSQS;
 import io.tchepannou.kiosk.pipeline.aws.sqs.SqsSnsConsumer;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
@@ -31,6 +32,9 @@ public class ContentExtractorConsumer extends SqsSnsConsumer {
     AmazonS3 s3;
 
     @Autowired
+    AmazonSQS sqs;
+
+    @Autowired
     ContentExtractor extractor;
 
     @Autowired
@@ -43,6 +47,7 @@ public class ContentExtractorConsumer extends SqsSnsConsumer {
     Clock clock;
 
     private String inputQueue;
+    private String outputQueue;
     private String s3Bucket;
     private String s3Key;
     private String s3KeyHtml;
@@ -53,10 +58,6 @@ public class ContentExtractorConsumer extends SqsSnsConsumer {
     protected void consumeMessage(final String body) throws IOException {
         final long id = Long.parseLong(body.toString());
         final Link link = linkRepository.findOne(id);
-        if (link == null) {
-            return;
-        }
-
         consume(link);
     }
 
@@ -73,7 +74,8 @@ public class ContentExtractorConsumer extends SqsSnsConsumer {
 
             s3.putObject(s3Bucket, key, in, meta);
 
-            createArticle(link, key);
+            final Article article = createArticle(link, key);
+            sqs.sendMessage(outputQueue, String.valueOf(article.getId()));
         }
     }
 
@@ -89,12 +91,13 @@ public class ContentExtractorConsumer extends SqsSnsConsumer {
         return metadata;
     }
 
-    private void createArticle(final Link link, final String s3Key) {
+    private Article createArticle(final Link link, final String s3Key) {
         final Article article = new Article();
         article.setLink(link);
         article.setS3Key(s3Key);
         article.setPublishedDate(new Date(clock.millis()));
         articleRepository.save(article);
+        return article;
     }
 
     //-- Getter/Setter
@@ -128,5 +131,13 @@ public class ContentExtractorConsumer extends SqsSnsConsumer {
 
     public void setS3KeyHtml(final String s3KeyHtml) {
         this.s3KeyHtml = s3KeyHtml;
+    }
+
+    public String getOutputQueue() {
+        return outputQueue;
+    }
+
+    public void setOutputQueue(final String outputQueue) {
+        this.outputQueue = outputQueue;
     }
 }

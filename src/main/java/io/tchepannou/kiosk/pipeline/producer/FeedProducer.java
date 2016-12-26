@@ -14,7 +14,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.io.IOException;
 
-@ConfigurationProperties("kiosk.pipeline.LoadFeedsProcessor")
+@ConfigurationProperties("kiosk.pipeline.FeedProducer")
 public class FeedProducer {
     private static final Logger LOGGER = LoggerFactory.getLogger(FeedProducer.class);
 
@@ -27,12 +27,12 @@ public class FeedProducer {
     @Autowired
     ObjectMapper objectMapper;
 
-    private String bucket;
-    private String key;
+    private String s3Bucket;
+    private String s3Key;
     private String outputQueue;
 
     public void produce(){
-        final ObjectListing list = s3.listObjects(bucket, key);
+        final ObjectListing list = s3.listObjects(s3Bucket, s3Key);
         for (final S3ObjectSummary summary : list.getObjectSummaries()){
             final String key = summary.getKey();
             if (!key.endsWith(".json")){
@@ -42,7 +42,7 @@ public class FeedProducer {
             try {
                 process(summary);
             } catch (Exception e){
-                LOGGER.error("Unable to process {}/{}", bucket, key, e);
+                LOGGER.error("Unable to process {}/{}", s3Bucket, key, e);
             }
         }
     }
@@ -59,20 +59,20 @@ public class FeedProducer {
     }
 
     //-- Getter/Setter
-    public String getBucket() {
-        return bucket;
+    public String getS3Bucket() {
+        return s3Bucket;
     }
 
-    public void setBucket(final String bucket) {
-        this.bucket = bucket;
+    public void setS3Bucket(final String s3Bucket) {
+        this.s3Bucket = s3Bucket;
     }
 
-    public String getKey() {
-        return key;
+    public String getS3Key() {
+        return s3Key;
     }
 
-    public void setKey(final String key) {
-        this.key = key;
+    public void setS3Key(final String s3Key) {
+        this.s3Key = s3Key;
     }
 
     public String getOutputQueue() {

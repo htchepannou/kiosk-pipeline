@@ -4,6 +4,7 @@ import com.amazonaws.services.sqs.AmazonSQS;
 import io.tchepannou.kiosk.pipeline.aws.sqs.SqsReader;
 import io.tchepannou.kiosk.pipeline.consumer.ContentExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.HtmlDownloadConsumer;
+import io.tchepannou.kiosk.pipeline.consumer.MetadataExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.UrlExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.producer.FeedProducer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,11 @@ public class PipelineConfiguration {
         return new ContentExtractorConsumer();
     }
 
+    @Bean
+    @Scope("prototype")
+    MetadataExtractorConsumer metadataExtractorConsumer(){
+        return new MetadataExtractorConsumer();
+    }
 
 
     //-- Startup
@@ -50,6 +56,7 @@ public class PipelineConfiguration {
         startUrlExtractor(10);
         startHtmlDownloader(10);
         startContentExtractor(10);
+        startMetadataExtractor(10);
 
         feedProducer().produce();
     }
@@ -72,6 +79,13 @@ public class PipelineConfiguration {
     private void startContentExtractor(final int threadCount) {
         for (int i = 0; i < threadCount; i++) {
             final ContentExtractorConsumer consumer = contentExtractorConsumer();
+            SqsReader.start(consumer.getInputQueue(), sqs, consumer);
+        }
+    }
+
+    private void startMetadataExtractor(final int threadCount) {
+        for (int i = 0; i < threadCount; i++) {
+            final MetadataExtractorConsumer consumer = metadataExtractorConsumer();
             SqsReader.start(consumer.getInputQueue(), sqs, consumer);
         }
     }

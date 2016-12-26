@@ -51,8 +51,8 @@ public class FeedProducerTest {
 
     @Before
     public void setUp() {
-        processor.setBucket("bucket");
-        processor.setKey("feeds");
+        processor.setS3Bucket("bucket");
+        processor.setS3Key("feeds");
         processor.setOutputQueue("feed-queue");
     }
 

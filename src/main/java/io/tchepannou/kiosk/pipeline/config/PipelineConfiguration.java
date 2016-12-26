@@ -4,9 +4,11 @@ import com.amazonaws.services.sqs.AmazonSQS;
 import io.tchepannou.kiosk.pipeline.aws.sqs.SqsReader;
 import io.tchepannou.kiosk.pipeline.consumer.ContentExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.HtmlDownloadConsumer;
+import io.tchepannou.kiosk.pipeline.consumer.ImageExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.MetadataExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.UrlExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.producer.FeedProducer;
+import io.tchepannou.kiosk.pipeline.service.ThreadMonitor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +18,8 @@ import javax.annotation.PostConstruct;
 
 @Configuration
 public class PipelineConfiguration {
+    private static final int CONSUMER_THREADS = 10;
+
     @Autowired
     AmazonSQS sqs;
 
@@ -23,6 +27,11 @@ public class PipelineConfiguration {
     @Bean
     FeedProducer feedProducer() {
         return new FeedProducer();
+    }
+
+    @Bean
+    ThreadMonitor threadMonitor() {
+        return new ThreadMonitor();
     }
 
     @Bean
@@ -45,6 +54,12 @@ public class PipelineConfiguration {
 
     @Bean
     @Scope("prototype")
+    ImageExtractorConsumer imageExtractorConsumer() {
+        return new ImageExtractorConsumer();
+    }
+
+    @Bean
+    @Scope("prototype")
     MetadataExtractorConsumer metadataExtractorConsumer(){
         return new MetadataExtractorConsumer();
     }
@@ -53,10 +68,11 @@ public class PipelineConfiguration {
     //-- Startup
     @PostConstruct
     public void init() {
-        startUrlExtractor(10);
-        startHtmlDownloader(10);
-        startContentExtractor(10);
-        startMetadataExtractor(10);
+        startUrlExtractor(CONSUMER_THREADS);
+        startHtmlDownloader(CONSUMER_THREADS);
+        startContentExtractor(CONSUMER_THREADS);
+        startImageExtractor(2*CONSUMER_THREADS);
+        startMetadataExtractor(CONSUMER_THREADS);
 
         feedProducer().produce();
     }
@@ -65,28 +81,35 @@ public class PipelineConfiguration {
     private void startUrlExtractor(final int threadCount) {
         for (int i = 0; i < threadCount; i++) {
             final UrlExtractorConsumer consumer = urlExtractorConsumer();
-            SqsReader.start(consumer.getInputQueue(), sqs, consumer);
+            SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor());
         }
     }
 
     private void startHtmlDownloader(final int threadCount) {
         for (int i = 0; i < threadCount; i++) {
             final HtmlDownloadConsumer consumer = htmlDownloadConsumer();
-            SqsReader.start(consumer.getInputQueue(), sqs, consumer);
+            SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor());
         }
     }
 
     private void startContentExtractor(final int threadCount) {
         for (int i = 0; i < threadCount; i++) {
             final ContentExtractorConsumer consumer = contentExtractorConsumer();
-            SqsReader.start(consumer.getInputQueue(), sqs, consumer);
+            SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor());
+        }
+    }
+
+    private void startImageExtractor(final int threadCount) {
+        for (int i = 0; i < threadCount; i++) {
+            final ImageExtractorConsumer consumer = imageExtractorConsumer();
+            SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor());
         }
     }
 
     private void startMetadataExtractor(final int threadCount) {
         for (int i = 0; i < threadCount; i++) {
             final MetadataExtractorConsumer consumer = metadataExtractorConsumer();
-            SqsReader.start(consumer.getInputQueue(), sqs, consumer);
+            SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor());
         }
     }
 }

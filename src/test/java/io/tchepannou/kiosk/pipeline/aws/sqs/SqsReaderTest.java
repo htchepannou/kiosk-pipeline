@@ -4,6 +4,7 @@ import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
+import io.tchepannou.kiosk.pipeline.service.ThreadMonitor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,11 +28,14 @@ public class SqsReaderTest {
     @Mock
     SqsConsumer consumer;
 
+    @Mock
+    ThreadMonitor monitor;
+
     SqsReader reader;
 
     @Before
     public void setUp (){
-        reader = new SqsReader("input-queue", sqs, consumer);
+        reader = new SqsReader("input-queue", sqs, consumer, monitor);
     }
 
     @Test

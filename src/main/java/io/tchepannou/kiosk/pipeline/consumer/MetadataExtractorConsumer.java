@@ -8,7 +8,6 @@ import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +15,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+
+import static io.tchepannou.kiosk.pipeline.support.JsoupHelper.select;
+import static io.tchepannou.kiosk.pipeline.support.JsoupHelper.selectMeta;
 
 @Transactional
 @ConfigurationProperties("kiosk.pipeline.MetadataExtractorConsumer")
@@ -83,16 +85,6 @@ public class MetadataExtractorConsumer implements SqsConsumer {
             }
         }
         return title;
-    }
-
-    private String selectMeta(final Document doc, final String cssSelector) {
-        final Elements elts = doc.select(cssSelector);
-        return elts.isEmpty() ? null : elts.attr("content");
-    }
-
-    private String select(final Document doc, final String cssSelector) {
-        final Elements elts = doc.select(cssSelector);
-        return elts.isEmpty() ? null : elts.text();
     }
 
     //-- Getter/Setter

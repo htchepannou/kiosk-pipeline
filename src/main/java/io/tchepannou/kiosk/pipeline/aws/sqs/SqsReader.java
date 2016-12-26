@@ -5,6 +5,7 @@ import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import com.google.common.annotations.VisibleForTesting;
+import io.tchepannou.kiosk.pipeline.service.ThreadMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,20 +15,33 @@ public class SqsReader implements Runnable {
     private final String queueName;
     private final AmazonSQS sqs;
     private final SqsConsumer consumer;
+    private final ThreadMonitor monitor;
     long minDelay = 1000 * 30;
     long maxDelay = 60000 * 1;
 
     //-- Constructor
-    public SqsReader(final String queueName, final AmazonSQS sqs, final SqsConsumer consumer) {
+    public SqsReader(
+            final String queueName,
+            final AmazonSQS sqs,
+            final SqsConsumer consumer,
+            final ThreadMonitor monitor
+    ) {
         this.queueName = queueName;
         this.sqs = sqs;
         this.consumer = consumer;
+        this.monitor = monitor;
     }
 
     //-- Runnable
-    public static void start (final String queueName, final AmazonSQS sqs, final SqsConsumer consumer){
-        final SqsReader reader = new SqsReader(queueName, sqs, consumer);
-        final Thread thread = new Thread(reader);
+    public static void start(
+            final String queueName,
+            final AmazonSQS sqs,
+            final SqsConsumer consumer,
+            final ThreadMonitor monitor
+    ) {
+        final SqsReader reader = new SqsReader(queueName, sqs, consumer, monitor);
+        final ThreadGroup group = new ThreadGroup(consumer.getClass().getSimpleName());
+        final Thread thread = new Thread(group, reader);
         thread.setDaemon(true);
         thread.start();
     }
@@ -36,6 +50,8 @@ public class SqsReader implements Runnable {
     public void run() {
         long delay = minDelay;
         boolean done = false;
+
+        monitor.started(this);
         try {
             while (!done) {
                 if (process() <= 0) {
@@ -48,6 +64,8 @@ public class SqsReader implements Runnable {
             LOGGER.info("Done");
         } catch (final Exception ex) {
             LOGGER.error("Unexpected error", ex);
+        } finally {
+            monitor.finished(this);
         }
     }
 

@@ -1,6 +1,7 @@
 package io.tchepannou.kiosk.pipeline;
 
 import io.tchepannou.kiosk.pipeline.service.ShutdownService;
+import io.tchepannou.kiosk.pipeline.service.ThreadMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -16,10 +17,9 @@ public class Application {
     public static void main(final String[] args) throws Exception {
         final ConfigurableApplicationContext ctx = SpringApplication.run(Application.class, args);
 
+        ThreadMonitor monitor = ctx.getBean(ThreadMonitor.class);
         try {
-            Thread.sleep(15 * 60 * 1000);
-        } catch (final Exception e) {
-            LOGGER.error("Unexpected error", e);
+            monitor.waitAllThreads(60000, 60000*30);
         } finally {
             ctx.getBean(ShutdownService.class).shutdown(0);
         }

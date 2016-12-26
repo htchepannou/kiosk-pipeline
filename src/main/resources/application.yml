@@ -31,6 +31,14 @@ kiosk:
       inputQueue: "kiosk-${kiosk.environment}-matadata-extraction-queue"
       s3Bucket: "${kiosk.aws.s3.s3Bucket}"
 
+    ImageExtractorConsumer:
+      inputQueue: "kiosk-${kiosk.environment}-image-extraction-queue"
+      outputQueue: "kiosk-${kiosk.environment}-image-resize-queue"
+      s3Bucket: "${kiosk.aws.s3.s3Bucket}"
+      s3Key: "${kiosk.environment}/image"
+      s3KeyHtml: "${kiosk.pipeline.HtmlDownloadConsumer.s3Key}"
+
+
 spring:
   datasource:
     poolName: Kiosk.CP

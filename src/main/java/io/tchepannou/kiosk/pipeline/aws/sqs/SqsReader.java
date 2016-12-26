@@ -40,8 +40,7 @@ public class SqsReader implements Runnable {
             final ThreadMonitor monitor
     ) {
         final SqsReader reader = new SqsReader(queueName, sqs, consumer, monitor);
-        final ThreadGroup group = new ThreadGroup(consumer.getClass().getSimpleName());
-        final Thread thread = new Thread(group, reader);
+        final Thread thread = new Thread(reader);
         thread.setDaemon(true);
         thread.start();
     }

@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.sqs.AmazonSQS;
+import com.google.common.base.Strings;
 import io.tchepannou.kiosk.pipeline.aws.sqs.SqsSnsConsumer;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Image;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
@@ -70,7 +71,7 @@ public class ImageExtractorConsumer extends SqsSnsConsumer {
         try (final S3Object s3Object = s3.getObject(s3Bucket, link.getS3Key())) {
             final String html = IOUtils.toString(s3Object.getObjectContent());
             final String url = imageExtractor.extract(html);
-            if (url != null) {
+            if (!Strings.isNullOrEmpty(url)) {
                 final Image img = download(url, link);
                 imageRepository.save(img);
 

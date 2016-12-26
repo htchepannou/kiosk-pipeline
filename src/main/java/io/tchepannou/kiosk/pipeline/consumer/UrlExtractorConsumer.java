@@ -3,7 +3,7 @@ package io.tchepannou.kiosk.pipeline.consumer;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.tchepannou.kiosk.pipeline.aws.sqs.SqsConsumer;
-import io.tchepannou.kiosk.pipeline.model.Feed;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

@@ -1,4 +1,4 @@
-package io.tchepannou.kiosk.pipeline.processor;
+package io.tchepannou.kiosk.pipeline.producer;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectListing;
@@ -6,7 +6,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.tchepannou.kiosk.pipeline.model.Feed;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +15,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import java.io.IOException;
 
 @ConfigurationProperties("kiosk.pipeline.LoadFeedsProcessor")
-public class LoadFeedsProcessor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoadFeedsProcessor.class);
+public class FeedProducer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeedProducer.class);
 
     @Autowired
     AmazonS3 s3;
@@ -31,7 +31,7 @@ public class LoadFeedsProcessor {
     private String key;
     private String outputQueue;
 
-    public void process(){
+    public void produce(){
         final ObjectListing list = s3.listObjects(bucket, key);
         for (final S3ObjectSummary summary : list.getObjectSummaries()){
             final String key = summary.getKey();

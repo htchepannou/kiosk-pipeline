@@ -1,6 +1,5 @@
 package io.tchepannou.kiosk.pipeline;
 
-import io.tchepannou.kiosk.pipeline.processor.LoadFeedsProcessor;
 import io.tchepannou.kiosk.pipeline.service.ShutdownService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +17,7 @@ public class Application {
         final ConfigurableApplicationContext ctx = SpringApplication.run(Application.class, args);
 
         try {
-            ctx.getBean(LoadFeedsProcessor.class).process();
-
-            Thread.sleep(10 * 60 * 1000);
+            Thread.sleep(5 * 60 * 1000);
         } catch (final Exception e) {
             LOGGER.error("Unexpected error", e);
         } finally {

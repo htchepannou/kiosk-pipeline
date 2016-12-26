@@ -2,7 +2,7 @@ package io.tchepannou.kiosk.pipeline;
 
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
-import io.tchepannou.kiosk.pipeline.model.Feed;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 
 import java.util.Arrays;
 

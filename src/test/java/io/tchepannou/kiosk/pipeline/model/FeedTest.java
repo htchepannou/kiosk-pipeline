@@ -1,5 +1,6 @@
 package io.tchepannou.kiosk.pipeline.model;
 
+import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

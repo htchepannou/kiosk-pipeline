@@ -5,9 +5,7 @@ import io.tchepannou.kiosk.pipeline.aws.sqs.SqsReader;
 import io.tchepannou.kiosk.pipeline.consumer.ContentExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.HtmlDownloadConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.UrlExtractorConsumer;
-import io.tchepannou.kiosk.pipeline.processor.LoadFeedsProcessor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.tchepannou.kiosk.pipeline.producer.FeedProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,15 +15,13 @@ import javax.annotation.PostConstruct;
 
 @Configuration
 public class PipelineConfiguration {
-    public static final Logger LOGGER = LoggerFactory.getLogger(PipelineConfiguration.class);
-
     @Autowired
     AmazonSQS sqs;
 
     //-- Bean
     @Bean
-    LoadFeedsProcessor loadFeedsProcessor() {
-        return new LoadFeedsProcessor();
+    FeedProducer feedProducer() {
+        return new FeedProducer();
     }
 
     @Bean
@@ -54,6 +50,8 @@ public class PipelineConfiguration {
         startUrlExtractor(10);
         startHtmlDownloader(10);
         startContentExtractor(10);
+
+        feedProducer().produce();
     }
 
     //-- Thread

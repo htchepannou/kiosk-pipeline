@@ -1,4 +1,4 @@
-package io.tchepannou.kiosk.pipeline.model;
+package io.tchepannou.kiosk.pipeline.persistence.domain;
 
 import java.io.IOException;
 import java.net.URL;
@@ -18,7 +18,7 @@ public class Feed {
             try {
                 final String file = new URL(uri).getPath();
                 return file.matches(regex);
-            } catch (IOException e){
+            } catch (final IOException e) {
                 return false;
             }
         }

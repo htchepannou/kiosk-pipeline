@@ -1,4 +1,4 @@
-package io.tchepannou.kiosk.pipeline.processor;
+package io.tchepannou.kiosk.pipeline.producer;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectListing;
@@ -7,7 +7,7 @@ import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.tchepannou.kiosk.pipeline.model.Feed;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class LoadFeedsProcessorTest {
+public class FeedProducerTest {
     private static final String MSG1 = "{\n"
             + "  \"name\": \"cameroon-info.net\",\n"
             + "  \"url\": \"http://www.cameroon-info.net\",\n"
@@ -47,7 +47,7 @@ public class LoadFeedsProcessorTest {
     ObjectMapper objectMapper;
 
     @InjectMocks
-    LoadFeedsProcessor processor;
+    FeedProducer processor;
 
     @Before
     public void setUp() {
@@ -80,7 +80,7 @@ public class LoadFeedsProcessorTest {
 
 
         // When
-        processor.process();
+        processor.produce();
 
         // Then
         verify(sqs).sendMessage("feed-queue", MSG1);

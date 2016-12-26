@@ -45,6 +45,7 @@ public class SqsReader implements Runnable {
                     delay = minDelay;
                 }
             }
+            LOGGER.info("Done");
         } catch (final Exception ex) {
             LOGGER.error("Unexpected error", ex);
         }

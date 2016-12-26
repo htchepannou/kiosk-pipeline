@@ -3,8 +3,7 @@ package io.tchepannou.kiosk.pipeline.consumer;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.tchepannou.kiosk.pipeline.aws.sqs.SqsConsumer;
+import io.tchepannou.kiosk.pipeline.aws.sqs.SqsSnsConsumer;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
@@ -20,11 +19,12 @@ import javax.transaction.Transactional;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
+import java.time.Clock;
+import java.util.Date;
 
 @ConfigurationProperties("kiosk.pipeline.ContentExtractorConsumer")
 @Transactional
-public class ContentExtractorConsumer implements SqsConsumer {
+public class ContentExtractorConsumer extends SqsSnsConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(ContentExtractorConsumer.class);
 
     @Autowired
@@ -40,7 +40,7 @@ public class ContentExtractorConsumer implements SqsConsumer {
     ArticleRepository articleRepository;
 
     @Autowired
-    ObjectMapper objectMapper;
+    Clock clock;
 
     private String inputQueue;
     private String s3Bucket;
@@ -48,15 +48,10 @@ public class ContentExtractorConsumer implements SqsConsumer {
     private String s3KeyHtml;
 
     //-- SqsConsumer
-    @Override
-    public void consume(final String body) throws IOException {
-        final Map snsNotification = (Map) objectMapper.readValue(body, Object.class);
-        final Object message = snsNotification.get("Message");
-        if (message == null) {
-            return;
-        }
 
-        final long id = Long.parseLong(message.toString());
+    @Override
+    protected void consumeMessage(final String body) throws IOException {
+        final long id = Long.parseLong(body.toString());
         final Link link = linkRepository.findOne(id);
         if (link == null) {
             return;
@@ -98,6 +93,7 @@ public class ContentExtractorConsumer implements SqsConsumer {
         final Article article = new Article();
         article.setLink(link);
         article.setS3Key(s3Key);
+        article.setPublishedDate(new Date(clock.millis()));
         articleRepository.save(article);
     }
 

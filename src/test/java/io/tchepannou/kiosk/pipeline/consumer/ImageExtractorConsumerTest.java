@@ -93,7 +93,7 @@ public class ImageExtractorConsumerTest {
         // Then
         verify(s3).putObject(
                 eq("bucket"),
-                eq("dev/img/2010/10/11/test.html"),
+                eq("dev/img/2010/10/11/test.jpg"),
                 any(InputStream.class),
                 any(ObjectMetadata.class)
         );
@@ -101,7 +101,7 @@ public class ImageExtractorConsumerTest {
         ArgumentCaptor<Image> img = ArgumentCaptor.forClass(Image.class);
         verify(imageRepository).save(img.capture());
         assertThat(img.getValue().getLink()).isEqualTo(link);
-        assertThat(img.getValue().getS3Key()).isEqualTo("dev/img/2010/10/11/test.html");
+        assertThat(img.getValue().getS3Key()).isEqualTo("dev/img/2010/10/11/test.jpg");
         assertThat(img.getValue().getType()).isEqualTo(Image.TYPE_MAIN);
         assertThat(img.getValue().getUrl()).isEqualTo("http://camfoot.com/IMG/arton25520.jpg");
 

@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.google.common.base.Strings;
+import com.google.common.io.Files;
 import io.tchepannou.kiosk.pipeline.aws.sqs.SqsSnsConsumer;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Image;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
@@ -55,7 +56,7 @@ public class ImageExtractorConsumer extends SqsSnsConsumer {
     private String s3Bucket;
     private String s3Key;
     private String s3KeyHtml;
-    private Tika tika = new Tika();
+    private final Tika tika = new Tika();
 
     //-- SqsConsumer
     @Override
@@ -81,7 +82,7 @@ public class ImageExtractorConsumer extends SqsSnsConsumer {
     }
 
     private Image download(final String url, final Link link) throws IOException {
-        final String key = imageKey(link);
+        final String key = imageKey(url, link);
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         LOGGER.info("Downloading {}", url);
@@ -103,9 +104,11 @@ public class ImageExtractorConsumer extends SqsSnsConsumer {
         return img;
     }
 
-    private String imageKey(final Link link) {
+    private String imageKey(final String url, final Link link) throws IOException {
         final String key = link.getS3Key();
-        return s3Key + key.substring(s3KeyHtml.length());
+        final String filename = new URL(url).getFile();
+        final String extension = Files.getFileExtension(filename);
+        return s3Key + key.substring(s3KeyHtml.length(), key.length() - 4) + extension;
     }
 
     private ObjectMetadata createObjectMetadata(final String url, final int len) {

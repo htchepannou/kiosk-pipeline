@@ -1,9 +1,9 @@
 package io.tchepannou.kiosk.pipeline.consumer;
 
 import com.amazonaws.services.sqs.AmazonSQS;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
+import io.tchepannou.kiosk.pipeline.persistence.repository.FeedRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import org.junit.Before;
@@ -18,7 +18,6 @@ import java.io.OutputStream;
 
 import static io.tchepannou.kiosk.pipeline.Fixtures.createFeed;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -36,10 +35,10 @@ public class UrlExtractorConsumerTest {
     AmazonSQS sqs;
 
     @Mock
-    ObjectMapper objectMapper;
+    HttpService http;
 
     @Mock
-    HttpService http;
+    FeedRepository feedRepository;
 
     @Mock
     LinkRepository linkRepository;
@@ -56,12 +55,12 @@ public class UrlExtractorConsumerTest {
     public void shouldExtractUrls() throws Exception {
         // Given
         final Feed feed = createFeed("test", "http://www.google.ca", "/article/*.html");
-        when(objectMapper.readValue(anyString(), any(Class.class))).thenReturn(feed);
+        when(feedRepository.findOne(feed.getId())).thenReturn(feed);
 
         doAnswer(get(HTML)).when(http).get(any(), any());
 
         // When
-        consumer.consume("sample-json");
+        consumer.consume(String.valueOf(feed.getId()));
 
         // Then
         verify(sqs).sendMessage("output-queue", "http://www.google.ca/article/test_123.html");
@@ -72,7 +71,7 @@ public class UrlExtractorConsumerTest {
     public void shouldNoExtractUrlAlreadyDownloaded() throws Exception {
         // Given
         final Feed feed = createFeed("test", "http://www.google.ca", "/article/*.html");
-        when(objectMapper.readValue(anyString(), any(Class.class))).thenReturn(feed);
+        when(feedRepository.findOne(feed.getId())).thenReturn(feed);
 
         doAnswer(get(HTML)).when(http).get(any(), any());
 
@@ -80,7 +79,7 @@ public class UrlExtractorConsumerTest {
         when(linkRepository.findByUrlHash(hash)).thenReturn(new Link());
 
         // When
-        consumer.consume("sample-json");
+        consumer.consume(String.valueOf(feed.getId()));
 
         // Then
         verify(sqs, never()).sendMessage("output-queue", "http://www.google.ca/article/test_123.html");

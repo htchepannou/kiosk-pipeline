@@ -1,12 +1,29 @@
 package io.tchepannou.kiosk.pipeline.persistence.domain;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import java.io.IOException;
 import java.net.URL;
 
+@Entity
 public class Feed {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private long id;
+
+    @Column(length = 64)
     private String name;
+
     private String url;
+
+    @Column(length = 64)
     private String path;
+
+    @Column(name="logo_url")
+    private String logoUrl;
 
     //-- Public
     public boolean urlMatches(String uri) {
@@ -27,6 +44,23 @@ public class Feed {
     }
 
     //-- Getter/Setter
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(final long id) {
+        this.id = id;
+    }
+
+    public String getLogoUrl() {
+        return logoUrl;
+    }
+
+    public void setLogoUrl(final String logoUrl) {
+        this.logoUrl = logoUrl;
+    }
+
     public String getName() {
         return name;
     }

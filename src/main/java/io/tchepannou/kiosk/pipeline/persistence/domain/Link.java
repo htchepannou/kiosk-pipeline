@@ -7,12 +7,18 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 @Entity
 public class Link {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
+
+    @ManyToOne
+    @JoinColumn(name = "feed_fk")
+    private Feed feed;
 
     @Column(columnDefinition = "TEXT")
     private String url;
@@ -59,5 +65,13 @@ public class Link {
 
     public void setS3Key(final String s3Key) {
         this.s3Key = s3Key;
+    }
+
+    public Feed getFeed() {
+        return feed;
+    }
+
+    public void setFeed(final Feed feed) {
+        this.feed = feed;
     }
 }

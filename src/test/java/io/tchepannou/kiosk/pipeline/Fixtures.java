@@ -16,6 +16,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class Fixtures {
+    private static long uuid = System.currentTimeMillis();
     private static int s3Read;
 
     public static ReceiveMessageResult createSqsReceiveMessageResult(final Message... messages) {
@@ -33,6 +34,7 @@ public class Fixtures {
 
     public static Feed createFeed(final String name, final String url, final String path) {
         final Feed feed = new Feed();
+        feed.setId(++uuid);
         feed.setUrl(url);
         feed.setPath(path);
         feed.setName(name);

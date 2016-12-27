@@ -1,10 +1,10 @@
 package io.tchepannou.kiosk.pipeline.consumer;
 
 import com.amazonaws.services.sqs.AmazonSQS;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.tchepannou.kiosk.pipeline.aws.sqs.SqsConsumer;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
+import io.tchepannou.kiosk.pipeline.persistence.repository.FeedRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import org.jsoup.Jsoup;
@@ -22,14 +22,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @ConfigurationProperties("kiosk.pipeline.UrlExtractorConsumer")
-public class UrlExtractorConsumer implements SqsConsumer{
+public class UrlExtractorConsumer implements SqsConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(UrlExtractorConsumer.class);
 
     @Autowired
     AmazonSQS sqs;
 
     @Autowired
-    ObjectMapper objectMapper;
+    FeedRepository feedRepository;
 
     @Autowired
     HttpService http;
@@ -43,10 +43,10 @@ public class UrlExtractorConsumer implements SqsConsumer{
     //-- SqsConsumer overrides
     @Override
     public void consume(final String body) throws IOException {
-        final Feed feed = objectMapper.readValue(body, Feed.class);
+        final Feed feed = feedRepository.findOne(Long.parseLong(body));
         final List<String> urls = extractUrls(feed);
         for (final String url : urls) {
-            if (alreadyDownloaded(url)){
+            if (alreadyDownloaded(url)) {
                 continue;
             }
 
@@ -56,7 +56,7 @@ public class UrlExtractorConsumer implements SqsConsumer{
     }
 
     //-- Private
-    private boolean alreadyDownloaded(final String url){
+    private boolean alreadyDownloaded(final String url) {
         final String keyhash = Link.hash(url);
         return linkRepository.findByUrlHash(keyhash) != null;
     }

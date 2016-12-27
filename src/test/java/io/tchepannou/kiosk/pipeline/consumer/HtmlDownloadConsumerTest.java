@@ -3,7 +3,9 @@ package io.tchepannou.kiosk.pipeline.consumer;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.sns.AmazonSNS;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
+import io.tchepannou.kiosk.pipeline.persistence.repository.FeedRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -22,8 +24,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
+import java.util.Arrays;
 import java.util.Date;
 
+import static io.tchepannou.kiosk.pipeline.Fixtures.createFeed;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -50,8 +54,14 @@ public class HtmlDownloadConsumerTest {
     @Mock
     LinkRepository linkRepository;
 
+    @Mock
+    FeedRepository feedRepository;
+
     @InjectMocks
     HtmlDownloadConsumer consumer;
+
+    Feed feed1;
+    Feed feed2;
 
     @Before
     public void setUp() throws Exception {
@@ -61,6 +71,11 @@ public class HtmlDownloadConsumerTest {
 
         final Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2013-04-05 13:20:50");
         when(clock.millis()).thenReturn(date.getTime());
+
+        feed1 = createFeed("feed1", "http://www.goo.com", null);
+        feed2 = createFeed("feed2", "http://www.yahoo.com", null);
+        when(feedRepository.findAll()).thenReturn(Arrays.asList(feed1, feed2));
+        consumer.init();
     }
 
     @Test
@@ -91,6 +106,7 @@ public class HtmlDownloadConsumerTest {
         assertThat(link.getValue().getUrl()).isEqualTo(url);
         assertThat(link.getValue().getUrlHash()).isEqualTo(Link.hash(url));
         assertThat(link.getValue().getS3Key()).isEqualTo("html/2013/04/05/13/" + key + ".html");
+        assertThat(link.getValue().getFeed()).isEqualTo(feed1);
 
         verify(sns).publish("topic", String.valueOf(link.getValue().getId()));
     }

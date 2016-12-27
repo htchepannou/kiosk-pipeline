@@ -4,7 +4,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.sns.AmazonSNS;
 import io.tchepannou.kiosk.pipeline.aws.sqs.SqsConsumer;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
+import io.tchepannou.kiosk.pipeline.persistence.repository.FeedRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -41,12 +44,21 @@ public class HtmlDownloadConsumer implements SqsConsumer {
     Clock clock;
 
     @Autowired
+    FeedRepository feedRepository;
+
+    @Autowired
     LinkRepository linkRepository;
 
     private String inputQueue;
     private String outputTopic;
     private String s3Bucket;
     private String s3Key;
+    private Iterable<Feed> feeds;
+
+    @PostConstruct
+    public void init (){
+        feeds = feedRepository.findAll();
+    }
 
     @Override
     public void consume(final String body) throws IOException {
@@ -54,6 +66,13 @@ public class HtmlDownloadConsumer implements SqsConsumer {
             return;
         }
         try {
+            // Feed
+            final Feed feed = findFeed(body);
+            if (feed == null){
+                LOGGER.error("Bad URL - No feed associated with {}", body);
+                return;
+            }
+
             // Download
             LOGGER.info("Downloading {}", body);
             final ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -69,7 +88,7 @@ public class HtmlDownloadConsumer implements SqsConsumer {
             LOGGER.info("Storing {} to s3://{}/{}", body, s3Bucket, s3Key);
             s3.putObject(s3Bucket, s3Key, in, meta);
 
-            downloaded(body, s3Key);
+            downloaded(body, s3Key, feed);
         } catch (DataIntegrityViolationException e){
             LOGGER.warn("{} already downloaded", body);
         }
@@ -94,14 +113,24 @@ public class HtmlDownloadConsumer implements SqsConsumer {
         return linkRepository.findByUrlHash(keyhash) != null;
     }
 
-    private void downloaded(final String url, final String s3Key){
+    private void downloaded(final String url, final String s3Key, final Feed feed){
         final Link link = new Link();
         link.setUrl(url);
         link.setUrlHash(Link.hash(url));
         link.setS3Key(s3Key);
+        link.setFeed(feed);
         linkRepository.save(link);
 
         sns.publish(outputTopic, String.valueOf(link.getId()));
+    }
+
+    private Feed findFeed(final String url){
+        for (Feed feed : feeds){
+            if (url.startsWith(feed.getUrl())){
+                return feed;
+            }
+        }
+        return null;
     }
 
     //-- Getter/Setter

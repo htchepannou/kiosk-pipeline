@@ -11,13 +11,14 @@ import org.slf4j.LoggerFactory;
 
 public class SqsReader implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(SqsReader.class);
+    private static int threadCount = 0;
 
     private final String queueName;
     private final AmazonSQS sqs;
     private final SqsConsumer consumer;
     private final ThreadMonitor monitor;
     long minDelay = 1000 * 30;
-    long maxDelay = 60000 * 1;
+    long maxDelay = 60000 * 5;
 
     //-- Constructor
     public SqsReader(
@@ -42,6 +43,7 @@ public class SqsReader implements Runnable {
         final SqsReader reader = new SqsReader(queueName, sqs, consumer, monitor);
         final Thread thread = new Thread(reader);
         thread.setDaemon(true);
+        thread.setName(consumer.getClass().getSimpleName() + "_" + (++threadCount));
         thread.start();
     }
 
@@ -99,7 +101,7 @@ public class SqsReader implements Runnable {
         long millis = 2 * delay;
 
         try {
-            LOGGER.error("Sleeping for {} ms", millis);
+            LOGGER.info("Sleeping for {} ms", millis);
             Thread.sleep(millis);
         } catch (final InterruptedException e) {
             millis = maxDelay + 1;

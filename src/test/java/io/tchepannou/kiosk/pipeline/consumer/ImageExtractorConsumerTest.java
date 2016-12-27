@@ -58,7 +58,7 @@ public class ImageExtractorConsumerTest {
     ImageExtractorConsumer consumer;
 
     @Before
-    public void setUp(){
+    public void setUp() {
         consumer.setInputQueue("input-queue");
         consumer.setOutputQueue("output-queue");
         consumer.setS3Bucket("bucket");
@@ -70,7 +70,7 @@ public class ImageExtractorConsumerTest {
     public void shouldDownloadImage() throws Exception {
         // Given
         final String s3Key = "dev/html/2010/10/11/test.html";
-        final Link link = new Link ();
+        final Link link = new Link();
         link.setId(123);
         link.setS3Key(s3Key);
         when(linkRepository.findOne(123L)).thenReturn(link);
@@ -83,7 +83,7 @@ public class ImageExtractorConsumerTest {
 
         when(extractor.extract(anyString())).thenReturn("http://camfoot.com/IMG/arton25520.jpg");
 
-        doAnswer(get("/image/ionic.png")).when(http).get(any(), any());
+        doAnswer(get("/image/jordan.jpg")).when(http).get(any(), any());
 
         doAnswer(saveImage(567)).when(imageRepository).save(any(Image.class));
 
@@ -98,12 +98,16 @@ public class ImageExtractorConsumerTest {
                 any(ObjectMetadata.class)
         );
 
-        ArgumentCaptor<Image> img = ArgumentCaptor.forClass(Image.class);
+        final ArgumentCaptor<Image> img = ArgumentCaptor.forClass(Image.class);
         verify(imageRepository).save(img.capture());
         assertThat(img.getValue().getLink()).isEqualTo(link);
         assertThat(img.getValue().getS3Key()).isEqualTo("dev/img/2010/10/11/test.jpg");
         assertThat(img.getValue().getType()).isEqualTo(Image.TYPE_MAIN);
         assertThat(img.getValue().getUrl()).isEqualTo("http://camfoot.com/IMG/arton25520.jpg");
+        assertThat(img.getValue().getContentType()).isEqualTo("image/jpeg");
+        assertThat(img.getValue().getContentLength()).isEqualTo(4490750L);
+        assertThat(img.getValue().getWidth()).isEqualTo(2400);
+        assertThat(img.getValue().getHeight()).isEqualTo(3000);
 
         verify(sqs).sendMessage("output-queue", "567");
     }
@@ -116,15 +120,16 @@ public class ImageExtractorConsumerTest {
         return obj;
     }
 
-    private Answer get(final String str) {
+    private Answer get(final String path) {
         return (inv) -> {
             final OutputStream out = (OutputStream) inv.getArguments()[1];
-            out.write(str.getBytes());
+            final InputStream in = getClass().getResourceAsStream(path);
+            IOUtils.copy(in, out);
             return null;
         };
     }
 
-    private Answer saveImage(long id){
+    private Answer saveImage(final long id) {
         return (inv) -> {
             final Image img = (Image) inv.getArguments()[0];
             img.setId(id);

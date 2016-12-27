@@ -1,0 +1,106 @@
+package io.tchepannou.kiosk.pipeline.consumer;
+
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Image;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
+import io.tchepannou.kiosk.pipeline.persistence.repository.ImageRepository;
+import io.tchepannou.kiosk.pipeline.service.image.ImageProcessorService;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import static io.tchepannou.kiosk.pipeline.Fixtures.createS3InputStream;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class ImageThumbnailConsumerTest {
+    @Mock
+    AmazonS3 s3;
+
+    @Mock
+    ImageRepository imageRepository;
+
+    @Mock
+    ImageProcessorService imageProcessorService;
+
+    @InjectMocks
+    ImageThumbnailConsumer consumer;
+
+    @Before
+    public void setUp() {
+        consumer.setInputQueue("input-queue");
+        consumer.setS3Bucket("bucket");
+        consumer.setS3Key("dev/img");
+        consumer.setThumbnailHeight(16);
+        consumer.setThumbnailWidth(18);
+    }
+
+    @Test
+    public void shouldGenerateThumbnail() throws Exception {
+        // Given
+        final Image img0 = createImage(new Link());
+        when(imageRepository.findOne(123L)).thenReturn(img0);
+
+        S3ObjectInputStream in = createS3InputStream("image-content");
+        S3Object obj = mock(S3Object.class);
+        when(obj.getObjectContent()).thenReturn(in);
+        when(s3.getObject(anyString(), anyString())).thenReturn(obj);
+
+        doNothing().when(imageProcessorService).resize(anyInt(), anyInt(), any(InputStream.class), any(OutputStream.class), anyString());
+
+        // When
+        consumer.consume("123");
+
+        // Then
+        verify(s3).putObject(
+                eq("bucket"),
+                eq("dev/img/2011/10/11/test-thumb.png"),
+                any(InputStream.class),
+                any(ObjectMetadata.class)
+        );
+
+        final ArgumentCaptor<Image> img = ArgumentCaptor.forClass(Image.class);
+        verify(imageRepository).save(img.capture());
+        assertThat(img.getValue().getLink()).isEqualTo(img0.getLink());
+        assertThat(img.getValue().getS3Key()).isEqualTo("dev/img/2011/10/11/test-thumb.png");
+        assertThat(img.getValue().getType()).isEqualTo(Image.TYPE_THUMBNAIL);
+        assertThat(img.getValue().getUrl()).isEqualTo(img0.getUrl());
+        assertThat(img.getValue().getContentType()).isEqualTo("image/png");
+        assertThat(img.getValue().getWidth()).isEqualTo(18);
+        assertThat(img.getValue().getHeight()).isEqualTo(16);
+    }
+
+    private Image createImage(final Link link) {
+        final Image img = new Image();
+        img.setContentLength(1024L);
+        img.setContentType("image/png");
+        img.setHeight(100);
+        img.setLink(link);
+        img.setS3Key("dev/img/2011/10/11/test.png");
+        img.setType(Image.TYPE_MAIN);
+        img.setUrl("http://www.goo.com/test.png");
+        img.setWidth(101);
+
+        return img;
+    }
+
+
+}

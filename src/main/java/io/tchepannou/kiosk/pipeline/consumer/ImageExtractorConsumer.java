@@ -96,6 +96,8 @@ public class ImageExtractorConsumer extends SqsSnsConsumer {
         img.setLink(link);
         img.setUrl(url);
         img.setS3Key(key);
+        img.setContentLength(bytes.length);
+        img.setContentType(meta.getContentType());
         if (bimg != null) {
             img.setWidth(bimg.getWidth());
             img.setHeight(bimg.getHeight());

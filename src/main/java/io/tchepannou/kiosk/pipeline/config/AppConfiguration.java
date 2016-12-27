@@ -12,6 +12,7 @@ import io.tchepannou.kiosk.pipeline.service.content.HtmlEntityFilter;
 import io.tchepannou.kiosk.pipeline.service.content.SanitizeFilter;
 import io.tchepannou.kiosk.pipeline.service.content.TrimFilter;
 import io.tchepannou.kiosk.pipeline.service.image.ImageExtractor;
+import io.tchepannou.kiosk.pipeline.service.image.ImageProcessorService;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -86,5 +87,10 @@ public class AppConfiguration {
     @Bean
     public ImageExtractor imageExtractor(){
         return new ImageExtractor();
+    }
+
+    @Bean
+    public ImageProcessorService imageProcessorService(){
+        return new ImageProcessorService();
     }
 }

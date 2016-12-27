@@ -33,6 +33,12 @@ public class Image {
 
     private int type;
 
+    @Column(name = "content_length")
+    private long contentLength;
+
+    @Column(name = "content_type", columnDefinition = "VARCHAR(54)")
+    private String contentType;
+
     public long getId() {
         return id;
     }
@@ -87,5 +93,21 @@ public class Image {
 
     public void setType(final int type) {
         this.type = type;
+    }
+
+    public long getContentLength() {
+        return contentLength;
+    }
+
+    public void setContentLength(final long contentLength) {
+        this.contentLength = contentLength;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(final String contentType) {
+        this.contentType = contentType;
     }
 }

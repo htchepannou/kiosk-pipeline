@@ -44,18 +44,30 @@ public class Fixtures {
         when(in.read(any(byte[].class), anyInt(), anyInt())).then(new Answer<Integer>() {
             @Override
             public Integer answer(final InvocationOnMock inv) throws Throwable {
-                if (++s3Read % 2 == 0){
-                    return -1;
-                }
-
                 final byte[] buff = (byte[]) inv.getArguments()[0];
-                for (int i = 0; i < content.length(); i++) {
-                    buff[i] = content.getBytes()[i];
-                }
-                return content.length();
+                return read(content, buff);
             }
         });
+
+        when(in.read(any(byte[].class))).then(new Answer<Integer>() {
+            @Override
+            public Integer answer(final InvocationOnMock inv) throws Throwable {
+                final byte[] buff = (byte[]) inv.getArguments()[0];
+                return read(content, buff);
+            }
+        });
+
         return in;
     }
 
+    private static int read(final String content, final byte[] buff){
+        if (++s3Read % 2 == 0) {
+            return -1;
+        }
+
+        for (int i = 0; i < content.length(); i++) {
+            buff[i] = content.getBytes()[i];
+        }
+        return content.length();
+    }
 }

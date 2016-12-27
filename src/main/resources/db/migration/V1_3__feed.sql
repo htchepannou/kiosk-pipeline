@@ -21,9 +21,9 @@ INSERT INTO feed (id, name, url, logo_url, path) VALUE (7, 'Je Wanda Magazine', 
 
 ALTER TABLE link ADD COLUMN feed_fk INT REFERENCES feed (id);
 
-UPDATE LINK SET feed_fk = 1 WHERE url LIKE 'http://www.camer.be/%';
-UPDATE LINK SET feed_fk = 2 WHERE url LIKE 'http://www.camer24.de/%';
-UPDATE LINK SET feed_fk = 3 WHERE url LIKE 'http://www.camerounsports.info/%';
-UPDATE LINK SET feed_fk = 4 WHERE url LIKE 'http://www.camfoot.com/%';
-UPDATE LINK SET feed_fk = 5 WHERE url LIKE 'http://www.culturebene.com/%';
-UPDATE LINK SET feed_fk = 6 WHERE url LIKE 'http://www.sparkcameroun.com/%';
+UPDATE link SET feed_fk = 1 WHERE url LIKE 'http://www.camer.be/%';
+UPDATE link SET feed_fk = 2 WHERE url LIKE 'http://www.camer24.de/%';
+UPDATE link SET feed_fk = 3 WHERE url LIKE 'http://www.camerounsports.info/%';
+UPDATE link SET feed_fk = 4 WHERE url LIKE 'http://www.camfoot.com/%';
+UPDATE link SET feed_fk = 5 WHERE url LIKE 'http://www.culturebene.com/%';
+UPDATE link SET feed_fk = 6 WHERE url LIKE 'http://www.sparkcameroun.com/%';

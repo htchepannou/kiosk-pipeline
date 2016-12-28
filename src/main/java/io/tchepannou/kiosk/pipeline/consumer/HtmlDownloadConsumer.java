@@ -9,6 +9,7 @@ import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.FeedRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
+import io.tchepannou.kiosk.pipeline.service.InvalidContentTypeException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +77,7 @@ public class HtmlDownloadConsumer implements SqsConsumer {
             // Download
             LOGGER.info("Downloading {}", body);
             final ByteArrayOutputStream out = new ByteArrayOutputStream();
-            http.get(body, out);
+            http.getHtml(body, out);
 
             // Store
             final String id = DigestUtils.md5Hex(body);
@@ -91,6 +92,8 @@ public class HtmlDownloadConsumer implements SqsConsumer {
             downloaded(body, s3Key, feed);
         } catch (DataIntegrityViolationException e){
             LOGGER.warn("{} already downloaded", body);
+        } catch (InvalidContentTypeException e){
+            LOGGER.warn("{} not valid HTML", body);
         }
     }
 

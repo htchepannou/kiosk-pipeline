@@ -8,6 +8,7 @@ import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.FeedRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
+import io.tchepannou.kiosk.pipeline.service.InvalidContentTypeException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -33,6 +34,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -84,7 +86,7 @@ public class HtmlDownloadConsumerTest {
         final String url = "http://www.goo.com/test.html";
         final String key = DigestUtils.md5Hex(url);
 
-        doAnswer(get("hello")).when(http).get(eq(url), any(OutputStream.class));
+        doAnswer(get("hello")).when(http).getHtml(eq(url), any(OutputStream.class));
 
         when(linkRepository.findByUrlHash(any())).thenReturn(null);
 
@@ -115,7 +117,7 @@ public class HtmlDownloadConsumerTest {
     public void shouldNotConsumeMessageAlreadyDownloaded() throws Exception {
         // Given
         final String url = "http://www.goo.com/test.html";
-        doAnswer(get("hello")).when(http).get(eq(url), any(OutputStream.class));
+        doAnswer(get("hello")).when(http).getHtml(eq(url), any(OutputStream.class));
 
         when(linkRepository.findByUrlHash(any())).thenReturn(new Link());
 
@@ -132,7 +134,7 @@ public class HtmlDownloadConsumerTest {
     public void shouldNotConsumeMessageIfDataIntegrityViolationException() throws Exception {
         // Given
         final String url = "http://www.goo.com/test.html";
-        doAnswer(get("hello")).when(http).get(eq(url), any(OutputStream.class));
+        doAnswer(get("hello")).when(http).getHtml(eq(url), any(OutputStream.class));
 
         when(linkRepository.save(any(Link.class))).thenThrow(new DataIntegrityViolationException("error"));
 
@@ -142,6 +144,24 @@ public class HtmlDownloadConsumerTest {
         // Then
         verify(s3).putObject(anyString(), anyString(), any(InputStream.class), any(ObjectMetadata.class));
         verify(linkRepository).save(any(Link.class));
+        verify(sns, never()).publish(anyString(), anyString());
+    }
+
+    @Test
+    public void shouldNotConsumeNonHtmlUrl() throws Exception {
+        // Given
+        final String url = "http://www.goo.com/test.html";
+        final InvalidContentTypeException ex = new InvalidContentTypeException("error");
+        doThrow(ex).when(http).getHtml(eq(url), any(OutputStream.class));
+
+        when(linkRepository.save(any(Link.class))).thenThrow(new DataIntegrityViolationException("error"));
+
+        // Given
+        consumer.consume(url);
+
+        // Then
+        verify(s3, never()).putObject(anyString(), anyString(), any(InputStream.class), any(ObjectMetadata.class));
+        verify(linkRepository, never()).save(any(Link.class));
         verify(sns, never()).publish(anyString(), anyString());
     }
 

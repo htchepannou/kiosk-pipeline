@@ -2,11 +2,12 @@ package io.tchepannou.kiosk.pipeline.config;
 
 import com.amazonaws.services.sqs.AmazonSQS;
 import io.tchepannou.kiosk.pipeline.aws.sqs.SqsReader;
+import io.tchepannou.kiosk.pipeline.consumer.ArticleMetadataConsumer;
+import io.tchepannou.kiosk.pipeline.consumer.ArticleValidationConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.ContentExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.HtmlDownloadConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.ImageExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.ImageThumbnailConsumer;
-import io.tchepannou.kiosk.pipeline.consumer.MetadataExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.UrlExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.producer.FeedProducer;
 import io.tchepannou.kiosk.pipeline.service.ThreadMonitor;
@@ -67,8 +68,14 @@ public class PipelineConfiguration {
 
     @Bean
     @Scope("prototype")
-    MetadataExtractorConsumer metadataExtractorConsumer(){
-        return new MetadataExtractorConsumer();
+    ArticleMetadataConsumer articleMetadataConsumer(){
+        return new ArticleMetadataConsumer();
+    }
+
+    @Bean
+    @Scope("prototype")
+    ArticleValidationConsumer articleValidationConsumer(){
+        return new ArticleValidationConsumer();
     }
 
 
@@ -77,9 +84,10 @@ public class PipelineConfiguration {
     public void init() {
         startUrlExtractor(CONSUMER_THREADS);
         startHtmlDownloader(CONSUMER_THREADS);
-
         startContentExtractor(CONSUMER_THREADS);
-        startMetadataExtractor(CONSUMER_THREADS);
+
+        startArticleMetadataConsumers(CONSUMER_THREADS);
+        startArticleValidationConsumers(CONSUMER_THREADS);
 
         startImageExtractor(2 * CONSUMER_THREADS);
         startImageThumbnail(2 * CONSUMER_THREADS);
@@ -123,9 +131,16 @@ public class PipelineConfiguration {
         }
     }
 
-    private void startMetadataExtractor(final int threadCount) {
+    private void startArticleMetadataConsumers(final int threadCount) {
         for (int i = 0; i < threadCount; i++) {
-            final MetadataExtractorConsumer consumer = metadataExtractorConsumer();
+            final ArticleMetadataConsumer consumer = articleMetadataConsumer();
+            SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor());
+        }
+    }
+
+    private void startArticleValidationConsumers(final int threadCount){
+        for (int i = 0; i < threadCount; i++) {
+            final ArticleValidationConsumer consumer = articleValidationConsumer();
             SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor());
         }
     }

@@ -11,12 +11,16 @@ import java.util.Date;
 
 @Entity
 public class Article {
+    public static final int STATUS_CREATED = 0x00;
+    public static final int STATUS_INVALID = 0x01;
+    public static final int STATUS_VALID = 0x10;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
     @OneToOne
-    @JoinColumn(name="link_fk")
+    @JoinColumn(name = "link_fk")
     private Link link;
 
     @Column(name = "s3_key", columnDefinition = "TEXT")
@@ -33,11 +37,14 @@ public class Article {
 
     private int status;
 
-    @Column(name="content_length")
+    @Column(name = "content_length")
     private int contentLength;
 
     @Column(name = "published_date")
     private Date publishedDate;
+
+    @Column(name = "invalid_reason", length = 64)
+    private String invalidReason;
 
     //-- Getter/Setter
     public long getId() {
@@ -110,5 +117,13 @@ public class Article {
 
     public void setContentLength(final int contentLength) {
         this.contentLength = contentLength;
+    }
+
+    public String getInvalidReason() {
+        return invalidReason;
+    }
+
+    public void setInvalidReason(final String invalidReason) {
+        this.invalidReason = invalidReason;
     }
 }

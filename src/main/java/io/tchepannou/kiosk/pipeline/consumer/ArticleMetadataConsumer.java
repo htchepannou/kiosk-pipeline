@@ -2,6 +2,7 @@ package io.tchepannou.kiosk.pipeline.consumer;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.sqs.AmazonSQS;
 import io.tchepannou.kiosk.pipeline.aws.sqs.SqsConsumer;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
@@ -20,9 +21,9 @@ import static io.tchepannou.kiosk.pipeline.support.JsoupHelper.select;
 import static io.tchepannou.kiosk.pipeline.support.JsoupHelper.selectMeta;
 
 @Transactional
-@ConfigurationProperties("kiosk.pipeline.MetadataExtractorConsumer")
-public class MetadataExtractorConsumer implements SqsConsumer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MetadataExtractorConsumer.class);
+@ConfigurationProperties("kiosk.pipeline.ArticleMetadataConsumer")
+public class ArticleMetadataConsumer implements SqsConsumer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArticleMetadataConsumer.class);
 
     private final String[] CSS_SELECTORS = new String[]{
             "article h1",
@@ -45,12 +46,16 @@ public class MetadataExtractorConsumer implements SqsConsumer {
     };
 
     @Autowired
+    AmazonSQS sqs;
+
+    @Autowired
     AmazonS3 s3;
 
     @Autowired
     ArticleRepository articleRepository;
 
     private String inputQueue;
+    private String outputQueue;
     private String s3Bucket;
 
     @Override
@@ -66,6 +71,8 @@ public class MetadataExtractorConsumer implements SqsConsumer {
             article.setSummary(extractSummary(doc));
 
             articleRepository.save(article);
+
+            sqs.sendMessage(outputQueue, body);
         }
     }
 
@@ -94,6 +101,14 @@ public class MetadataExtractorConsumer implements SqsConsumer {
 
     public void setInputQueue(final String inputQueue) {
         this.inputQueue = inputQueue;
+    }
+
+    public String getOutputQueue() {
+        return outputQueue;
+    }
+
+    public void setOutputQueue(final String outputQueue) {
+        this.outputQueue = outputQueue;
     }
 
     public String getS3Bucket() {

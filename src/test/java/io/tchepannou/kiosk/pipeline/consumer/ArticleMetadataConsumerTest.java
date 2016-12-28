@@ -3,6 +3,7 @@ package io.tchepannou.kiosk.pipeline.consumer;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.services.sqs.AmazonSQS;
 import io.tchepannou.kiosk.pipeline.Fixtures;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
@@ -25,7 +26,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MetadataExtractorConsumerTest {
+public class ArticleMetadataConsumerTest {
+
+    @Mock
+    AmazonSQS sqs;
 
     @Mock
     AmazonS3 s3;
@@ -34,11 +38,12 @@ public class MetadataExtractorConsumerTest {
     ArticleRepository articleRepository;
 
     @InjectMocks
-    MetadataExtractorConsumer consumer;
+    ArticleMetadataConsumer consumer;
 
     @Before
     public void setUp() {
         consumer.setInputQueue("input-queue");
+        consumer.setOutputQueue("output-queue");
         consumer.setS3Bucket("bucket");
     }
 
@@ -64,6 +69,8 @@ public class MetadataExtractorConsumerTest {
         assertThat(article.getSummary()).isEqualTo(
                 "Et soudain, Rigobert Song apparaît dans l’embrasure de la porte. Quelques kilos en moins, des cheveux coupés courts, mais un sourire toujours aussi éclatant, communicatif. L’ancien capitaine du Cameroun, victime d’un accident vasculaire cérébral (AVC) avec rupture d’anévrisme (1), le 1er octobre dernier à Yaoundé, rejoint la salle de rééducation de l’hôpital parisien de la Pitié-Salpêtrière. Il marche à son rythme, ne présente quasiment aucune séquelle, si ce n’est trois orteils du pied droit encore faibles, (...)");
         verify(articleRepository).save(article);
+
+        verify(sqs).sendMessage("output-queue", "123");
     }
 
     @Test

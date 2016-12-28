@@ -25,9 +25,13 @@ kiosk:
       s3Key: "${kiosk.environment}/content"
       s3KeyHtml: "${kiosk.pipeline.HtmlDownloadConsumer.s3Key}"
 
-    MetadataExtractorConsumer:
+    ArticleMetadataConsumer:
       inputQueue: "kiosk-${kiosk.environment}-matadata-extraction-queue"
+      outputQueue: "kiosk-${kiosk.environment}-validation-queue"
       s3Bucket: "${kiosk.aws.s3.s3Bucket}"
+
+    ArticleValidationConsumer:
+      inputQueue: "kiosk-${kiosk.environment}-validation-queue"
 
     ImageExtractorConsumer:
       inputQueue: "kiosk-${kiosk.environment}-image-extraction-queue"

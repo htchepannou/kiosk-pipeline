@@ -4,6 +4,9 @@ kiosk:
     s3:
       s3Bucket: "${kiosk.namespace}.kiosk"
 
+  validation:
+    minContentLength: 200
+
   pipeline:
     FeedProducer:
       outputQueue: "kiosk-${kiosk.environment}-feed-queue"

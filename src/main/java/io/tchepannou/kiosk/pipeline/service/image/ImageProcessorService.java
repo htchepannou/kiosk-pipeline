@@ -16,6 +16,10 @@ public class ImageProcessorService {
             final String extension
     ) throws IOException {
         final BufferedImage inputImage = ImageIO.read(in);
+        if (inputImage == null){
+            return;
+        }
+
         final BufferedImage outputImage = new BufferedImage(width, height, inputImage.getType());
 
         final Graphics2D g2d = outputImage.createGraphics();

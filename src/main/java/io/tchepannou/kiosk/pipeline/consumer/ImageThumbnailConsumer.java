@@ -61,10 +61,14 @@ public class ImageThumbnailConsumer implements SqsConsumer {
         final String extension = Files.getFileExtension(s3Key);
         final ByteArrayOutputStream rout = new ByteArrayOutputStream();
         imageProcessorService.resize(thumbnailWidth, thumbnailHeight, new ByteArrayInputStream(out.toByteArray()), rout, extension);
+        final byte[] bytes = rout.toByteArray();
+        if (bytes.length == 0) {
+            LOGGER.warn("Cannot resize. Invalid image {}", img.getUrl());
+            return;
+        }
 
         // Store
-        final String key = s3Key.substring(0, s3Key.length() - extension.length()-1) + "-thumb." + extension;
-        final byte[] bytes = rout.toByteArray();
+        final String key = s3Key.substring(0, s3Key.length() - extension.length() - 1) + "-thumb." + extension;
         final ObjectMetadata meta = createObjectMetadata(img, bytes.length);
         s3.putObject(s3Bucket, key, new ByteArrayInputStream(bytes), meta);
 
@@ -87,7 +91,7 @@ public class ImageThumbnailConsumer implements SqsConsumer {
         return meta;
     }
 
-    private void createThumbnail(final Image img, final String s3Key, final long len){
+    private void createThumbnail(final Image img, final String s3Key, final long len) {
         final Image ximg = new Image();
         ximg.setHeight(thumbnailHeight);
         ximg.setLink(img.getLink());
@@ -99,7 +103,6 @@ public class ImageThumbnailConsumer implements SqsConsumer {
         ximg.setContentType(img.getContentType());
         imageRepository.save(ximg);
     }
-
 
     //-- Getter/Setter
     public String getInputQueue() {

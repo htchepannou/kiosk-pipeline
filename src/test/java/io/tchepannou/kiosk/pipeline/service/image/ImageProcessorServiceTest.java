@@ -32,4 +32,17 @@ public class ImageProcessorServiceTest {
         assertThat(img.getWidth()).isEqualTo(100);
         assertThat(img.getHeight()).isEqualTo(110);
     }
+
+    @Test
+    public void testNotResizeInvalidImage() throws Exception {
+        // Given
+        final InputStream in = getClass().getResourceAsStream("/image/article.html");
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        // When
+        processor.resize(100, 110, in, out, "jpg");
+
+        // Then
+        assertThat(out.toByteArray().length).isEqualTo(0);
+    }
 }

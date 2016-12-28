@@ -33,6 +33,9 @@ public class Article {
 
     private int status;
 
+    @Column(name="content_length")
+    private int contentLength;
+
     @Column(name = "published_date")
     private Date publishedDate;
 
@@ -99,5 +102,13 @@ public class Article {
 
     public void setPublishedDate(final Date publishedDate) {
         this.publishedDate = publishedDate;
+    }
+
+    public int getContentLength() {
+        return contentLength;
+    }
+
+    public void setContentLength(final int contentLength) {
+        this.contentLength = contentLength;
     }
 }

@@ -10,9 +10,6 @@ import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.content.ContentExtractor;
-import org.apache.commons.io.IOUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -75,11 +72,11 @@ public class ContentExtractorConsumerTest {
         when(linkRepository.findOne(123L)).thenReturn(link);
 
         final S3Object obj = createS3Object("bucket", s3Key);
-        final S3ObjectInputStream in = createS3InputStream("hello");
+        final S3ObjectInputStream in = createS3InputStream("hello world");
         when(obj.getObjectContent()).thenReturn(in);
         when(s3.getObject("bucket", s3Key)).thenReturn(obj);
 
-        when(extractor.extract("hello")).thenReturn("world");
+        when(extractor.extract("hello world")).thenReturn("world");
 
         when(clock.millis()).thenReturn(1111L);
 
@@ -99,6 +96,7 @@ public class ContentExtractorConsumerTest {
         assertThat(article.getValue().getLink()).isEqualTo(link);
         assertThat(article.getValue().getS3Key()).isEqualTo("dev/content/2010/10/11/test.html");
         assertThat(article.getValue().getPublishedDate()).isEqualTo(new Date(1111L));
+        assertThat(article.getValue().getContentLength()).isEqualTo(5);
 
         verify(sqs).sendMessage(eq("output-queue"), anyString());
     }

@@ -69,12 +69,13 @@ public class ContentExtractorConsumer extends SqsSnsConsumer {
             final String html = IOUtils.toString(s3Object.getObjectContent());
             final String xhtml = extractor.extract(html);
 
-            final InputStream in = new ByteArrayInputStream(xhtml.getBytes("utf-8"));
+            final byte[] bytes = xhtml.getBytes("utf-8");
+            final InputStream in = new ByteArrayInputStream(bytes);
             final ObjectMetadata meta = createObjectMetadata(xhtml);
 
             s3.putObject(s3Bucket, key, in, meta);
 
-            final Article article = createArticle(link, key);
+            final Article article = createArticle(link, key, bytes.length);
             sqs.sendMessage(outputQueue, String.valueOf(article.getId()));
         }
     }
@@ -91,11 +92,12 @@ public class ContentExtractorConsumer extends SqsSnsConsumer {
         return metadata;
     }
 
-    private Article createArticle(final Link link, final String s3Key) {
+    private Article createArticle(final Link link, final String s3Key, final int contentLength) {
         final Article article = new Article();
         article.setLink(link);
         article.setS3Key(s3Key);
         article.setPublishedDate(new Date(clock.millis()));
+        article.setContentLength(contentLength);
         articleRepository.save(article);
         return article;
     }

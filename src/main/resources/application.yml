@@ -10,9 +10,9 @@ kiosk:
   service:
     UrlBlacklistService:
       urls:
-      - "/feed/rss"
-      - "*/wp-login*"
-      - "*#*"
+      - "/feed/rss"     # RSS feeds
+      - "*/wp-login*"   # Wordpress loging
+      - "*#*"           # URL with anchors
 
   pipeline:
     FeedProducer:

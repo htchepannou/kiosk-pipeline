@@ -14,7 +14,6 @@ import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import io.tchepannou.kiosk.pipeline.service.image.ImageExtractor;
 import org.apache.commons.io.IOUtils;
-import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +55,6 @@ public class ImageExtractorConsumer extends SqsSnsConsumer {
     private String s3Bucket;
     private String s3Key;
     private String s3KeyHtml;
-    private final Tika tika = new Tika();
 
     //-- SqsConsumer
     @Override
@@ -74,57 +72,66 @@ public class ImageExtractorConsumer extends SqsSnsConsumer {
             final String url = imageExtractor.extract(html);
             if (!Strings.isNullOrEmpty(url)) {
                 final Image img = download(url, link);
-                imageRepository.save(img);
-
-                sqs.sendMessage(outputQueue, String.valueOf(img.getId()));
+                if (img != null) {
+                    imageRepository.save(img);
+                    sqs.sendMessage(outputQueue, String.valueOf(img.getId()));
+                }
             }
         }
     }
 
     private Image download(final String url, final Link link) throws IOException {
-        final String key = imageKey(url, link);
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         LOGGER.info("Downloading {}", url);
-        http.get(url, out);
-        final byte[] bytes = out.toByteArray();
-        final ObjectMetadata meta = createObjectMetadata(url, bytes.length);
-        s3.putObject(s3Bucket, key, new ByteArrayInputStream(bytes), meta);
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final String contentType = http.get(url, out);
+        if (contentType == null || !contentType.startsWith("image/")) {
+            LOGGER.error("{} has invalid content-type: {}", url, contentType);
+            return null;
+        }
 
+        // Store image
+        final byte[] bytes = out.toByteArray();
         final BufferedImage bimg = ImageIO.read(new ByteArrayInputStream(bytes));
+        if (bimg == null) {
+            LOGGER.error("{} is corrupted. Cannot load the image!", url);
+            return null;
+        }
+        final String key = imageKey(url, link);
         final Image img = new Image();
         img.setLink(link);
         img.setUrl(url);
         img.setS3Key(key);
         img.setContentLength(bytes.length);
-        img.setContentType(meta.getContentType());
-        if (bimg != null) {
-            img.setWidth(bimg.getWidth());
-            img.setHeight(bimg.getHeight());
-        }
+        img.setContentType(contentType);
+        img.setWidth(bimg.getWidth());
+        img.setHeight(bimg.getHeight());
+
+        // Store content
+        LOGGER.info("Storing {} to s3://{}/{}", url, s3Bucket, key);
+        final ObjectMetadata meta = createObjectMetadata(bytes.length, contentType);
+        s3.putObject(s3Bucket, key, new ByteArrayInputStream(bytes), meta);
 
         return img;
     }
 
     private String imageKey(final String url, final Link link) throws IOException {
         final String key = link.getS3Key();
-        final String filename = new URL(url).getFile();
+        final String filename = normazlieFilename(new URL(url).getFile());
         final String extension = Files.getFileExtension(filename);
         return s3Key + key.substring(s3KeyHtml.length(), key.length() - 4) + extension;
     }
 
-    private ObjectMetadata createObjectMetadata(final String url, final int len) {
+    private ObjectMetadata createObjectMetadata(final int len, final String contentType) {
         final ObjectMetadata meta = new ObjectMetadata();
         meta.setContentLength(len);
-
-        try {
-            final String filename = new URL(url).getFile();
-            meta.setContentType(tika.detect(filename));
-        } catch (final IOException e) {
-            LOGGER.warn("Unable to resolve mime-type of {}", url, e);
-        }
-
+        meta.setContentType(contentType);
         return meta;
+    }
+
+    private String normazlieFilename(final String filename) {
+        final int i = filename.indexOf('?');
+        return i > 0 ? filename.substring(0, i) : filename;
     }
 
     //-- Getter/Setter

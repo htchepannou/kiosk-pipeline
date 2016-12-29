@@ -23,7 +23,14 @@ public class HttpService {
         System.setProperty("http.agent", USER_AGENT);
     }
 
-    public void get(final String url, final OutputStream out) throws IOException {
+    /**
+     * Download the content of a web resource
+     * @param url - URL of the web resource to download
+     * @param out - OutputStream where to store the content of the link
+     * @return content type
+     * @throws IOException
+     */
+    public String get(final String url, final OutputStream out) throws IOException {
         try (final CloseableHttpClient client = HttpClients.createDefault()) {
             final HttpGet method = createHttpGet(url);
             try (CloseableHttpResponse response = client.execute(method)) {
@@ -31,34 +38,34 @@ public class HttpService {
                         ? getContentTextAsUTF8(response)
                         : response.getEntity().getContent();
                 IOUtils.copy(in, out);
+
+                return getContentType(response);
             }
         }
     }
 
-    public void getHtml(final String url, final OutputStream out) throws IOException {
-        try (final CloseableHttpClient client = HttpClients.createDefault()) {
-            final HttpGet method = createHttpGet(url);
-            try (CloseableHttpResponse response = client.execute(method)) {
-                ensureIsHtml(response);
+    /**
+     * Download the content of a HTML page
+     * @param url - URL of the HTML resource to download
+     * @param out - OutputStream where to store the content of the link
+     * @return content type
+     * @throws IOException
+     */
+    public String getHtml(final String url, final OutputStream out) throws IOException {
+        final String contentType = get(url, out);
+        ensureIsHtml(contentType);
+        return contentType;
+    }
 
-                final InputStream in = isText(response)
-                        ? getContentTextAsUTF8(response)
-                        : response.getEntity().getContent();
-                IOUtils.copy(in, out);
-            }
+    private void ensureIsHtml(final String contentType) throws IOException {
+        if (contentType == null || !contentType.contains("text/html")) {
+            throw new InvalidContentTypeException("Expecting text/html. Got " + contentType);
         }
     }
 
-    private void ensureIsHtml(final CloseableHttpResponse response) throws IOException {
+    private String getContentType(final CloseableHttpResponse response){
         final Header header = response.getFirstHeader("Content-Type");
-        if (header == null) {
-            throw new InvalidContentTypeException("No Content-Type header");
-        } else {
-            final String value = header.getValue();
-            if (value == null || !value.contains("text/html")) {
-                throw new InvalidContentTypeException("Expecting text/html. Got " + value);
-            }
-        }
+        return header != null ? header.getValue() : null;
     }
 
     private HttpGet createHttpGet(final String url) {

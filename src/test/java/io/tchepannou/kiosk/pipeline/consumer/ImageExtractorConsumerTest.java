@@ -31,6 +31,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -83,7 +84,7 @@ public class ImageExtractorConsumerTest {
 
         when(extractor.extract(anyString())).thenReturn("http://camfoot.com/IMG/arton25520.jpg");
 
-        doAnswer(get("/image/jordan.jpg")).when(http).get(any(), any());
+        doAnswer(get("/image/jordan.jpg", "image/jpeg")).when(http).get(any(), any());
 
         doAnswer(saveImage(567)).when(imageRepository).save(any(Image.class));
 
@@ -112,6 +113,120 @@ public class ImageExtractorConsumerTest {
         verify(sqs).sendMessage("output-queue", "567");
     }
 
+    @Test
+    public void shouldNormalizeImageName() throws Exception {
+        // Given
+        final String s3Key = "dev/html/2010/10/11/aeoi1f.html";
+        final Link link = new Link();
+        link.setId(123);
+        link.setS3Key(s3Key);
+        when(linkRepository.findOne(123L)).thenReturn(link);
+
+        final String html = IOUtils.toString(getClass().getResource("/image/article.html"));
+        final S3ObjectInputStream in = createS3InputStream(html);
+        final S3Object obj = createS3Object("bucket", s3Key);
+        when(obj.getObjectContent()).thenReturn(in);
+        when(s3.getObject("bucket", s3Key)).thenReturn(obj);
+
+        when(extractor.extract(anyString())).thenReturn("http://camfoot.com/IMG/arton25520.jpg?124354");
+
+        doAnswer(get("/image/jordan.jpg", "image/jpeg")).when(http).get(any(), any());
+
+        doAnswer(saveImage(567)).when(imageRepository).save(any(Image.class));
+
+        // Then
+        consumer.consumeMessage("123");
+
+        // Then
+        verify(s3).putObject(
+                eq("bucket"),
+                eq("dev/img/2010/10/11/aeoi1f.jpg"),
+                any(InputStream.class),
+                any(ObjectMetadata.class)
+        );
+
+        final ArgumentCaptor<Image> img = ArgumentCaptor.forClass(Image.class);
+        verify(imageRepository).save(img.capture());
+        assertThat(img.getValue().getLink()).isEqualTo(link);
+        assertThat(img.getValue().getS3Key()).isEqualTo("dev/img/2010/10/11/aeoi1f.jpg");
+        assertThat(img.getValue().getType()).isEqualTo(Image.TYPE_MAIN);
+        assertThat(img.getValue().getUrl()).isEqualTo("http://camfoot.com/IMG/arton25520.jpg?124354");
+        assertThat(img.getValue().getContentType()).isEqualTo("image/jpeg");
+        assertThat(img.getValue().getContentLength()).isEqualTo(4490750L);
+        assertThat(img.getValue().getWidth()).isEqualTo(2400);
+        assertThat(img.getValue().getHeight()).isEqualTo(3000);
+
+        verify(sqs).sendMessage("output-queue", "567");
+    }
+
+    @Test
+    public void shouldRejectCorruptedImage() throws Exception {
+        // Given
+        final String s3Key = "dev/html/2010/10/11/test.html";
+        final Link link = new Link();
+        link.setId(123);
+        link.setS3Key(s3Key);
+        when(linkRepository.findOne(123L)).thenReturn(link);
+
+        final String html = IOUtils.toString(getClass().getResource("/image/article.html"));
+        final S3ObjectInputStream in = createS3InputStream(html);
+        final S3Object obj = createS3Object("bucket", s3Key);
+        when(obj.getObjectContent()).thenReturn(in);
+        when(s3.getObject("bucket", s3Key)).thenReturn(obj);
+
+        when(extractor.extract(anyString())).thenReturn("http://camfoot.com/IMG/arton25520.jpg");
+
+        doAnswer(get("/image/article.html", "image/jpeg")).when(http).get(any(), any());
+
+        // Then
+        consumer.consumeMessage("123");
+
+        // Then
+        verify(s3, never()).putObject(
+                anyString(),
+                anyString(),
+                any(InputStream.class),
+                any(ObjectMetadata.class)
+        );
+
+        verify(imageRepository, never()).save(any(Image.class));
+        verify(sqs, never()).sendMessage(anyString(), anyString());
+    }
+
+    @Test
+    public void shouldRejectNonImageContentType() throws Exception {
+        // Given
+        final String s3Key = "dev/html/2010/10/11/test.html";
+        final Link link = new Link();
+        link.setId(123);
+        link.setS3Key(s3Key);
+        when(linkRepository.findOne(123L)).thenReturn(link);
+
+        final String html = IOUtils.toString(getClass().getResource("/image/article.html"));
+        final S3ObjectInputStream in = createS3InputStream(html);
+        final S3Object obj = createS3Object("bucket", s3Key);
+        when(obj.getObjectContent()).thenReturn(in);
+        when(s3.getObject("bucket", s3Key)).thenReturn(obj);
+
+        when(extractor.extract(anyString())).thenReturn("http://camfoot.com/IMG/arton25520.jpg");
+
+        doAnswer(get("/image/article.html", "text/html")).when(http).get(any(), any());
+
+        // Then
+        consumer.consumeMessage("123");
+
+        // Then
+        verify(s3, never()).putObject(
+                anyString(),
+                anyString(),
+                any(InputStream.class),
+                any(ObjectMetadata.class)
+        );
+
+        verify(imageRepository, never()).save(any(Image.class));
+        verify(sqs, never()).sendMessage(anyString(), anyString());
+    }
+
     private S3Object createS3Object(final String bucket, final String key) throws Exception {
         final S3Object obj = mock(S3Object.class);
         when(obj.getBucketName()).thenReturn(bucket);
@@ -120,12 +235,12 @@ public class ImageExtractorConsumerTest {
         return obj;
     }
 
-    private Answer get(final String path) {
+    private Answer get(final String path, final String contentType) {
         return (inv) -> {
             final OutputStream out = (OutputStream) inv.getArguments()[1];
             final InputStream in = getClass().getResourceAsStream(path);
             IOUtils.copy(in, out);
-            return null;
+            return contentType;
         };
     }
 

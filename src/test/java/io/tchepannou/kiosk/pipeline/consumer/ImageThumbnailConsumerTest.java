@@ -76,7 +76,7 @@ public class ImageThumbnailConsumerTest {
         // Then
         verify(s3).putObject(
                 eq("bucket"),
-                eq("dev/img/2011/10/11/test-thumb.png"),
+                eq("dev/img/2011/10/11/test-" + Image.TYPE_THUMBNAIL + ".png"),
                 any(InputStream.class),
                 any(ObjectMetadata.class)
         );
@@ -84,7 +84,7 @@ public class ImageThumbnailConsumerTest {
         final ArgumentCaptor<Image> img = ArgumentCaptor.forClass(Image.class);
         verify(imageRepository).save(img.capture());
         assertThat(img.getValue().getLink()).isEqualTo(img0.getLink());
-        assertThat(img.getValue().getS3Key()).isEqualTo("dev/img/2011/10/11/test-thumb.png");
+        assertThat(img.getValue().getS3Key()).isEqualTo("dev/img/2011/10/11/test-" + Image.TYPE_THUMBNAIL + ".png");
         assertThat(img.getValue().getType()).isEqualTo(Image.TYPE_THUMBNAIL);
         assertThat(img.getValue().getUrl()).isEqualTo(img0.getUrl());
         assertThat(img.getValue().getContentType()).isEqualTo("image/png");

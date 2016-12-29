@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Enumeration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -49,12 +48,12 @@ public class HttpServiceTest {
     }
 
     @Test
-    public void shouldConvertToUTF8() throws IOException{
+    public void shouldConvertToUTF8() throws IOException {
         final OutputStream out = new ByteArrayOutputStream();
         service.get("http://www.camer.be/54887/1:11/cameroun-vairified-offre-des-taxis-de-qualite-a-douala-et-yaounde-cameroon.html", out);
 
-        final String html = out.toString();
-        System.out.println(html);
+//        final String html = out.toString();
+//        System.out.println(html);
     }
 
     @Test
@@ -76,18 +75,17 @@ public class HttpServiceTest {
         service.getHtml("http://127.0.0.1:" + PORT + "/", out);
     }
 
-
     private Handler createHandler() {
         return new DefaultHandler() {
             @Override
             public void handle(final String s, final Request r, final HttpServletRequest request, final HttpServletResponse response)
                     throws IOException, ServletException {
-                System.out.println(s);
-                final Enumeration<String> names = request.getHeaderNames();
-                while (names.hasMoreElements()) {
-                    final String name = names.nextElement();
-                    System.out.println(name + "=" + request.getHeader(name));
-                }
+//                System.out.println(s);
+//                final Enumeration<String> names = request.getHeaderNames();
+//                while (names.hasMoreElements()) {
+//                    final String name = names.nextElement();
+//                    System.out.println(name + "=" + request.getHeader(name));
+//                }
 
                 response.getOutputStream().write(content.getBytes("utf-8"));
                 response.setHeader("Content-Type", contentType);

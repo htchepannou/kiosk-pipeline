@@ -19,6 +19,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -61,12 +63,15 @@ public class ArticleMetadataConsumerTest {
         when(obj.getObjectContent()).thenReturn(in);
         when(s3.getObject("bucket", link.getS3Key())).thenReturn(obj);
 
+        final DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+
         // Then
         consumer.consume("123");
 
         // Then
         assertThat(article.getTitle()).isEqualTo("Rigobert Song : « Je suis vraiment revenu de très loin »");
         assertThat(article.getSummary()).isEqualTo("Et soudain, Rigobert Song apparaît dans l’embrasure de la porte. Quelques kilos en moins, des cheveu...");
+        assertThat(fmt.format(article.getPublishedDate())).startsWith("2016-12-29");
         verify(articleRepository).save(article);
 
         verify(sqs).sendMessage("output-queue", "123");

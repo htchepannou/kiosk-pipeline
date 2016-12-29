@@ -52,8 +52,8 @@ public class ImageMainConsumerTest {
         consumer.setInputQueue("input-queue");
         consumer.setS3Bucket("bucket");
         consumer.setS3Key("dev/img");
-        consumer.setHeight(161);
-        consumer.setWidth(181);
+        consumer.setHeight(220);
+        consumer.setWidth(440);
     }
 
     @Test
@@ -88,20 +88,46 @@ public class ImageMainConsumerTest {
         assertThat(img.getValue().getType()).isEqualTo(Image.TYPE_MAIN);
         assertThat(img.getValue().getUrl()).isEqualTo(img0.getUrl());
         assertThat(img.getValue().getContentType()).isEqualTo("image/png");
-        assertThat(img.getValue().getWidth()).isEqualTo(181);
-        assertThat(img.getValue().getHeight()).isEqualTo(161);
+        assertThat(img.getValue().getWidth()).isEqualTo(440);
+        assertThat(img.getValue().getHeight()).isEqualTo(220);
+    }
+
+    @Test
+    public void shouldMaintainAspectRatio() throws Exception {
+        // Given
+        final Image img0 = createImage(new Link());
+        img0.setWidth(1000);
+        img0.setHeight(333);
+        when(imageRepository.findOne(123L)).thenReturn(img0);
+
+        final S3ObjectInputStream in = createS3InputStream("image-content");
+        final S3Object obj = mock(S3Object.class);
+        when(obj.getObjectContent()).thenReturn(in);
+        when(s3.getObject(anyString(), anyString())).thenReturn(obj);
+
+        doAnswer(resize("/image/jordan.jpg")).when(imageProcessorService)
+                .resize(anyInt(), anyInt(), any(InputStream.class), any(OutputStream.class), anyString());
+
+        // When
+        consumer.consumeMessage("123");
+
+        // Then
+        final ArgumentCaptor<Image> img = ArgumentCaptor.forClass(Image.class);
+        verify(imageRepository).save(img.capture());
+        assertThat(img.getValue().getWidth()).isEqualTo(440);
+        assertThat(img.getValue().getHeight()).isEqualTo(146);
     }
 
     private Image createImage(final Link link) {
         final Image img = new Image();
         img.setContentLength(1024L);
         img.setContentType("image/png");
-        img.setHeight(790);
+        img.setHeight(500);
         img.setLink(link);
         img.setS3Key("dev/img/2011/10/11/test.png");
         img.setType(Image.TYPE_ORIGINAL);
         img.setUrl("http://www.goo.com/test.png");
-        img.setWidth(1880);
+        img.setWidth(1000);
 
         return img;
     }

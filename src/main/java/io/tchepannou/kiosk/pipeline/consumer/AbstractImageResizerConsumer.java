@@ -39,7 +39,7 @@ public abstract class AbstractImageResizerConsumer extends SqsSnsConsumer {
 
     public abstract int getImageType();
 
-    protected abstract Logger getLogger ();
+    protected abstract Logger getLogger();
 
     //-- SqsConsumer
     @Override
@@ -50,8 +50,9 @@ public abstract class AbstractImageResizerConsumer extends SqsSnsConsumer {
     }
 
     private void consume(final Image img) throws IOException {
-        final int resizeWidth = getResizeWith();
-        final int resizeHeight = getResizeHeight();
+        final int w = getResizeWith();
+        final int resizeWidth = w;
+        final int resizeHeight = (w * img.getHeight()) / img.getWidth();
         if (!shouldResize(img, resizeWidth, resizeHeight)) {
             return;
         }
@@ -78,7 +79,7 @@ public abstract class AbstractImageResizerConsumer extends SqsSnsConsumer {
         s3.putObject(s3Bucket, key, new ByteArrayInputStream(bytes), meta);
 
         // Create new image
-        createImage(img, key, bytes.length);
+        createImage(img, key, bytes.length, resizeWidth, resizeHeight);
     }
 
     private boolean shouldResize(final Image img, final int resizeWidth, final int resizeHeight) {
@@ -103,14 +104,14 @@ public abstract class AbstractImageResizerConsumer extends SqsSnsConsumer {
         return meta;
     }
 
-    private void createImage(final Image img, final String s3Key, final long len) {
+    private void createImage(final Image img, final String s3Key, final long len, final int width, final int height) {
         final Image ximg = new Image();
-        ximg.setHeight(getResizeHeight());
+        ximg.setHeight(height);
         ximg.setLink(img.getLink());
         ximg.setS3Key(s3Key);
         ximg.setType(getImageType());
         ximg.setUrl(img.getUrl());
-        ximg.setWidth(getResizeWith());
+        ximg.setWidth(width);
         ximg.setContentLength(len);
         ximg.setContentType(img.getContentType());
         imageRepository.save(ximg);

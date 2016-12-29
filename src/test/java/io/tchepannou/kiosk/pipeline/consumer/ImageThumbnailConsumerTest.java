@@ -89,7 +89,7 @@ public class ImageThumbnailConsumerTest {
         assertThat(img.getValue().getUrl()).isEqualTo(img0.getUrl());
         assertThat(img.getValue().getContentType()).isEqualTo("image/png");
         assertThat(img.getValue().getWidth()).isEqualTo(18);
-        assertThat(img.getValue().getHeight()).isEqualTo(16);
+        assertThat(img.getValue().getHeight()).isEqualTo(17);
     }
 
     private Image createImage(final Link link) {

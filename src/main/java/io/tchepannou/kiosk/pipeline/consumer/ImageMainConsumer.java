@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import javax.transaction.Transactional;
 
-@ConfigurationProperties("kiosk.pipeline.ImageThumbnailConsumer")
+@ConfigurationProperties("kiosk.pipeline.ImageMainConsumer")
 @Transactional
 public class ImageMainConsumer extends AbstractImageResizerConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageMainConsumer.class);

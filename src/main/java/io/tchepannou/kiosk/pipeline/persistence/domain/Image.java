@@ -10,8 +10,9 @@ import javax.persistence.ManyToOne;
 
 @Entity
 public class Image {
-    public static final int TYPE_MAIN = 0;
+    public static final int TYPE_ORIGINAL = 0;
     public static final int TYPE_THUMBNAIL = 1;
+    public static final int TYPE_MAIN = 2;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

@@ -34,7 +34,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ImageThumbnailConsumerTest {
+public class ImageMainConsumerTest {
     @Mock
     AmazonS3 s3;
 
@@ -45,15 +45,15 @@ public class ImageThumbnailConsumerTest {
     ImageProcessorService imageProcessorService;
 
     @InjectMocks
-    ImageThumbnailConsumer consumer;
+    ImageMainConsumer consumer;
 
     @Before
     public void setUp() {
         consumer.setInputQueue("input-queue");
         consumer.setS3Bucket("bucket");
         consumer.setS3Key("dev/img");
-        consumer.setHeight(16);
-        consumer.setWidth(18);
+        consumer.setHeight(161);
+        consumer.setWidth(181);
     }
 
     @Test
@@ -62,8 +62,8 @@ public class ImageThumbnailConsumerTest {
         final Image img0 = createImage(new Link());
         when(imageRepository.findOne(123L)).thenReturn(img0);
 
-        S3ObjectInputStream in = createS3InputStream("image-content");
-        S3Object obj = mock(S3Object.class);
+        final S3ObjectInputStream in = createS3InputStream("image-content");
+        final S3Object obj = mock(S3Object.class);
         when(obj.getObjectContent()).thenReturn(in);
         when(s3.getObject(anyString(), anyString())).thenReturn(obj);
 
@@ -76,7 +76,7 @@ public class ImageThumbnailConsumerTest {
         // Then
         verify(s3).putObject(
                 eq("bucket"),
-                eq("dev/img/2011/10/11/test-" + Image.TYPE_THUMBNAIL + ".png"),
+                eq("dev/img/2011/10/11/test-" + Image.TYPE_MAIN + ".png"),
                 any(InputStream.class),
                 any(ObjectMetadata.class)
         );
@@ -84,33 +84,33 @@ public class ImageThumbnailConsumerTest {
         final ArgumentCaptor<Image> img = ArgumentCaptor.forClass(Image.class);
         verify(imageRepository).save(img.capture());
         assertThat(img.getValue().getLink()).isEqualTo(img0.getLink());
-        assertThat(img.getValue().getS3Key()).isEqualTo("dev/img/2011/10/11/test-" + Image.TYPE_THUMBNAIL + ".png");
-        assertThat(img.getValue().getType()).isEqualTo(Image.TYPE_THUMBNAIL);
+        assertThat(img.getValue().getS3Key()).isEqualTo("dev/img/2011/10/11/test-" + Image.TYPE_MAIN + ".png");
+        assertThat(img.getValue().getType()).isEqualTo(Image.TYPE_MAIN);
         assertThat(img.getValue().getUrl()).isEqualTo(img0.getUrl());
         assertThat(img.getValue().getContentType()).isEqualTo("image/png");
-        assertThat(img.getValue().getWidth()).isEqualTo(18);
-        assertThat(img.getValue().getHeight()).isEqualTo(16);
+        assertThat(img.getValue().getWidth()).isEqualTo(181);
+        assertThat(img.getValue().getHeight()).isEqualTo(161);
     }
 
     private Image createImage(final Link link) {
         final Image img = new Image();
         img.setContentLength(1024L);
         img.setContentType("image/png");
-        img.setHeight(100);
+        img.setHeight(790);
         img.setLink(link);
         img.setS3Key("dev/img/2011/10/11/test.png");
-        img.setType(Image.TYPE_MAIN);
+        img.setType(Image.TYPE_ORIGINAL);
         img.setUrl("http://www.goo.com/test.png");
-        img.setWidth(101);
+        img.setWidth(1880);
 
         return img;
     }
 
-    public Answer resize(final String path){
+    public Answer resize(final String path) {
         return new Answer() {
             @Override
             public Object answer(final InvocationOnMock invocationOnMock) throws Throwable {
-                final OutputStream out = (OutputStream)invocationOnMock.getArguments()[3];
+                final OutputStream out = (OutputStream) invocationOnMock.getArguments()[3];
                 final InputStream in = getClass().getResourceAsStream(path);
                 IOUtils.copy(in, out);
                 return null;

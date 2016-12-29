@@ -9,8 +9,8 @@ import javax.transaction.Transactional;
 
 @ConfigurationProperties("kiosk.pipeline.ImageThumbnailConsumer")
 @Transactional
-public class ImageThumbnailConsumer extends AbstractImageResizerConsumer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImageThumbnailConsumer.class);
+public class ImageMainConsumer extends AbstractImageResizerConsumer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImageMainConsumer.class);
 
     private int width;
     private int height;
@@ -27,7 +27,7 @@ public class ImageThumbnailConsumer extends AbstractImageResizerConsumer {
 
     @Override
     public int getImageType() {
-        return Image.TYPE_THUMBNAIL;
+        return Image.TYPE_MAIN;
     }
 
     @Override

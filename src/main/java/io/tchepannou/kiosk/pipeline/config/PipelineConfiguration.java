@@ -6,7 +6,8 @@ import io.tchepannou.kiosk.pipeline.consumer.ArticleMetadataConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.ArticleValidationConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.ContentExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.HtmlDownloadConsumer;
-import io.tchepannou.kiosk.pipeline.consumer.ImageExtractorConsumer;
+import io.tchepannou.kiosk.pipeline.consumer.ImageDownloadConsumer;
+import io.tchepannou.kiosk.pipeline.consumer.ImageMainConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.ImageThumbnailConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.UrlExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.producer.FeedProducer;
@@ -56,14 +57,20 @@ public class PipelineConfiguration {
 
     @Bean
     @Scope("prototype")
-    ImageExtractorConsumer imageExtractorConsumer() {
-        return new ImageExtractorConsumer();
+    ImageDownloadConsumer imageDownloadConsumer() {
+        return new ImageDownloadConsumer();
     }
 
     @Bean
     @Scope("prototype")
     ImageThumbnailConsumer imageThumbnailConsumer() {
         return new ImageThumbnailConsumer();
+    }
+
+    @Bean
+    @Scope("prototype")
+    ImageMainConsumer imageMainConsumer() {
+        return new ImageMainConsumer();
     }
 
     @Bean
@@ -89,8 +96,9 @@ public class PipelineConfiguration {
         startArticleMetadataConsumers(CONSUMER_THREADS);
         startArticleValidationConsumers(CONSUMER_THREADS);
 
-        startImageExtractor(2 * CONSUMER_THREADS);
-        startImageThumbnail(2 * CONSUMER_THREADS);
+        startImageDownloadConsumers(2 * CONSUMER_THREADS);
+        startImageThumbnailConsumers(2 * CONSUMER_THREADS);
+        startImageMainConsumers(2 * CONSUMER_THREADS);
 
         feedProducer().produce();
     }
@@ -117,16 +125,23 @@ public class PipelineConfiguration {
         }
     }
 
-    private void startImageExtractor(final int threadCount) {
+    private void startImageDownloadConsumers(final int threadCount) {
         for (int i = 0; i < threadCount; i++) {
-            final ImageExtractorConsumer consumer = imageExtractorConsumer();
+            final ImageDownloadConsumer consumer = imageDownloadConsumer();
             SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor());
         }
     }
 
-    private void startImageThumbnail(final int threadCount) {
+    private void startImageThumbnailConsumers(final int threadCount) {
         for (int i = 0; i < threadCount; i++) {
             final ImageThumbnailConsumer consumer = imageThumbnailConsumer();
+            SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor());
+        }
+    }
+
+    private void startImageMainConsumers(final int threadCount) {
+        for (int i = 0; i < threadCount; i++) {
+            final ImageMainConsumer consumer = imageMainConsumer();
             SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor());
         }
     }

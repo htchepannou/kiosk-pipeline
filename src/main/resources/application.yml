@@ -36,20 +36,26 @@ kiosk:
     ArticleValidationConsumer:
       inputQueue: "kiosk-${kiosk.environment}-validation-queue"
 
-    ImageExtractorConsumer:
+    ImageDownloadConsumer:
       inputQueue: "kiosk-${kiosk.environment}-image-extraction-queue"
-      outputQueue: "kiosk-${kiosk.environment}-thumbnail-generation-queue"
+      outputTopic: "arn:aws:sns:us-east-1:828725992074:kiosk-dev-image-downloaded-topic"
       s3Bucket: "${kiosk.aws.s3.s3Bucket}"
       s3Key: "${kiosk.environment}/image"
       s3KeyHtml: "${kiosk.pipeline.HtmlDownloadConsumer.s3Key}"
 
     ImageThumbnailConsumer:
-      inputQueue: "kiosk-${kiosk.environment}-thumbnail-generation-queue"
+      inputQueue: "kiosk-${kiosk.environment}-image-thumbnail-queue"
       s3Bucket: "${kiosk.aws.s3.s3Bucket}"
       s3Key: "${kiosk.environment}/image"
-      thumbnailWidth: 144
-      thumbnailHeight:  144
+      width: 144
+      height:  144
 
+    ImageMainConsumer:
+      inputQueue: "kiosk-${kiosk.environment}-image-main-queue"
+      s3Bucket: "${kiosk.aws.s3.s3Bucket}"
+      s3Key: "${kiosk.environment}/image"
+      width: 440
+      height:  220
 
 spring:
   datasource:

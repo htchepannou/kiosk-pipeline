@@ -4,13 +4,12 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.google.common.io.Files;
-import io.tchepannou.kiosk.pipeline.aws.sqs.SqsConsumer;
+import io.tchepannou.kiosk.pipeline.aws.sqs.SqsSnsConsumer;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Image;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ImageRepository;
 import io.tchepannou.kiosk.pipeline.service.image.ImageProcessorService;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayInputStream;
@@ -19,9 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public abstract class AbstractImageResizerConsumer implements SqsConsumer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractImageResizerConsumer.class);
-
+public abstract class AbstractImageResizerConsumer extends SqsSnsConsumer {
     @Autowired
     AmazonS3 s3;
 
@@ -42,9 +39,11 @@ public abstract class AbstractImageResizerConsumer implements SqsConsumer {
 
     public abstract int getImageType();
 
+    protected abstract Logger getLogger ();
+
     //-- SqsConsumer
     @Override
-    public void consume(final String body) throws IOException {
+    public void consumeMessage(final String body) throws IOException {
         final long id = Long.parseLong(body.toString());
         final Image img = imageRepository.findOne(id);
         consume(img);
@@ -62,14 +61,14 @@ public abstract class AbstractImageResizerConsumer implements SqsConsumer {
         loadImageContent(img, out);
 
         // Resize
-        LOGGER.info("Resizing {} to {}x{}", img.getUrl(), resizeWidth, resizeHeight);
+        getLogger().info("Resizing {} to {}x{}", img.getUrl(), resizeWidth, resizeHeight);
         final String s3Key = img.getS3Key();
         final String extension = Files.getFileExtension(s3Key);
         final ByteArrayOutputStream rout = new ByteArrayOutputStream();
         imageProcessorService.resize(resizeWidth, resizeHeight, new ByteArrayInputStream(out.toByteArray()), rout, extension);
         final byte[] bytes = rout.toByteArray();
         if (bytes.length == 0) {
-            LOGGER.warn("Cannot resize. Invalid image {}", img.getUrl());
+            getLogger().warn("Cannot resize. Invalid image {}", img.getUrl());
             return;
         }
 

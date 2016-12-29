@@ -4,7 +4,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
-import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sns.AmazonSNS;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Image;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ImageRepository;
@@ -36,12 +36,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ImageExtractorConsumerTest {
+public class ImageDownloadConsumerTest {
     @Mock
     AmazonS3 s3;
 
     @Mock
-    AmazonSQS sqs;
+    AmazonSNS sns;
 
     @Mock
     LinkRepository linkRepository;
@@ -56,12 +56,12 @@ public class ImageExtractorConsumerTest {
     HttpService http;
 
     @InjectMocks
-    ImageExtractorConsumer consumer;
+    ImageDownloadConsumer consumer;
 
     @Before
     public void setUp() {
         consumer.setInputQueue("input-queue");
-        consumer.setOutputQueue("output-queue");
+        consumer.setOutputTopic("output-topic");
         consumer.setS3Bucket("bucket");
         consumer.setS3Key("dev/img");
         consumer.setS3KeyHtml("dev/html");
@@ -103,14 +103,14 @@ public class ImageExtractorConsumerTest {
         verify(imageRepository).save(img.capture());
         assertThat(img.getValue().getLink()).isEqualTo(link);
         assertThat(img.getValue().getS3Key()).isEqualTo("dev/img/2010/10/11/test.jpg");
-        assertThat(img.getValue().getType()).isEqualTo(Image.TYPE_MAIN);
+        assertThat(img.getValue().getType()).isEqualTo(Image.TYPE_ORIGINAL);
         assertThat(img.getValue().getUrl()).isEqualTo("http://camfoot.com/IMG/arton25520.jpg");
         assertThat(img.getValue().getContentType()).isEqualTo("image/jpeg");
         assertThat(img.getValue().getContentLength()).isEqualTo(4490750L);
         assertThat(img.getValue().getWidth()).isEqualTo(2400);
         assertThat(img.getValue().getHeight()).isEqualTo(3000);
 
-        verify(sqs).sendMessage("output-queue", "567");
+        verify(sns).publish("output-topic", "567");
     }
 
     @Test
@@ -149,14 +149,14 @@ public class ImageExtractorConsumerTest {
         verify(imageRepository).save(img.capture());
         assertThat(img.getValue().getLink()).isEqualTo(link);
         assertThat(img.getValue().getS3Key()).isEqualTo("dev/img/2010/10/11/aeoi1f.jpg");
-        assertThat(img.getValue().getType()).isEqualTo(Image.TYPE_MAIN);
+        assertThat(img.getValue().getType()).isEqualTo(Image.TYPE_ORIGINAL);
         assertThat(img.getValue().getUrl()).isEqualTo("http://camfoot.com/IMG/arton25520.jpg?124354");
         assertThat(img.getValue().getContentType()).isEqualTo("image/jpeg");
         assertThat(img.getValue().getContentLength()).isEqualTo(4490750L);
         assertThat(img.getValue().getWidth()).isEqualTo(2400);
         assertThat(img.getValue().getHeight()).isEqualTo(3000);
 
-        verify(sqs).sendMessage("output-queue", "567");
+        verify(sns).publish("output-topic", "567");
     }
 
     @Test
@@ -190,7 +190,7 @@ public class ImageExtractorConsumerTest {
         );
 
         verify(imageRepository, never()).save(any(Image.class));
-        verify(sqs, never()).sendMessage(anyString(), anyString());
+        verify(sns, never()).publish(anyString(), anyString());
     }
 
     @Test
@@ -224,7 +224,7 @@ public class ImageExtractorConsumerTest {
         );
 
         verify(imageRepository, never()).save(any(Image.class));
-        verify(sqs, never()).sendMessage(anyString(), anyString());
+        verify(sns, never()).publish(anyString(), anyString());
     }
 
     private S3Object createS3Object(final String bucket, final String key) throws Exception {

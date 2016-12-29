@@ -3,7 +3,7 @@ package io.tchepannou.kiosk.pipeline.consumer;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sns.AmazonSNS;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
 import io.tchepannou.kiosk.pipeline.aws.sqs.SqsSnsConsumer;
@@ -27,16 +27,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
 
-@ConfigurationProperties("kiosk.pipeline.ImageExtractorConsumer")
+@ConfigurationProperties("kiosk.pipeline.ImageDownloadConsumer")
 @Transactional
-public class ImageExtractorConsumer extends SqsSnsConsumer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImageExtractorConsumer.class);
+public class ImageDownloadConsumer extends SqsSnsConsumer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImageDownloadConsumer.class);
 
     @Autowired
     AmazonS3 s3;
 
     @Autowired
-    AmazonSQS sqs;
+    AmazonSNS sns;
 
     @Autowired
     LinkRepository linkRepository;
@@ -51,7 +51,7 @@ public class ImageExtractorConsumer extends SqsSnsConsumer {
     HttpService http;
 
     private String inputQueue;
-    private String outputQueue;
+    private String outputTopic;
     private String s3Bucket;
     private String s3Key;
     private String s3KeyHtml;
@@ -74,7 +74,7 @@ public class ImageExtractorConsumer extends SqsSnsConsumer {
                 final Image img = download(url, link);
                 if (img != null) {
                     imageRepository.save(img);
-                    sqs.sendMessage(outputQueue, String.valueOf(img.getId()));
+                    sns.publish(outputTopic, String.valueOf(img.getId()));
                 }
             }
         }
@@ -106,6 +106,7 @@ public class ImageExtractorConsumer extends SqsSnsConsumer {
         img.setContentType(contentType);
         img.setWidth(bimg.getWidth());
         img.setHeight(bimg.getHeight());
+        img.setType(Image.TYPE_ORIGINAL);
 
         // Store content
         LOGGER.info("Storing {} to s3://{}/{}", url, s3Bucket, key);
@@ -167,11 +168,11 @@ public class ImageExtractorConsumer extends SqsSnsConsumer {
         this.s3KeyHtml = s3KeyHtml;
     }
 
-    public String getOutputQueue() {
-        return outputQueue;
+    public String getOutputTopic() {
+        return outputTopic;
     }
 
-    public void setOutputQueue(final String outputQueue) {
-        this.outputQueue = outputQueue;
+    public void setOutputTopic(final String outputTopic) {
+        this.outputTopic = outputTopic;
     }
 }

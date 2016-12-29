@@ -12,6 +12,7 @@ kiosk:
       urls:
       - "/feed/rss"
       - "*/wp-login*"
+      - "*#*"
 
   pipeline:
     FeedProducer:

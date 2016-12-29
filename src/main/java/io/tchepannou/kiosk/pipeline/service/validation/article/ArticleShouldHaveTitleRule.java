@@ -8,7 +8,7 @@ public class ArticleShouldHaveTitleRule implements ArticleRule{
     @Override
     public Validation validate(final Article subject) {
         return Strings.isNullOrEmpty(subject.getTitle())
-                ? Validation.failure(ArticleRule.NO_CONTENT)
+                ? Validation.failure(ArticleRule.NO_TITLE)
                 : Validation.success();
     }
 }

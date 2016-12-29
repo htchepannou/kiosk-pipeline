@@ -8,13 +8,16 @@ import io.tchepannou.kiosk.pipeline.persistence.domain.Image;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ImageRepository;
 import io.tchepannou.kiosk.pipeline.service.image.ImageProcessorService;
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -25,7 +28,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -64,7 +67,8 @@ public class ImageThumbnailConsumerTest {
         when(obj.getObjectContent()).thenReturn(in);
         when(s3.getObject(anyString(), anyString())).thenReturn(obj);
 
-        doNothing().when(imageProcessorService).resize(anyInt(), anyInt(), any(InputStream.class), any(OutputStream.class), anyString());
+        doAnswer(resize("/image/jordan.jpg")).when(imageProcessorService)
+                .resize(anyInt(), anyInt(), any(InputStream.class), any(OutputStream.class), anyString());
 
         // When
         consumer.consume("123");
@@ -102,5 +106,15 @@ public class ImageThumbnailConsumerTest {
         return img;
     }
 
-
+    public Answer resize(final String path){
+        return new Answer() {
+            @Override
+            public Object answer(final InvocationOnMock invocationOnMock) throws Throwable {
+                final OutputStream out = (OutputStream)invocationOnMock.getArguments()[3];
+                final InputStream in = getClass().getResourceAsStream(path);
+                IOUtils.copy(in, out);
+                return null;
+            }
+        };
+    }
 }

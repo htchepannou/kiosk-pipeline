@@ -8,7 +8,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ArticleShouldHaveTitleRuleTest {
-    Rule rule = new ArticleShouldHaveContentRule();
+    Rule rule = new ArticleShouldHaveTitleRule();
 
     @Test
     public void shouldAcceptArticleWithTitle() throws Exception {

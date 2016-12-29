@@ -15,6 +15,8 @@ public class Article {
     public static final int STATUS_INVALID = 0x01;
     public static final int STATUS_VALID = 0x10;
 
+    public static final int SUMMARY_MAX_LEN = 100;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
@@ -45,6 +47,14 @@ public class Article {
 
     @Column(name = "invalid_reason", length = 64)
     private String invalidReason;
+
+    public static String normalizeSummary(String summary) {
+        if (summary == null) {
+            return null;
+        }
+
+        return summary.length() > SUMMARY_MAX_LEN ? summary.substring(0, SUMMARY_MAX_LEN) + "..." : summary;
+    }
 
     //-- Getter/Setter
     public long getId() {

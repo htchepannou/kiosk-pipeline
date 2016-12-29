@@ -3,6 +3,7 @@ package io.tchepannou.kiosk.pipeline.consumer;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.sqs.AmazonSQS;
+import com.google.common.base.Strings;
 import io.tchepannou.kiosk.pipeline.aws.sqs.SqsConsumer;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
@@ -68,7 +69,7 @@ public class ArticleMetadataConsumer implements SqsConsumer {
             final String html = IOUtils.toString(s3Object.getObjectContent());
             final Document doc = Jsoup.parse(html);
             article.setTitle(extractTitle(doc));
-            article.setSummary(extractSummary(doc));
+            setSummary(doc, article);
 
             articleRepository.save(article);
 
@@ -77,8 +78,11 @@ public class ArticleMetadataConsumer implements SqsConsumer {
     }
 
     //-- Private
-    protected String extractSummary(final Document doc) {
-        return selectMeta(doc, "meta[property=og:description]");
+    protected void setSummary(final Document doc, final Article article) {
+        final String summary = selectMeta(doc, "meta[property=og:description]");
+        if (!Strings.isNullOrEmpty(summary)) {
+            article.setSummary(Article.normalizeSummary(summary));
+        }
     }
 
     protected String extractTitle(final Document doc) {

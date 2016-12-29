@@ -10,6 +10,7 @@ import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.content.ContentExtractor;
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,7 +77,8 @@ public class ContentExtractorConsumerTest {
         when(obj.getObjectContent()).thenReturn(in);
         when(s3.getObject("bucket", s3Key)).thenReturn(obj);
 
-        when(extractor.extract("hello world")).thenReturn("world");
+        final String html = IOUtils.toString(getClass().getResourceAsStream("/extractor/content_default_filtered.html"));
+        when(extractor.extract("hello world")).thenReturn(html);
 
         when(clock.millis()).thenReturn(1111L);
 
@@ -96,7 +98,8 @@ public class ContentExtractorConsumerTest {
         assertThat(article.getValue().getLink()).isEqualTo(link);
         assertThat(article.getValue().getS3Key()).isEqualTo("dev/content/2010/10/11/test.html");
         assertThat(article.getValue().getPublishedDate()).isEqualTo(new Date(1111L));
-        assertThat(article.getValue().getContentLength()).isEqualTo(5);
+        assertThat(article.getValue().getContentLength()).isEqualTo(17116);
+        assertThat(article.getValue().getSummary()).isEqualTo("WACO, Texas — Rico Gathers snared 11 rebounds and swatted four shots, but the pro scout watching Bay...");
 
         verify(sqs).sendMessage(eq("output-queue"), anyString());
     }

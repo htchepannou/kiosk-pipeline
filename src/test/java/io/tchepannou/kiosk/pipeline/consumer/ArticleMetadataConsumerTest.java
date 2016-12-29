@@ -66,8 +66,7 @@ public class ArticleMetadataConsumerTest {
 
         // Then
         assertThat(article.getTitle()).isEqualTo("Rigobert Song : « Je suis vraiment revenu de très loin »");
-        assertThat(article.getSummary()).isEqualTo(
-                "Et soudain, Rigobert Song apparaît dans l’embrasure de la porte. Quelques kilos en moins, des cheveux coupés courts, mais un sourire toujours aussi éclatant, communicatif. L’ancien capitaine du Cameroun, victime d’un accident vasculaire cérébral (AVC) avec rupture d’anévrisme (1), le 1er octobre dernier à Yaoundé, rejoint la salle de rééducation de l’hôpital parisien de la Pitié-Salpêtrière. Il marche à son rythme, ne présente quasiment aucune séquelle, si ce n’est trois orteils du pied droit encore faibles, (...)");
+        assertThat(article.getSummary()).isEqualTo("Et soudain, Rigobert Song apparaît dans l’embrasure de la porte. Quelques kilos en moins, des cheveu...");
         verify(articleRepository).save(article);
 
         verify(sqs).sendMessage("output-queue", "123");

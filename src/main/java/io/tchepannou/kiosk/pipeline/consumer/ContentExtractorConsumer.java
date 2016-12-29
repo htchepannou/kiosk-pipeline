@@ -11,6 +11,7 @@ import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.content.ContentExtractor;
 import org.apache.commons.io.IOUtils;
+import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,7 +76,7 @@ public class ContentExtractorConsumer extends SqsSnsConsumer {
 
             s3.putObject(s3Bucket, key, in, meta);
 
-            final Article article = createArticle(link, key, bytes.length);
+            final Article article = createArticle(link, key, xhtml);
             sqs.sendMessage(outputQueue, String.valueOf(article.getId()));
         }
     }
@@ -92,14 +93,20 @@ public class ContentExtractorConsumer extends SqsSnsConsumer {
         return metadata;
     }
 
-    private Article createArticle(final Link link, final String s3Key, final int contentLength) {
+    private Article createArticle(final Link link, final String s3Key, final String html) {
         final Article article = new Article();
         article.setLink(link);
         article.setS3Key(s3Key);
         article.setPublishedDate(new Date(clock.millis()));
-        article.setContentLength(contentLength);
+        article.setContentLength(html.length());
+        article.setSummary(defaultSummary(html));
         articleRepository.save(article);
         return article;
+    }
+
+    private String defaultSummary(final String xhtml){
+        final String text = Jsoup.parse(xhtml).text();
+        return Article.normalizeSummary(text);
     }
 
     //-- Getter/Setter

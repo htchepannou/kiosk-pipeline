@@ -9,6 +9,7 @@ import io.tchepannou.kiosk.pipeline.persistence.repository.FeedRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import io.tchepannou.kiosk.pipeline.service.InvalidContentTypeException;
+import io.tchepannou.kiosk.pipeline.service.UrlBlacklistService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -55,6 +56,9 @@ public class HtmlDownloadConsumerTest {
 
     @Mock
     LinkRepository linkRepository;
+
+    @Mock
+    UrlBlacklistService urlBlacklistService;
 
     @Mock
     FeedRepository feedRepository;
@@ -154,7 +158,20 @@ public class HtmlDownloadConsumerTest {
         final InvalidContentTypeException ex = new InvalidContentTypeException("error");
         doThrow(ex).when(http).getHtml(eq(url), any(OutputStream.class));
 
-        when(linkRepository.save(any(Link.class))).thenThrow(new DataIntegrityViolationException("error"));
+        // Given
+        consumer.consume(url);
+
+        // Then
+        verify(s3, never()).putObject(anyString(), anyString(), any(InputStream.class), any(ObjectMetadata.class));
+        verify(linkRepository, never()).save(any(Link.class));
+        verify(sns, never()).publish(anyString(), anyString());
+    }
+
+    @Test
+    public void shouldNotConsumeBlacklistedUrl() throws Exception {
+        // Given
+        final String url = "http://www.goo.com/test.html";
+        when(urlBlacklistService.contains(url)).thenReturn(true);
 
         // Given
         consumer.consume(url);

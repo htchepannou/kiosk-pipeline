@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaxxer.hikari.HikariDataSource;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import io.tchepannou.kiosk.pipeline.service.ShutdownService;
+import io.tchepannou.kiosk.pipeline.service.UrlBlacklistService;
 import io.tchepannou.kiosk.pipeline.service.content.ContentExtractor;
 import io.tchepannou.kiosk.pipeline.service.content.ContentFilter;
 import io.tchepannou.kiosk.pipeline.service.content.HtmlEntityFilter;
@@ -92,5 +93,11 @@ public class AppConfiguration {
     @Bean
     public ImageProcessorService imageProcessorService(){
         return new ImageProcessorService();
+    }
+
+    @Bean
+    @ConfigurationProperties("kiosk.service.UrlBlacklistService")
+    public UrlBlacklistService urlBlacklistService(){
+        return new UrlBlacklistService();
     }
 }

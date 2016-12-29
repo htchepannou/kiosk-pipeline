@@ -10,6 +10,7 @@ import io.tchepannou.kiosk.pipeline.persistence.repository.FeedRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import io.tchepannou.kiosk.pipeline.service.InvalidContentTypeException;
+import io.tchepannou.kiosk.pipeline.service.UrlBlacklistService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,9 @@ public class HtmlDownloadConsumer implements SqsConsumer {
     @Autowired
     LinkRepository linkRepository;
 
+    @Autowired
+    UrlBlacklistService urlBlacklistService;
+
     private String inputQueue;
     private String outputTopic;
     private String s3Bucket;
@@ -63,7 +67,7 @@ public class HtmlDownloadConsumer implements SqsConsumer {
 
     @Override
     public void consume(final String body) throws IOException {
-        if (alreadyDownloaded(body)){
+        if (alreadyDownloaded(body) || isBlacklisted(body)){
             return;
         }
         try {
@@ -114,6 +118,10 @@ public class HtmlDownloadConsumer implements SqsConsumer {
     private boolean alreadyDownloaded(final String url){
         final String keyhash = Link.hash(url);
         return linkRepository.findByUrlHash(keyhash) != null;
+    }
+
+    private boolean isBlacklisted(final String url){
+        return urlBlacklistService.contains(url);
     }
 
     private void downloaded(final String url, final String s3Key, final Feed feed){

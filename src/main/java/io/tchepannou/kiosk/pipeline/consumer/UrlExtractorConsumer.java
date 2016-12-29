@@ -7,6 +7,7 @@ import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.FeedRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
+import io.tchepannou.kiosk.pipeline.service.UrlBlacklistService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
@@ -37,6 +38,9 @@ public class UrlExtractorConsumer implements SqsConsumer {
     @Autowired
     LinkRepository linkRepository;
 
+    @Autowired
+    UrlBlacklistService urlBlacklistService;
+
     private String inputQueue;
     private String outputQueue;
 
@@ -50,8 +54,12 @@ public class UrlExtractorConsumer implements SqsConsumer {
                 continue;
             }
 
-            LOGGER.info("Sending {} to queue: {}", url, outputQueue);
-            sqs.sendMessage(outputQueue, url);
+            if (!urlBlacklistService.contains(url)) {
+                LOGGER.info("Sending {} to queue: {}", url, outputQueue);
+                sqs.sendMessage(outputQueue, url);
+            } else {
+                LOGGER.info("{} is blacklisted");
+            }
         }
     }
 

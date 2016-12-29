@@ -7,6 +7,12 @@ kiosk:
   validation:
     minContentLength: 200
 
+  service:
+    UrlBlacklistService:
+      urls:
+      - "/feed/rss"
+      - "*/wp-login*"
+
   pipeline:
     FeedProducer:
       outputQueue: "kiosk-${kiosk.environment}-feed-queue"

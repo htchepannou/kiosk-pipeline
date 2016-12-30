@@ -14,6 +14,9 @@ import io.tchepannou.kiosk.pipeline.service.content.SanitizeFilter;
 import io.tchepannou.kiosk.pipeline.service.content.TrimFilter;
 import io.tchepannou.kiosk.pipeline.service.image.ImageExtractor;
 import io.tchepannou.kiosk.pipeline.service.image.ImageProcessorService;
+import io.tchepannou.kiosk.pipeline.service.title.TitleFeedFilter;
+import io.tchepannou.kiosk.pipeline.service.title.TitleSanitizer;
+import io.tchepannou.kiosk.pipeline.service.title.TitleSuffixFilter;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -99,5 +102,14 @@ public class AppConfiguration {
     @ConfigurationProperties("kiosk.service.UrlBlacklistService")
     public UrlBlacklistService urlBlacklistService(){
         return new UrlBlacklistService();
+    }
+
+    @Bean
+    TitleSanitizer titleSanitizer(){
+        return new TitleSanitizer(Arrays.asList(
+                new TitleFeedFilter(),
+
+                new TitleSuffixFilter() /* SHOULD BE THE LAST!!! */
+        ));
     }
 }

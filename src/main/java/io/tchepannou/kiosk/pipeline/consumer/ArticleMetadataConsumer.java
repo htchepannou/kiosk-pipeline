@@ -8,6 +8,7 @@ import com.google.common.base.Strings;
 import io.tchepannou.kiosk.pipeline.aws.sqs.SqsConsumer;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
+import io.tchepannou.kiosk.pipeline.service.title.TitleSanitizer;
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -60,6 +61,9 @@ public class ArticleMetadataConsumer implements SqsConsumer {
     @Autowired
     ArticleRepository articleRepository;
 
+    @Autowired
+    TitleSanitizer titleSanitizer;
+
     private String inputQueue;
     private String outputQueue;
     private String s3Bucket;
@@ -73,9 +77,12 @@ public class ArticleMetadataConsumer implements SqsConsumer {
         try (final S3Object s3Object = s3.getObject(s3Bucket, article.getLink().getS3Key())) {
             final String html = IOUtils.toString(s3Object.getObjectContent());
             final Document doc = Jsoup.parse(html);
+
             article.setTitle(extractTitle(doc));
+            article.setDisplayTitle(titleSanitizer.filter(article));
             setSummary(doc, article);
             setPublishedDate(doc, article);
+
 
             articleRepository.save(article);
 
@@ -97,13 +104,13 @@ public class ArticleMetadataConsumer implements SqsConsumer {
                 "og:updated_time"
         };
         final DateFormat fmt = new SimpleDateFormat(DATETIME_FORMAT);
-        for (String property : properties){
+        for (final String property : properties) {
             final String date = selectMeta(doc, "meta[property=" + property + "]");
-            if (!Strings.isNullOrEmpty(date)){
+            if (!Strings.isNullOrEmpty(date)) {
                 try {
                     article.setPublishedDate(fmt.parse(date));
                     break;
-                } catch (Exception e){
+                } catch (final Exception e) {
                     LOGGER.warn("Invalid format for published date: {} - Excepting {}", date, DATETIME_FORMAT, e);
                 }
             }

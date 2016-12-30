@@ -8,6 +8,7 @@ import io.tchepannou.kiosk.pipeline.Fixtures;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
+import io.tchepannou.kiosk.pipeline.service.title.TitleSanitizer;
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -39,6 +40,9 @@ public class ArticleMetadataConsumerTest {
     @Mock
     ArticleRepository articleRepository;
 
+    @Mock
+    TitleSanitizer titleSanitizer;
+
     @InjectMocks
     ArticleMetadataConsumer consumer;
 
@@ -65,11 +69,14 @@ public class ArticleMetadataConsumerTest {
 
         final DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
+        when(titleSanitizer.filter(article)).thenReturn("This is the sanitized title");
+
         // Then
         consumer.consume("123");
 
         // Then
         assertThat(article.getTitle()).isEqualTo("Rigobert Song : « Je suis vraiment revenu de très loin »");
+        assertThat(article.getDisplayTitle()).isEqualTo("This is the sanitized title");
         assertThat(article.getSummary()).isEqualTo("Et soudain, Rigobert Song apparaît dans l’embrasure de la porte. Quelques kilos en moins, des cheveu...");
         assertThat(fmt.format(article.getPublishedDate())).startsWith("2016-12-29");
         verify(articleRepository).save(article);

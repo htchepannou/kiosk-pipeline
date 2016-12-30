@@ -33,6 +33,7 @@ public class ArticleMetadataConsumer implements SqsConsumer {
     private static final String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssX";
 
     private final String[] CSS_SELECTORS = new String[]{
+            "article header h1",
             "article h1",
             ".entry-content h1",
             ".entry-title",
@@ -82,7 +83,6 @@ public class ArticleMetadataConsumer implements SqsConsumer {
             article.setDisplayTitle(titleSanitizer.filter(article));
             setSummary(doc, article);
             setPublishedDate(doc, article);
-
 
             articleRepository.save(article);
 

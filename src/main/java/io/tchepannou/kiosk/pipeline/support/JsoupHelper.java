@@ -23,12 +23,12 @@ public class JsoupHelper {
 
     public static String selectMeta(final Document doc, final String cssSelector) {
         final Elements elts = doc.select(cssSelector);
-        return elts.isEmpty() ? null : elts.attr("content");
+        return elts.isEmpty() ? null : elts.get(0).attr("content");
     }
 
     public static String select(final Document doc, final String cssSelector) {
         final Elements elts = doc.select(cssSelector);
-        return elts.isEmpty() ? null : elts.text();
+        return elts.isEmpty() ? null : elts.get(0).text();
     }
 
     public interface Predicate<T> {

@@ -17,7 +17,7 @@ import java.io.OutputStream;
 
 public class HttpService {
     private static final String VERSION = "1.0";
-    private static final String USER_AGENT = String.format("Mozilla/5.0 (compatible; Kioskbot/%s)", VERSION);
+    private static final String USER_AGENT = String.format("Mozilla/5.0  (Linux; U; Android 4.0.3; ko-kr; LG-L160L Build/IML74K) Kioskbot/%s", VERSION);
 
     static {
         System.setProperty("http.agent", USER_AGENT);

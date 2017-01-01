@@ -32,7 +32,7 @@ public class ArticleMetadataConsumer implements SqsConsumer {
 
     private static final String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssX";
 
-    private final String[] CSS_SELECTORS = new String[]{
+    private final String[] TITLE_CSS_SELECTORS = new String[]{
             "article header h1",
             "article h1",
             ".entry-content h1",
@@ -51,6 +51,12 @@ public class ArticleMetadataConsumer implements SqsConsumer {
             ".type-post h1",
             ".instapaper_title",
             ".markdown-body h1",
+    };
+
+    private final String[] PUBLISHED_DATE_CSS_SELECTORS = new String[]{
+            "article:published_time",
+            "og:updated_time",
+            "shareaholic:article_published_time"
     };
 
     @Autowired
@@ -99,12 +105,8 @@ public class ArticleMetadataConsumer implements SqsConsumer {
     }
 
     private void setPublishedDate(final Document doc, final Article article) {
-        final String[] properties = new String[]{
-                "article:published_time",
-                "og:updated_time"
-        };
         final DateFormat fmt = new SimpleDateFormat(DATETIME_FORMAT);
-        for (final String property : properties) {
+        for (final String property : PUBLISHED_DATE_CSS_SELECTORS) {
             final String date = selectMeta(doc, "meta[property=" + property + "]");
             if (!Strings.isNullOrEmpty(date)) {
                 try {
@@ -121,7 +123,7 @@ public class ArticleMetadataConsumer implements SqsConsumer {
     protected String extractTitle(final Document doc) {
         String title = selectMeta(doc, "meta[property=og:title]");
         if (title == null) {
-            for (final String selector : CSS_SELECTORS) {
+            for (final String selector : TITLE_CSS_SELECTORS) {
                 title = select(doc, selector);
                 if (title != null) {
                     break;

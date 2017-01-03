@@ -1,5 +1,6 @@
 package io.tchepannou.kiosk.pipeline.service.image;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -60,5 +61,12 @@ public class ImageExtractorTest {
                 + "</html>";
 
         assertThat(extractor.extract(html)).isEqualTo("http://camfoot.com/IMG/arton25520.jpg?1482594254");
+    }
+
+    @Test
+    public void shouldExtractImageFromTheSpark() throws Exception {
+        final String html = IOUtils.toString(getClass().getResourceAsStream("/image/sparkcameroon.html"));
+
+        assertThat(extractor.extract(html)).isEqualTo("http://www.sparkcameroun.com/wp-content/uploads/2015/12/81440056.jpg");
     }
 }

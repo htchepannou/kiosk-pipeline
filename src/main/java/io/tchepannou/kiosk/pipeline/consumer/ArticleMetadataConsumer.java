@@ -21,6 +21,7 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static io.tchepannou.kiosk.pipeline.support.JsoupHelper.select;
 import static io.tchepannou.kiosk.pipeline.support.JsoupHelper.selectMeta;
@@ -55,7 +56,6 @@ public class ArticleMetadataConsumer implements SqsConsumer {
 
     private final String[] PUBLISHED_DATE_CSS_SELECTORS = new String[]{
             "article:published_time",
-            "og:updated_time",
             "shareaholic:article_published_time"
     };
 
@@ -105,18 +105,31 @@ public class ArticleMetadataConsumer implements SqsConsumer {
     }
 
     private void setPublishedDate(final Document doc, final Article article) {
+        final Date date = extractPublishedDate(doc);
+        if (date != null){
+            article.setPublishedDate(date);
+        }
+    }
+
+    @VisibleForTesting
+    protected Date extractPublishedDate(final Document doc) {
         final DateFormat fmt = new SimpleDateFormat(DATETIME_FORMAT);
+        Date result = null;
         for (final String property : PUBLISHED_DATE_CSS_SELECTORS) {
-            final String date = selectMeta(doc, "meta[property=" + property + "]");
+
+            final String date = property.startsWith("shareaholic")
+                    ? selectMeta(doc, "meta[name=" + property + "]")
+                    : selectMeta(doc, "meta[property=" + property + "]");
             if (!Strings.isNullOrEmpty(date)) {
                 try {
-                    article.setPublishedDate(fmt.parse(date));
+                    result = fmt.parse(date);
                     break;
                 } catch (final Exception e) {
                     LOGGER.warn("Invalid format for published date: {} - Excepting {}", date, DATETIME_FORMAT, e);
                 }
             }
         }
+        return result;
     }
 
     @VisibleForTesting

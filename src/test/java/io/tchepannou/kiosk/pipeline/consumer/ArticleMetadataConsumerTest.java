@@ -90,6 +90,13 @@ public class ArticleMetadataConsumerTest {
         assertThat(consumer.extractTitle(doc)).isEqualTo("Les motos-taxis en ordre de bataille contre le sida");
     }
 
+    @Test
+    public void shouldExtractPublishedDateFromSparkCameroon() throws Exception {
+        final Document doc = loadDocument("/meta/sparkcameroon.html");
+        final DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
+        assertThat(fmt.format(consumer.extractPublishedDate(doc))).isEqualTo("2016-12-04");
+    }
+
     private Document loadDocument(final String path) throws Exception {
         final String html = IOUtils.toString(getClass().getResourceAsStream(path));
         return Jsoup.parse(html);

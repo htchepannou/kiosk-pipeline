@@ -13,8 +13,10 @@ public class TitleSanitizer {
 
     public String filter(final Article article) {
         String title = article.getTitle();
-        for (final TitleFilter filter : filters) {
-            title = filter.filter(title, article);
+        if (title != null) {
+            for (final TitleFilter filter : filters) {
+                title = filter.filter(title, article);
+            }
         }
         return title;
     }

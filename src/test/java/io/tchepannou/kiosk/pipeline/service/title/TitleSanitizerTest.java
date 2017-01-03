@@ -34,4 +34,27 @@ public class TitleSanitizerTest {
         assertThat(extractor.filter(article)).isEqualTo("c");
 
     }
+
+    @Test
+    public void testFilterNullTitle() throws Exception {
+        // Given
+        final Article article = new Article();
+        article.setTitle(null);
+
+        final TitleFilter f1 = mock(TitleFilter.class);
+        when(f1.filter(any(), any())).thenReturn("a");
+
+        final TitleFilter f2 = mock(TitleFilter.class);
+        when(f2.filter(any(), any())).thenReturn("b");
+
+        final TitleFilter f3 = mock(TitleFilter.class);
+        when(f3.filter(any(), any())).thenReturn("c");
+
+        // When
+        final TitleSanitizer extractor = new TitleSanitizer(Arrays.asList(f1, f2, f3));
+
+        // Then
+        assertThat(extractor.filter(article)).isNull();
+
+    }
 }

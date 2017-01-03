@@ -58,7 +58,7 @@ public class UrlExtractorConsumer implements SqsConsumer {
                 LOGGER.info("Sending {} to queue: {}", url, outputQueue);
                 sqs.sendMessage(outputQueue, url);
             } else {
-                LOGGER.info("{} is blacklisted");
+                LOGGER.info("{} is blacklisted", url);
             }
         }
     }

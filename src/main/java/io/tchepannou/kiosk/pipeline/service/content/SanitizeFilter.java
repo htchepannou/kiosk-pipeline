@@ -18,6 +18,11 @@ public class SanitizeFilter implements Filter<String> {
     public static final String[] TAG_WHITELIST =
             "a,b,blockquote,body,br,caption,cite,code,col,colgroup,dd,div,dl,dt,em,h1,h2,h3,h4,h5,h6,i,li,ol,p,pre,q,small,span,strike,strong,sub,sup,table,tbody,td,tfoot,th,thead,tr,u,ul"
                     .split(",");
+    public static final String[] CSS_BLACKLIST = new String[]{
+            "footer",
+            "#comments",
+            ".comments"
+    };
 
     private final Whitelist whitelist;
 
@@ -37,6 +42,7 @@ public class SanitizeFilter implements Filter<String> {
         final Set<Element> items = new HashSet<>();
         collectSocialLinks(doc.body(), items);
         collectEmpty(doc.body(), items);
+        collectBlaclistCss(doc.body(), items);
         removeAll(items);
 
         /* clean anchors */
@@ -48,7 +54,7 @@ public class SanitizeFilter implements Filter<String> {
     private Whitelist createWhitelist(final String[] tags) {
         final Whitelist wl = new Whitelist();
         wl.addTags(tags);
-        for (final String tag : tags){
+        for (final String tag : tags) {
             wl.addAttributes(tag, "id");
         }
         return wl;
@@ -59,6 +65,12 @@ public class SanitizeFilter implements Filter<String> {
             if (isSocialLink(elt.attr("href"))) {
                 items.add(elt);
             }
+        }
+    }
+
+    private void collectBlaclistCss(final Element node, final Collection<Element> items) {
+        for (final String css : CSS_BLACKLIST) {
+            items.addAll(node.select(css));
         }
     }
 

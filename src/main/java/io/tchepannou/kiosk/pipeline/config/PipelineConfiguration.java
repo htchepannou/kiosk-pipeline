@@ -6,10 +6,11 @@ import io.tchepannou.kiosk.pipeline.consumer.ArticleMetadataConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.ArticleValidationConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.ContentExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.HtmlDownloadConsumer;
-import io.tchepannou.kiosk.pipeline.consumer.ImageDownloadConsumer;
+import io.tchepannou.kiosk.pipeline.consumer.ImageExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.ImageMainConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.ImageThumbnailConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.UrlExtractorConsumer;
+import io.tchepannou.kiosk.pipeline.consumer.VideoExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.producer.FeedProducer;
 import io.tchepannou.kiosk.pipeline.service.ThreadMonitor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,8 +58,8 @@ public class PipelineConfiguration {
 
     @Bean
     @Scope("prototype")
-    ImageDownloadConsumer imageDownloadConsumer() {
-        return new ImageDownloadConsumer();
+    ImageExtractorConsumer imageExtractorConsumer() {
+        return new ImageExtractorConsumer();
     }
 
     @Bean
@@ -73,6 +74,12 @@ public class PipelineConfiguration {
         return new ImageMainConsumer();
     }
 
+    @Bean
+    @Scope("prototype")
+    VideoExtractorConsumer videoExtractorConsumer() {
+        return new VideoExtractorConsumer();
+    }
+    
     @Bean
     @Scope("prototype")
     ArticleMetadataConsumer articleMetadataConsumer(){
@@ -96,9 +103,11 @@ public class PipelineConfiguration {
         startArticleMetadataConsumers(CONSUMER_THREADS);
         startArticleValidationConsumers(CONSUMER_THREADS);
 
-        startImageDownloadConsumers(2 * CONSUMER_THREADS);
+        startImageExtractorConsumers(2 * CONSUMER_THREADS);
         startImageThumbnailConsumers(2 * CONSUMER_THREADS);
         startImageMainConsumers(2 * CONSUMER_THREADS);
+
+        startVideoExtractorConsumers(CONSUMER_THREADS);
 
         feedProducer().produce();
     }
@@ -125,9 +134,9 @@ public class PipelineConfiguration {
         }
     }
 
-    private void startImageDownloadConsumers(final int threadCount) {
+    private void startImageExtractorConsumers(final int threadCount) {
         for (int i = 0; i < threadCount; i++) {
-            final ImageDownloadConsumer consumer = imageDownloadConsumer();
+            final ImageExtractorConsumer consumer = imageExtractorConsumer();
             SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor());
         }
     }
@@ -135,6 +144,13 @@ public class PipelineConfiguration {
     private void startImageThumbnailConsumers(final int threadCount) {
         for (int i = 0; i < threadCount; i++) {
             final ImageThumbnailConsumer consumer = imageThumbnailConsumer();
+            SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor());
+        }
+    }
+
+    private void startVideoExtractorConsumers(final int threadCount) {
+        for (int i = 0; i < threadCount; i++) {
+            final VideoExtractorConsumer consumer = videoExtractorConsumer();
             SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor());
         }
     }

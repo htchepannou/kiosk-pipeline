@@ -27,10 +27,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
 
-@ConfigurationProperties("kiosk.pipeline.ImageDownloadConsumer")
+@ConfigurationProperties("kiosk.pipeline.ImageExtractorConsumer")
 @Transactional
-public class ImageDownloadConsumer extends SqsSnsConsumer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImageDownloadConsumer.class);
+public class ImageExtractorConsumer extends SqsSnsConsumer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImageExtractorConsumer.class);
 
     @Autowired
     AmazonS3 s3;

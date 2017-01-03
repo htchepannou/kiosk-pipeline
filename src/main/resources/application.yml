@@ -43,7 +43,7 @@ kiosk:
     ArticleValidationConsumer:
       inputQueue: "kiosk-${kiosk.environment}-validation-queue"
 
-    ImageDownloadConsumer:
+    ImageExtractorConsumer:
       inputQueue: "kiosk-${kiosk.environment}-image-extraction-queue"
       outputTopic: "arn:aws:sns:us-east-1:828725992074:kiosk-${kiosk.environment}-image-downloaded-topic"
       s3Bucket: "${kiosk.aws.s3.s3Bucket}"
@@ -63,6 +63,11 @@ kiosk:
       s3Key: "${kiosk.environment}/image"
       width: 440
       height:  220
+
+    VideoExtractorConsumer:
+      inputQueue: "kiosk-${kiosk.environment}-video-extraction-queue"
+      s3Bucket: "${kiosk.aws.s3.s3Bucket}"
+
 
 spring:
   datasource:

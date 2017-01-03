@@ -17,6 +17,8 @@ import io.tchepannou.kiosk.pipeline.service.image.ImageProcessorService;
 import io.tchepannou.kiosk.pipeline.service.title.TitleFeedFilter;
 import io.tchepannou.kiosk.pipeline.service.title.TitleSanitizer;
 import io.tchepannou.kiosk.pipeline.service.title.TitleSuffixFilter;
+import io.tchepannou.kiosk.pipeline.service.video.VideoExtractor;
+import io.tchepannou.kiosk.pipeline.service.video.YouTube;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -111,5 +113,17 @@ public class AppConfiguration {
 
                 new TitleSuffixFilter() /* SHOULD BE THE LAST!!! */
         ));
+    }
+
+    @Bean
+    VideoExtractor videoServiceProvideR(){
+        return new VideoExtractor(Arrays.asList(
+                youTube()
+        ));
+    }
+
+    @Bean
+    YouTube youTube(){
+        return new YouTube();
     }
 }

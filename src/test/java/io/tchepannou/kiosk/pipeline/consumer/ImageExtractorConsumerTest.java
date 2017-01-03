@@ -36,7 +36,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ImageDownloadConsumerTest {
+public class ImageExtractorConsumerTest {
     @Mock
     AmazonS3 s3;
 
@@ -56,7 +56,7 @@ public class ImageDownloadConsumerTest {
     HttpService http;
 
     @InjectMocks
-    ImageDownloadConsumer consumer;
+    ImageExtractorConsumer consumer;
 
     @Before
     public void setUp() {

@@ -18,7 +18,7 @@ public class Video {
     @JoinColumn (name = "link_fk")
     private Link link;
 
-    @Column (name="embed_url", columnDefinition = "TEXT")
+    @Column (name="embed_url", length = 100)
     private String embedUrl;
 
     public String getEmbedUrl() {

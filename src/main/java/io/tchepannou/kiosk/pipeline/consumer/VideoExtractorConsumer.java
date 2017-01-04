@@ -54,10 +54,13 @@ public class VideoExtractorConsumer extends SqsSnsConsumer {
             final List<String> urls = videoExtractor.extract(html);
             if (!urls.isEmpty()) {
                 for (final String url : urls) {
-                    final Video video = toVideo(url, link);
-                    if (video != null) {
-                        videoRepository.save(video);
+                    if (alreadyDownloaded(url)){
+                        LOGGER.info("{} already downloaded. Ignoring it", url);
+                        continue;
                     }
+
+                    final Video video = toVideo(url, link);
+                    videoRepository.save(video);
                 }
             }
         }
@@ -68,6 +71,11 @@ public class VideoExtractorConsumer extends SqsSnsConsumer {
         video.setEmbedUrl(url);
         video.setLink(link);
         return video;
+    }
+
+    private boolean alreadyDownloaded(final String url){
+        List<Video> videos = videoRepository.findByUrl(url);
+        return videos != null && !videos.isEmpty();
     }
 
 

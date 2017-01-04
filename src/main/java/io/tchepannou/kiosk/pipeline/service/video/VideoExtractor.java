@@ -22,7 +22,7 @@ public class VideoExtractor {
         for (Element elt : elts){
             final String src = elt.attr("src");
             final String url = getEmbedUrl(src);
-            if (url != null){
+            if (url != null && !urls.contains(url)){
                 urls.add(url);
             }
         }

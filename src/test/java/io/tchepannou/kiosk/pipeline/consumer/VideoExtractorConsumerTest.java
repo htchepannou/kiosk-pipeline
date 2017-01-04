@@ -100,8 +100,31 @@ public class VideoExtractorConsumerTest {
 
         when(extractor.extract(anyString())).thenReturn(new ArrayList<>());
 
+        // Then
+        consumer.consumeMessage("123");
 
-        doAnswer(saveVideo(567)).when(videoRepository).save(any(Video.class));
+        // Then
+        verify(videoRepository, never()).save(any(Video.class));
+    }
+
+    @Test
+    public void shouldRejectVideoAlreadyDownloaded() throws Exception {
+        // Given
+        final String s3Key = "dev/html/2010/10/11/test.html";
+        final Link link = new Link();
+        link.setId(123);
+        link.setS3Key(s3Key);
+        when(linkRepository.findOne(123L)).thenReturn(link);
+
+        final String html = IOUtils.toString(getClass().getResource("/image/article.html"));
+        final S3ObjectInputStream in = createS3InputStream(html);
+        final S3Object obj = createS3Object("bucket", s3Key);
+        when(obj.getObjectContent()).thenReturn(in);
+        when(s3.getObject("bucket", s3Key)).thenReturn(obj);
+
+        when(extractor.extract(anyString())).thenReturn(Arrays.asList("http://youtu.be/XOcCOBe8PTc"));
+
+        when(videoRepository.findByUrl("http://youtu.be/XOcCOBe8PTc")).thenReturn(Arrays.asList(new Video()));
 
         // Then
         consumer.consumeMessage("123");

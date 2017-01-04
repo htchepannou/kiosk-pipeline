@@ -61,7 +61,7 @@ public class HttpServiceTest {
         final OutputStream out = new ByteArrayOutputStream();
 
         service.getHtml("http://www.cameroon-info.net", out);
-        System.out.println(out.toString());
+//        System.out.println(out.toString());
         assertThat(out.toString()).contains("Cameroon-Info.Net Mobile");
     }
 

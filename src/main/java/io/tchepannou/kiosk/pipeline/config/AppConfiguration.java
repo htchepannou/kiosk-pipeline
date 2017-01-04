@@ -57,8 +57,6 @@ public class AppConfiguration {
         return source;
     }
 
-
-
     @Bean
     ObjectMapper objectMapper() {
         return jackson2ObjectMapperBuilder().build();
@@ -71,10 +69,10 @@ public class AppConfiguration {
 
     //-- Services
     @Bean
-    ContentExtractor contentExtractor(){
+    ContentExtractor contentExtractor() {
         return new ContentExtractor(Arrays.asList(
                 new SanitizeFilter(),
-                new ContentFilter(255),
+                new ContentFilter(100),
                 new TrimFilter(),
                 new HtmlEntityFilter()
         ));
@@ -91,23 +89,23 @@ public class AppConfiguration {
     }
 
     @Bean
-    public ImageExtractor imageExtractor(){
+    public ImageExtractor imageExtractor() {
         return new ImageExtractor();
     }
 
     @Bean
-    public ImageProcessorService imageProcessorService(){
+    public ImageProcessorService imageProcessorService() {
         return new ImageProcessorService();
     }
 
     @Bean
     @ConfigurationProperties("kiosk.service.UrlBlacklistService")
-    public UrlBlacklistService urlBlacklistService(){
+    public UrlBlacklistService urlBlacklistService() {
         return new UrlBlacklistService();
     }
 
     @Bean
-    TitleSanitizer titleSanitizer(){
+    TitleSanitizer titleSanitizer() {
         return new TitleSanitizer(Arrays.asList(
                 new TitleFeedFilter(),
 
@@ -116,14 +114,14 @@ public class AppConfiguration {
     }
 
     @Bean
-    VideoExtractor videoServiceProvideR(){
+    VideoExtractor videoServiceProvideR() {
         return new VideoExtractor(Arrays.asList(
                 youTube()
         ));
     }
 
     @Bean
-    YouTube youTube(){
+    YouTube youTube() {
         return new YouTube();
     }
 }

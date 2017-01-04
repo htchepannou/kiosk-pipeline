@@ -5,7 +5,7 @@ kiosk:
       s3Bucket: "${kiosk.namespace}.kiosk"
 
   validation:
-    minContentLength: 200
+    minContentLength: 100
 
   service:
     UrlBlacklistService:

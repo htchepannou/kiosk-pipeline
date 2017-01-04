@@ -6,8 +6,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.safety.Whitelist;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -20,6 +22,7 @@ public class SanitizeFilter implements Filter<String> {
                     .split(",");
     public static final String[] CSS_BLACKLIST = new String[]{
             "footer",
+            "#footer",
             "#comments",
             ".comments"
     };
@@ -27,8 +30,13 @@ public class SanitizeFilter implements Filter<String> {
     private final Whitelist whitelist;
 
     public SanitizeFilter() {
-        whitelist = createWhitelist(TAG_WHITELIST);
+        this(Arrays.asList(TAG_WHITELIST));
+    }
+
+    public SanitizeFilter(final List<String> tags) {
+        whitelist = createWhitelist(tags.toArray(new String[]{}));
         whitelist.addAttributes("a", "href");
+        whitelist.addAttributes("iframe", "src");
     }
 
     //-- TextFilter overrides
@@ -41,8 +49,8 @@ public class SanitizeFilter implements Filter<String> {
         final Document doc = Jsoup.parse(xhtml);
         final Set<Element> items = new HashSet<>();
         collectSocialLinks(doc.body(), items);
-        collectEmpty(doc.body(), items);
         collectBlaclistCss(doc.body(), items);
+        collectEmpty(doc.body(), items);
         removeAll(items);
 
         /* clean anchors */
@@ -51,7 +59,7 @@ public class SanitizeFilter implements Filter<String> {
         return doc.html();
     }
 
-    private Whitelist createWhitelist(final String[] tags) {
+    private Whitelist createWhitelist(final String... tags) {
         final Whitelist wl = new Whitelist();
         wl.addTags(tags);
         for (final String tag : tags) {
@@ -88,8 +96,11 @@ public class SanitizeFilter implements Filter<String> {
     }
 
     private void collectEmpty(final Element node, final Collection<Element> items) {
-        final JsoupHelper.Predicate<Element> predicate = elt
-                -> elt.children().isEmpty() && node.isBlock() && !node.hasText();
+        final JsoupHelper.Predicate<Element> predicate = elt -> elt.children().isEmpty()
+                    && !"iframe".equalsIgnoreCase(elt.tagName())
+                    && node.isBlock()
+                    && !node.hasText()
+                ;
 
         JsoupHelper.collect(node, items, predicate);
     }

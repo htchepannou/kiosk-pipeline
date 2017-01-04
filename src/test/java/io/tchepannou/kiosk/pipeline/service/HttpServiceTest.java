@@ -56,14 +56,7 @@ public class HttpServiceTest {
 //        System.out.println(html);
     }
 
-    @Test
-    public void shouldMobileHtml() throws Exception {
-        final OutputStream out = new ByteArrayOutputStream();
 
-        service.getHtml("http://www.cameroon-info.net", out);
-//        System.out.println(out.toString());
-        assertThat(out.toString()).contains("Cameroon-Info.Net Mobile");
-    }
 
     @Test
     public void shouldGetHtml() throws Exception {

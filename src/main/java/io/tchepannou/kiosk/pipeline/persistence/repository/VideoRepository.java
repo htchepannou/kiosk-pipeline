@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface VideoRepository extends CrudRepository<Video, Long> {
-    List<Video> findByUrl(String url);
+    List<Video> findByEmbedUrl(String embedUrl);
 }

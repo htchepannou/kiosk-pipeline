@@ -17,7 +17,7 @@ import java.io.OutputStream;
 
 public class HttpService {
     private static final String VERSION = "1.0";
-    private static final String USER_AGENT = String.format("Mozilla/5.0  (Linux; U; Android 4.0.3; ko-kr; LG-L160L Build/IML74K) Kioskbot/%s", VERSION);
+    private static final String USER_AGENT = String.format("Mozilla/5.0  (compatible; Kioskbot/%s)", VERSION);
 
     static {
         System.setProperty("http.agent", USER_AGENT);
@@ -25,6 +25,7 @@ public class HttpService {
 
     /**
      * Download the content of a web resource
+     *
      * @param url - URL of the web resource to download
      * @param out - OutputStream where to store the content of the link
      * @return content type
@@ -46,6 +47,7 @@ public class HttpService {
 
     /**
      * Download the content of a HTML page
+     *
      * @param url - URL of the HTML resource to download
      * @param out - OutputStream where to store the content of the link
      * @return content type
@@ -63,7 +65,7 @@ public class HttpService {
         }
     }
 
-    private String getContentType(final CloseableHttpResponse response){
+    private String getContentType(final CloseableHttpResponse response) {
         final Header header = response.getFirstHeader("Content-Type");
         return header != null ? header.getValue() : null;
     }

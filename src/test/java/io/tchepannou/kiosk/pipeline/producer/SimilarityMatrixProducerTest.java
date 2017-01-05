@@ -62,7 +62,7 @@ public class SimilarityMatrixProducerTest {
         final Article a1 = createArticle();
         final Article a2 = createArticle();
         final Article a3 = createArticle();
-        when (articleRepository.findByStatusNot(anyInt())).thenReturn(Arrays.asList(a1, a2, a3));
+        when (articleRepository.findByStatusNotAndPublishedDateBetween(anyInt(), any(), any())).thenReturn(Arrays.asList(a1, a2, a3));
 
         final Document d1 = createDocument(a1.getId(), "doc1");
         final Document d2 = createDocument(a2.getId(), "doc2");
@@ -75,7 +75,7 @@ public class SimilarityMatrixProducerTest {
         producer.produce();
 
         // Then
-        verify(s3).putObject(eq("bucket"), eq("dev/similarity/2015/01/03/report_11.txt"), any(File.class));
+        verify(s3).putObject(eq("bucket"), eq("dev/similarity/2015/01/03/matrix_11.txt"), any(File.class));
     }
 
 

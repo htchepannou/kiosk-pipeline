@@ -18,7 +18,7 @@ import java.util.Set;
 public class SanitizeFilter implements Filter<String> {
     //-- Static
     public static final String[] TAG_WHITELIST =
-            "a,b,blockquote,body,br,caption,cite,code,col,colgroup,dd,div,dl,dt,em,h1,h2,h3,h4,h5,h6,i,li,ol,p,pre,q,small,span,strike,strong,sub,sup,table,tbody,td,tfoot,th,thead,tr,u,ul"
+            "a,b,blockquote,body,br,caption,cite,code,col,colgroup,dd,div,dl,dt,em,footer,h1,h2,h3,h4,h5,h6,i,li,ol,p,pre,q,small,span,strike,strong,sub,sup,table,tbody,td,tfoot,th,thead,tr,u,ul"
                     .split(",");
     public static final String[] CSS_BLACKLIST = new String[]{
             "footer",
@@ -48,8 +48,8 @@ public class SanitizeFilter implements Filter<String> {
         /* post-clean */
         final Document doc = Jsoup.parse(xhtml);
         final Set<Element> items = new HashSet<>();
-        collectSocialLinks(doc.body(), items);
         collectBlaclistCss(doc.body(), items);
+        collectSocialLinks(doc.body(), items);
         collectEmpty(doc.body(), items);
         removeAll(items);
 

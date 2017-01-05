@@ -33,6 +33,9 @@ public class PipelineConfiguration {
     @Value("${kiosk.pipeline.maxThreadWait}")
     int maxThreadWait;
 
+    @Value("${kiosk.pipeline.autoStartPipeline}")
+    boolean autoStartPipeline;
+
     //-- Produces
     @Bean
     FeedProducer feedProducer() {
@@ -108,18 +111,20 @@ public class PipelineConfiguration {
     //-- Startup
     @PostConstruct
     public void init() {
-        startUrlExtractor(CONSUMER_THREADS);
-        startHtmlDownloader(CONSUMER_THREADS);
-        startContentExtractor(CONSUMER_THREADS);
+        if (autoStartPipeline) {
+            startUrlExtractor(CONSUMER_THREADS);
+            startHtmlDownloader(CONSUMER_THREADS);
+            startContentExtractor(CONSUMER_THREADS);
 
-        startArticleMetadataConsumers(CONSUMER_THREADS);
-        startArticleValidationConsumers(CONSUMER_THREADS);
+            startArticleMetadataConsumers(CONSUMER_THREADS);
+            startArticleValidationConsumers(CONSUMER_THREADS);
 
-        startImageExtractorConsumers(2 * CONSUMER_THREADS);
-        startImageThumbnailConsumers(2 * CONSUMER_THREADS);
-        startImageMainConsumers(2 * CONSUMER_THREADS);
+            startImageExtractorConsumers(2 * CONSUMER_THREADS);
+            startImageThumbnailConsumers(2 * CONSUMER_THREADS);
+            startImageMainConsumers(2 * CONSUMER_THREADS);
 
-        startVideoExtractorConsumers(CONSUMER_THREADS);
+            startVideoExtractorConsumers(CONSUMER_THREADS);
+        }
     }
 
     //-- Thread

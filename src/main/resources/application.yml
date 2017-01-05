@@ -22,7 +22,9 @@ kiosk:
       - "*#*"           # URL with anchors
 
   pipeline:
+    autoStartPipeline: false
     maxThreadWait: 60000
+
     FeedProducer:
       outputQueue: "kiosk-${kiosk.environment}-feed-queue"
 

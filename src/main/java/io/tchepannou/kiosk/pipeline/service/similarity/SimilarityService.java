@@ -5,7 +5,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -32,7 +35,7 @@ public class SimilarityService {
     private int shingleSize = 5;
 
     @VisibleForTesting
-    protected SimilarityService(){
+    protected SimilarityService() {
     }
 
     public SimilarityService(final List<TextFilter> filters) {
@@ -40,7 +43,6 @@ public class SimilarityService {
     }
 
     //-- Public
-
     /**
      * Compute the similarity of documents and store it into an OutputStream
      */
@@ -65,7 +67,7 @@ public class SimilarityService {
             for (int i = 0; i < documentCount; i++) {
                 final Document idoc = documents.get(i);
                 final Collection<String> ishingles = shingles.get(idoc);
-                LOGGER.info("Processing Document#{}. {} shingles", idoc.getId(), ishingles.size());
+                LOGGER.info("{}.- Processing Document#{}. {} shingles", i, idoc.getId(), ishingles.size());
 
                 for (int j = 0; j < documentCount; j++) {
                     if (i == j) {
@@ -84,6 +86,53 @@ public class SimilarityService {
             }
         }
     }
+
+    public Collection<Dedup> extractSimalarDocuments(final InputStream in, final float minThreshold, final float maxThreshold) throws IOException {
+        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+
+            /* load document ids */
+            final int documentCount = Integer.parseInt(reader.readLine());
+            final List<Long> documentIds = new ArrayList<>();
+            for (int i = 0; i < documentCount; i++) {
+                final long id = Long.parseLong(reader.readLine());
+                documentIds.add(id);
+            }
+
+            /* find dedups */
+            final Collection<Dedup> dedups = new ArrayList<>();
+            for (int i = 0; i < documentCount; i++) {
+                final long iid = documentIds.get(i);
+                final String line = reader.readLine().trim();
+                final String[] ratios = line.split(" ");
+                LOGGER.info("{}.- Processing Document#{}s", i, iid);
+
+                for (int j = i + 1; j < documentCount; j++) {
+                    final long jid = documentIds.get(j);
+                    try {
+                        final float ratio = Float.parseFloat(ratios[j]);
+                        if (ratio >= minThreshold && ratio < maxThreshold) {
+                            dedups.add(new Dedup(iid, jid, ratio));
+                        }
+                    } catch (final Exception e) {
+                        LOGGER.warn("{}.{}- Invalid line: {}", i, j, line, e);
+                    }
+                }
+            }
+
+            return dedups;
+        }
+    }
+//
+//    public static void main(final String[] args) throws Exception {
+//        final File file = new File(System.getProperty("user.home") + "/Downloads/matrix_13.txt");
+//        try (final FileInputStream fin = new FileInputStream(file)) {
+//            final Collection<Dedup> dedups = new SimilarityService().extractSimalarDocuments(fin, .9f, 100f);
+//            System.out.println(dedups.size() + " dedup");
+//            for (final Dedup dedup : dedups) {
+//                System.out.println(String.format("%s - %s - %s", dedup.getId1(), dedup.getId2(), dedup.getRatio()));
+//            }
+//        }
+//    }
 
     //-- Private
     private Collection<String> extractSingles(final Document doc) {

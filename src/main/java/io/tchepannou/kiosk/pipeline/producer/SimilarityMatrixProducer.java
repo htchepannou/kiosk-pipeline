@@ -6,6 +6,7 @@ import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
 import io.tchepannou.kiosk.pipeline.service.similarity.ArticleDocumentFactory;
 import io.tchepannou.kiosk.pipeline.service.similarity.Document;
 import io.tchepannou.kiosk.pipeline.service.similarity.SimilarityService;
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +55,7 @@ public class SimilarityMatrixProducer {
             final DateFormat prefixFmt = new SimpleDateFormat("yyyy/MM/dd");
             final DateFormat suffixFmt = new SimpleDateFormat("HH");
             final Date now = new Date(clock.millis());
-            final String key = String.format("%s/%s/report_%s.txt", s3Key, prefixFmt.format(now), suffixFmt.format(now));
+            final String key = String.format("%s/%s/matrix_%s.txt", s3Key, prefixFmt.format(now), suffixFmt.format(now));
 
             LOGGER.info("Storing {} to s3://{}/{}", file.getAbsolutePath(), s3Bucket, key);
             s3.putObject(s3Bucket, key, file);
@@ -64,7 +65,9 @@ public class SimilarityMatrixProducer {
     }
 
     private List<Document> loadDocuments() {
-        final List<Article> articles = articleRepository.findByStatusNot(Article.STATUS_INVALID);
+        final Date endDate = new Date();
+        final Date startDate = DateUtils.addDays(endDate, -7);
+        final List<Article> articles = articleRepository.findByStatusNotAndPublishedDateBetween(Article.STATUS_INVALID, startDate, endDate);
         return articles.stream()
                 .map(a -> articleDocumentFactory.createDocument(a))
                 .filter(d -> d != null)

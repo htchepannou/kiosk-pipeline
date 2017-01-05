@@ -51,6 +51,7 @@ public class UrlExtractorConsumer implements SqsConsumer {
         final List<String> urls = extractUrls(feed);
         for (final String url : urls) {
             if (alreadyDownloaded(url)) {
+                LOGGER.info("{} already downloaded", url);
                 continue;
             }
 

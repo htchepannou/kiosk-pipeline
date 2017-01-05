@@ -17,8 +17,8 @@ public class SqsReader implements Runnable {
     private final AmazonSQS sqs;
     private final SqsConsumer consumer;
     private final ThreadMonitor monitor;
-    long minDelay = 1000 * 30;
-    long maxDelay = 60000 * 5;
+    long minDelay = 1000 * 10;
+    long maxDelay = 60000 * 1;
 
     //-- Constructor
     public SqsReader(
@@ -38,9 +38,11 @@ public class SqsReader implements Runnable {
             final String queueName,
             final AmazonSQS sqs,
             final SqsConsumer consumer,
-            final ThreadMonitor monitor
+            final ThreadMonitor monitor,
+            final long maxDelayMillis
     ) {
         final SqsReader reader = new SqsReader(queueName, sqs, consumer, monitor);
+        reader.setMaxDelay(maxDelayMillis);
         final Thread thread = new Thread(reader);
         thread.setDaemon(true);
         thread.setName(consumer.getClass().getSimpleName() + "_" + (++threadCount));
@@ -98,16 +100,30 @@ public class SqsReader implements Runnable {
     }
 
     private long sleep(final long delay) {
-        long millis = 2 * delay;
 
         try {
-            LOGGER.info("Sleeping for {} ms", millis);
-            Thread.sleep(millis);
+            LOGGER.info("Sleeping for {} seconds", delay / 1000);
+            Thread.sleep(delay);
         } catch (final InterruptedException e) {
-            millis = maxDelay + 1;
+            LOGGER.warn("Thread interrupted", e);
         }
 
-        return millis;
+        return 2 * delay;
     }
 
+    public long getMinDelay() {
+        return minDelay;
+    }
+
+    public void setMinDelay(final long minDelay) {
+        this.minDelay = minDelay;
+    }
+
+    public long getMaxDelay() {
+        return maxDelay;
+    }
+
+    public void setMaxDelay(final long maxDelay) {
+        this.maxDelay = maxDelay;
+    }
 }

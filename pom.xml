@@ -23,6 +23,7 @@
         <aws-java-sdk.version>1.11.63</aws-java-sdk.version>
         <commons-io.version>2.4</commons-io.version>
         <commons-codec.version>1.10</commons-codec.version>
+        <commons-lang.version>3.4</commons-lang.version>
         <flyway.version>4.0.3</flyway.version>
         <h2database.version>1.4.192</h2database.version>
         <hikaricp.version>2.5.1</hikaricp.version>
@@ -124,6 +125,10 @@
             <version>${commons-io.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang.version}</version>
+        </dependency>        <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-parsers</artifactId>
             <version>${tika.version}</version>
@@ -385,12 +390,12 @@
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.85</minimum>
+                                            <minimum>0.87</minimum>
                                         </limit>
                                         <limit>
                                             <counter>CLASS</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.85</minimum>
+                                            <minimum>0.87</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

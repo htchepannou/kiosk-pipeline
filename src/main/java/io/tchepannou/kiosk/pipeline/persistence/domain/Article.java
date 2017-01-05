@@ -48,7 +48,7 @@ public class Article {
     @Column(name = "invalid_reason", length = 64)
     private String invalidReason;
 
-    public static String normalizeSummary(String summary) {
+    public static String normalizeSummary(final String summary) {
         if (summary == null) {
             return null;
         }

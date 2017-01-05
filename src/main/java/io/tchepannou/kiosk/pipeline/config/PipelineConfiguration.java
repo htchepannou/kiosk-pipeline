@@ -12,8 +12,11 @@ import io.tchepannou.kiosk.pipeline.consumer.ImageThumbnailConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.UrlExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.VideoExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.producer.FeedProducer;
+import io.tchepannou.kiosk.pipeline.producer.SimilarityMatrixProducer;
 import io.tchepannou.kiosk.pipeline.service.ThreadMonitor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -27,12 +30,22 @@ public class PipelineConfiguration {
     @Autowired
     AmazonSQS sqs;
 
-    //-- Bean
+    @Value("${kiosk.pipeline.maxThreadWait}")
+    int maxThreadWait;
+
+    //-- Produces
     @Bean
     FeedProducer feedProducer() {
         return new FeedProducer();
     }
 
+    @Bean
+    @ConfigurationProperties("kiosk.pipeline.SimilarityMatrixProducer")
+    SimilarityMatrixProducer similarityMatrixProducer() {
+        return new SimilarityMatrixProducer();
+    }
+
+    //-- Consumers
     @Bean
     ThreadMonitor threadMonitor() {
         return new ThreadMonitor();
@@ -79,19 +92,18 @@ public class PipelineConfiguration {
     VideoExtractorConsumer videoExtractorConsumer() {
         return new VideoExtractorConsumer();
     }
-    
+
     @Bean
     @Scope("prototype")
-    ArticleMetadataConsumer articleMetadataConsumer(){
+    ArticleMetadataConsumer articleMetadataConsumer() {
         return new ArticleMetadataConsumer();
     }
 
     @Bean
     @Scope("prototype")
-    ArticleValidationConsumer articleValidationConsumer(){
+    ArticleValidationConsumer articleValidationConsumer() {
         return new ArticleValidationConsumer();
     }
-
 
     //-- Startup
     @PostConstruct
@@ -108,71 +120,69 @@ public class PipelineConfiguration {
         startImageMainConsumers(2 * CONSUMER_THREADS);
 
         startVideoExtractorConsumers(CONSUMER_THREADS);
-
-        feedProducer().produce();
     }
 
     //-- Thread
     private void startUrlExtractor(final int threadCount) {
         for (int i = 0; i < threadCount; i++) {
             final UrlExtractorConsumer consumer = urlExtractorConsumer();
-            SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor());
+            SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor(), maxThreadWait);
         }
     }
 
     private void startHtmlDownloader(final int threadCount) {
         for (int i = 0; i < threadCount; i++) {
             final HtmlDownloadConsumer consumer = htmlDownloadConsumer();
-            SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor());
+            SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor(), maxThreadWait);
         }
     }
 
     private void startContentExtractor(final int threadCount) {
         for (int i = 0; i < threadCount; i++) {
             final ContentExtractorConsumer consumer = contentExtractorConsumer();
-            SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor());
+            SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor(), maxThreadWait);
         }
     }
 
     private void startImageExtractorConsumers(final int threadCount) {
         for (int i = 0; i < threadCount; i++) {
             final ImageExtractorConsumer consumer = imageExtractorConsumer();
-            SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor());
+            SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor(), maxThreadWait);
         }
     }
 
     private void startImageThumbnailConsumers(final int threadCount) {
         for (int i = 0; i < threadCount; i++) {
             final ImageThumbnailConsumer consumer = imageThumbnailConsumer();
-            SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor());
+            SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor(), maxThreadWait);
         }
     }
 
     private void startVideoExtractorConsumers(final int threadCount) {
         for (int i = 0; i < threadCount; i++) {
             final VideoExtractorConsumer consumer = videoExtractorConsumer();
-            SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor());
+            SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor(), maxThreadWait);
         }
     }
 
     private void startImageMainConsumers(final int threadCount) {
         for (int i = 0; i < threadCount; i++) {
             final ImageMainConsumer consumer = imageMainConsumer();
-            SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor());
+            SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor(), maxThreadWait);
         }
     }
 
     private void startArticleMetadataConsumers(final int threadCount) {
         for (int i = 0; i < threadCount; i++) {
             final ArticleMetadataConsumer consumer = articleMetadataConsumer();
-            SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor());
+            SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor(), maxThreadWait);
         }
     }
 
-    private void startArticleValidationConsumers(final int threadCount){
+    private void startArticleValidationConsumers(final int threadCount) {
         for (int i = 0; i < threadCount; i++) {
             final ArticleValidationConsumer consumer = articleValidationConsumer();
-            SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor());
+            SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor(), maxThreadWait);
         }
     }
 }

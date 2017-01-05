@@ -1,5 +1,7 @@
 kiosk:
   environment: prod
+  pipeline:
+    maxThreadWait: 120000
 
 spring:
   datasource:
@@ -8,3 +10,4 @@ spring:
     jdbcUrl: jdbc:mysql://kiosk.cwj11t2vidmo.us-east-1.rds.amazonaws.com:3306/kiosk
     username: kioskadmin
     password: kioskadmin
+

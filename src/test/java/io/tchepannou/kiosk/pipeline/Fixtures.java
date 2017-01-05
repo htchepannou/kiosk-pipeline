@@ -3,7 +3,9 @@ package io.tchepannou.kiosk.pipeline;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
+import io.tchepannou.kiosk.pipeline.service.similarity.Document;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -60,6 +62,26 @@ public class Fixtures {
         });
 
         return in;
+    }
+
+    public static Document createDocument(final long id, final String content) {
+        return new Document() {
+            @Override
+            public long getId() {
+                return id;
+            }
+
+            @Override
+            public String getContent() {
+                return content;
+            }
+        };
+    }
+
+    public static Article createArticle(){
+        Article a = new Article();
+        a.setId(++uuid);
+        return a;
     }
 
     private static int read(final String content, final byte[] buff){

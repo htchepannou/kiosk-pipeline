@@ -14,6 +14,15 @@ import io.tchepannou.kiosk.pipeline.service.content.SanitizeFilter;
 import io.tchepannou.kiosk.pipeline.service.content.TrimFilter;
 import io.tchepannou.kiosk.pipeline.service.image.ImageExtractor;
 import io.tchepannou.kiosk.pipeline.service.image.ImageProcessorService;
+import io.tchepannou.kiosk.pipeline.service.similarity.ArticleDocumentFactory;
+import io.tchepannou.kiosk.pipeline.service.similarity.SimilarityService;
+import io.tchepannou.kiosk.pipeline.service.similarity.algo.JaccardSimilaryAlgorithm;
+import io.tchepannou.kiosk.pipeline.service.similarity.filter.LowecaseTextFilter;
+import io.tchepannou.kiosk.pipeline.service.similarity.filter.PunctuationTextFilter;
+import io.tchepannou.kiosk.pipeline.service.similarity.ShingleExtractor;
+import io.tchepannou.kiosk.pipeline.service.similarity.TextSimilaryAlgorithm;
+import io.tchepannou.kiosk.pipeline.service.similarity.filter.UnaccentTextFilter;
+import io.tchepannou.kiosk.pipeline.service.similarity.filter.WhitespaceTextFilter;
 import io.tchepannou.kiosk.pipeline.service.title.TitleFeedFilter;
 import io.tchepannou.kiosk.pipeline.service.title.TitleSanitizer;
 import io.tchepannou.kiosk.pipeline.service.title.TitleSuffixFilter;
@@ -124,4 +133,32 @@ public class AppConfiguration {
     YouTube youTube() {
         return new YouTube();
     }
+
+    @Bean
+    TextSimilaryAlgorithm textSimilaryAlgorithm () {
+        return new JaccardSimilaryAlgorithm();
+    }
+
+    @Bean
+    ShingleExtractor shingleExtractor (){
+        return new ShingleExtractor();
+    }
+
+    @Bean
+    @ConfigurationProperties("kiosk.service.ArticleDocumentFactory")
+    ArticleDocumentFactory articleDocumentFactory (){
+        return new ArticleDocumentFactory();
+    }
+
+    @Bean
+    @ConfigurationProperties("kiosk.service.SimilarityService")
+    SimilarityService documentSimilarityService (){
+        return new SimilarityService(Arrays.asList(
+                new LowecaseTextFilter(),
+                new UnaccentTextFilter(),
+                new PunctuationTextFilter(),
+                new WhitespaceTextFilter()
+        ));
+    }
+
 }

@@ -8,6 +8,13 @@ kiosk:
     minContentLength: 100
 
   service:
+    ArticleDocumentFactory:
+      s3Bucket: "${kiosk.aws.s3.s3Bucket}"
+
+    SimilarityService:
+      shingleSize: 5
+      maxShingles: 200
+
     UrlBlacklistService:
       urls:
       - "/feed/rss"     # RSS feeds
@@ -15,8 +22,13 @@ kiosk:
       - "*#*"           # URL with anchors
 
   pipeline:
+    maxThreadWait: 60000
     FeedProducer:
       outputQueue: "kiosk-${kiosk.environment}-feed-queue"
+
+    SimilarityMatrixProducer:
+      s3Bucket: "${kiosk.aws.s3.s3Bucket}"
+      s3Key: "${kiosk.environment}/similarity"
 
     UrlExtractorConsumer:
       inputQueue: "kiosk-${kiosk.environment}-feed-queue"

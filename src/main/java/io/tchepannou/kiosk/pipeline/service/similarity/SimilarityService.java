@@ -1,6 +1,8 @@
 package io.tchepannou.kiosk.pipeline.service.similarity;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -16,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 public class SimilarityService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SimilarityService.class);
     @Autowired
     TextSimilaryAlgorithm similaryAlgorithm;
 
@@ -62,6 +65,7 @@ public class SimilarityService {
             for (int i = 0; i < documentCount; i++) {
                 final Document idoc = documents.get(i);
                 final Collection<String> ishingles = shingles.get(idoc);
+                LOGGER.info("Processing Document#{}. {} shingles", idoc.getId(), ishingles.size());
 
                 for (int j = 0; j < documentCount; j++) {
                     if (i == j) {

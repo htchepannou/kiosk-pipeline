@@ -57,16 +57,18 @@ public class SqsReader implements Runnable {
         monitor.started(this);
         try {
             while (!done) {
-                if (process() <= 0) {
-                    delay = sleep(delay);
-                    done = delay >= maxDelay;
-                } else {
-                    delay = minDelay;
+                try {
+                    if (process() <= 0) {
+                        delay = sleep(delay);
+                        done = delay >= maxDelay;
+                    } else {
+                        delay = minDelay;
+                    }
+                } catch (Exception ex){
+                    LOGGER.error("Unexpected error", ex);
                 }
             }
             LOGGER.info("Done");
-        } catch (final Exception ex) {
-            LOGGER.error("Unexpected error", ex);
         } finally {
             monitor.finished(this);
         }

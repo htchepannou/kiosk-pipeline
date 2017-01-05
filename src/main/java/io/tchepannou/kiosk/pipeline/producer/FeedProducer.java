@@ -20,13 +20,13 @@ public class FeedProducer {
 
     private String outputQueue;
 
-    public void produce(){
+    public void produce() {
         final Iterable<Feed> feeds = feedRepository.findAll();
-        for (Feed feed : feeds){
+        for (final Feed feed : feeds) {
             try {
-                LOGGER.info("Feed: {}", feed.getId());
+                LOGGER.info("Feed: {}", feed.getName());
                 sqs.sendMessage(outputQueue, String.valueOf(feed.getId()));
-            } catch (Exception e){
+            } catch (final Exception e) {
                 LOGGER.error("Unable to process feed: {}", feed.getName(), e);
             }
         }

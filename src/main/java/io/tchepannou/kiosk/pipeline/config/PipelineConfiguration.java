@@ -2,6 +2,7 @@ package io.tchepannou.kiosk.pipeline.config;
 
 import com.amazonaws.services.sqs.AmazonSQS;
 import io.tchepannou.kiosk.pipeline.aws.sqs.SqsReader;
+import io.tchepannou.kiosk.pipeline.consumer.ArticleDedupConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.ArticleMetadataConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.ArticleValidationConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.ContentExtractorConsumer;
@@ -106,6 +107,12 @@ public class PipelineConfiguration {
     @Scope("prototype")
     ArticleValidationConsumer articleValidationConsumer() {
         return new ArticleValidationConsumer();
+    }
+
+    @Bean
+    @ConfigurationProperties("kiosk.pipeline.ArticleDedupConsumer")
+    ArticleDedupConsumer articleDedupConsumer(){
+        return new ArticleDedupConsumer();
     }
 
     //-- Startup

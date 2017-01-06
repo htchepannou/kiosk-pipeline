@@ -43,8 +43,21 @@ public class SimilarityService {
     }
 
     //-- Public
+
     /**
-     * Compute the similarity of documents and store it into an OutputStream
+     * Compute the similarity of documents and store it into an OutputStream.
+     * Format of the file:
+     * <code>
+     * NUMBER OF DOCUMENT
+     * DOC-ID #1
+     * DOC-ID #2
+     * ...
+     * DOC-ID #n
+     * ratio-1x1 ratio-1x2 ... ration-1xn
+     * ratio-2x1 ratio-2x2 ... ration-2xn
+     * ...
+     * ratio-nx1 ratio-nx2 ... ration-nxn
+     * </code>
      */
     public void compute(final List<Document> documents, final OutputStream out) throws IOException {
         // Shingles per document
@@ -87,7 +100,7 @@ public class SimilarityService {
         }
     }
 
-    public Collection<Dedup> extractSimalarDocuments(final InputStream in, final float minThreshold, final float maxThreshold) throws IOException {
+    public Collection<Pair> filter(final InputStream in, final float minThreshold, final float maxThreshold) throws IOException {
         try (final BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
 
             /* load document ids */
@@ -99,7 +112,7 @@ public class SimilarityService {
             }
 
             /* find dedups */
-            final Collection<Dedup> dedups = new ArrayList<>();
+            final Collection<Pair> pairs = new ArrayList<>();
             for (int i = 0; i < documentCount; i++) {
                 final long iid = documentIds.get(i);
                 final String line = reader.readLine().trim();
@@ -111,7 +124,7 @@ public class SimilarityService {
                     try {
                         final float ratio = Float.parseFloat(ratios[j]);
                         if (ratio >= minThreshold && ratio < maxThreshold) {
-                            dedups.add(new Dedup(iid, jid, ratio));
+                            pairs.add(new Pair(iid, jid, ratio));
                         }
                     } catch (final Exception e) {
                         LOGGER.warn("{}.{}- Invalid line: {}", i, j, line, e);
@@ -119,14 +132,15 @@ public class SimilarityService {
                 }
             }
 
-            return dedups;
+            return pairs;
         }
     }
+
 //
 //    public static void main(final String[] args) throws Exception {
 //        final File file = new File(System.getProperty("user.home") + "/Downloads/matrix_13.txt");
 //        try (final FileInputStream fin = new FileInputStream(file)) {
-//            final Collection<Dedup> dedups = new SimilarityService().extractSimalarDocuments(fin, .9f, 100f);
+//            final Collection<Dedup> dedups = new SimilarityService().filter(fin, .9f, 100f);
 //            System.out.println(dedups.size() + " dedup");
 //            for (final Dedup dedup : dedups) {
 //                System.out.println(String.format("%s - %s - %s", dedup.getId1(), dedup.getId2(), dedup.getRatio()));

@@ -7,14 +7,17 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 import java.util.Date;
 
 @Entity
 public class Article {
     public static final int STATUS_CREATED = 0x00;
     public static final int STATUS_INVALID = 0x01;
+    public static final int STATUS_DUPLICATE = 0x02;
     public static final int STATUS_VALID = 0x10;
-
+    public static final int STATUS_READY_TO_PUBLISH = 0x20;
+    public static final int STATUS_PUBLISHED = 0x40;
     public static final int SUMMARY_MAX_LEN = 100;
 
     @Id
@@ -48,6 +51,9 @@ public class Article {
     @Column(name = "invalid_reason", length = 64)
     private String invalidReason;
 
+    @Column(name = "duplicate_fk")
+    private long duplicateId;
+
     public static String normalizeSummary(final String summary) {
         if (summary == null) {
             return null;
@@ -57,6 +63,21 @@ public class Article {
     }
 
     //-- Getter/Setter
+    @Transient
+    public boolean isDuplicate () {
+        return status == STATUS_DUPLICATE;
+    }
+
+    @Transient
+    public boolean isPublished () {
+        return status == STATUS_PUBLISHED;
+    }
+
+    @Transient
+    public boolean isValid () {
+        return status == STATUS_VALID;
+    }
+
     public long getId() {
         return id;
     }
@@ -135,5 +156,13 @@ public class Article {
 
     public void setInvalidReason(final String invalidReason) {
         this.invalidReason = invalidReason;
+    }
+
+    public long getDuplicateId() {
+        return duplicateId;
+    }
+
+    public void setDuplicateId(final long duplicateId) {
+        this.duplicateId = duplicateId;
     }
 }

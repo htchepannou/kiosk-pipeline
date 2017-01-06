@@ -82,6 +82,8 @@ kiosk:
       inputQueue: "kiosk-${kiosk.environment}-video-extraction-queue"
       s3Bucket: "${kiosk.aws.s3.s3Bucket}"
 
+    ArticleDedupConsumer:
+      similarityThreshold: 0.9
 
 spring:
   datasource:

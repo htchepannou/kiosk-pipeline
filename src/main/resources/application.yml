@@ -1,6 +1,8 @@
 kiosk:
   namespace: "io.tchepannou"
   aws:
+    connectionTimeout: 30000
+    maxErrorRetries: 5
     s3:
       s3Bucket: "${kiosk.namespace}.kiosk"
 
@@ -18,12 +20,12 @@ kiosk:
     UrlBlacklistService:
       urls:
       - "/feed/rss"     # RSS feeds
-      - "*/wp-login*"   # Wordpress loging
+      - "*/wp-login*"   # Wordpress login
       - "*#*"           # URL with anchors
 
   pipeline:
-    autoStartPipeline: false
-    maxThreadWait: 15000
+    autoStartPipeline: true
+    maxThreadWait: 120000
 
     FeedProducer:
       outputQueue: "kiosk-${kiosk.environment}-feed-queue"

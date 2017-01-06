@@ -22,7 +22,7 @@ kiosk:
       - "*#*"           # URL with anchors
 
   pipeline:
-    autoStartPipeline: true
+    autoStartPipeline: false
     maxThreadWait: 60000
 
     FeedProducer:

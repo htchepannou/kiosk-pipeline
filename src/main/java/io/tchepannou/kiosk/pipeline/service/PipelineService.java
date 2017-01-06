@@ -38,6 +38,7 @@ public class PipelineService {
         /* dedup */
         similarityMatrixProducer.produce();
         run(dedupConsumer.getInputQueue(), dedupConsumer);
+        threadMonitor.waitAllThreads(60000, 60000 * 30);
 
         /* publish */
         publishProducer.produce();

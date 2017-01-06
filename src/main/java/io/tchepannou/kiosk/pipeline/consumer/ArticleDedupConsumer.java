@@ -1,7 +1,6 @@
 package io.tchepannou.kiosk.pipeline.consumer;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.sqs.AmazonSQS;
 import io.tchepannou.kiosk.pipeline.aws.sqs.SqsS3Consumer;
@@ -15,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.transaction.Transactional;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -29,7 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Transactional
 public class ArticleDedupConsumer extends SqsS3Consumer {
@@ -67,10 +64,8 @@ public class ArticleDedupConsumer extends SqsS3Consumer {
 
                 /* find the dedups cluster */
                 final Collection<Pair> pairs = similarityService.filter(fin, similarityThreshold, Integer.MAX_VALUE);
+                LOGGER.info("{} pair of dedup articles", pairs.size());
                 final List<Set<Long>> clusters = Pair.clusterize(pairs);
-
-                /* Store */
-                store(s3Object.getBucketName(), key(s3Object.getKey()), clusters);
 
                 /* update status of articles */
                 updateStatus(clusters);
@@ -82,24 +77,8 @@ public class ArticleDedupConsumer extends SqsS3Consumer {
 
     //-- Private
     private String key(final String matrixKey) {
-        final int i = matrixKey.lastIndexOf('.');
-        return matrixKey.substring(0, i) + "-dedup.txt";
-    }
-
-    private void store(final String bucket, final String key, final List<Set<Long>> clusters) {
-        final StringBuilder buff = new StringBuilder();
-        for (final Set<Long> cluster : clusters) {
-            final List<String> str = cluster.stream().map(i -> String.valueOf(i)).collect(Collectors.toList());
-            final String line = String.join(",", str);
-            buff.append(line).append('\n');
-        }
-
-        final ObjectMetadata meta = new ObjectMetadata();
-        meta.setContentLength(buff.length());
-        meta.setContentType("text/plain");
-
-        LOGGER.info("Storing dedup to s3://{}/{}", bucket, key);
-        s3.putObject(bucket, key, new ByteArrayInputStream(buff.toString().getBytes()), meta);
+        final int i = matrixKey.lastIndexOf('/');
+        return matrixKey.substring(0, i) + "dedup.txt";
     }
 
     final void updateStatus(final List<Set<Long>> clusters) {
@@ -120,15 +99,20 @@ public class ArticleDedupConsumer extends SqsS3Consumer {
             final List<Long> articleIds = new ArrayList<>(cluster);
             Collections.sort(articleIds, comparator);
 
-            final long articleId = articleIds.get(0);
+            final long validId = articleIds.get(0);
+            final Article valid = articlesById.get(validId);
+            final String validUrl = valid.getLink().getUrl();
+            LOGGER.info("{} is valid", validUrl);
 
             for (final Long id : articleIds) {
                 final Article article = articlesById.get(id);
-                if (article == null || id == articleId) {
+                if (article == null || id == validId) {
                     continue;
                 } else if (!article.isDuplicate()) {
+                    LOGGER.info("{} is duplicated with {}", article.getLink().getUrl(), validUrl);
+
                     article.setStatus(Article.STATUS_DUPLICATE);
-                    article.setDuplicateId(articleId);
+                    article.setDuplicateId(validId);
                     persist.add(article);
                 }
             }

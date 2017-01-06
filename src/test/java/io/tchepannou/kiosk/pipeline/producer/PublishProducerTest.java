@@ -1,6 +1,7 @@
 package io.tchepannou.kiosk.pipeline.producer;
 
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
 import org.assertj.core.util.Iterables;
 import org.junit.Test;
@@ -27,9 +28,9 @@ public class PublishProducerTest {
 
     @Test
     public void testProduce() throws Exception {
-        final Article a1 = new Article();
-        final Article a2 = new Article();
-        final Article a3 = new Article();
+        final Article a1 = createArticle();
+        final Article a2 = createArticle();
+        final Article a3 = createArticle();
         when(articleRepository.findByStatus(Article.STATUS_VALID)).thenReturn(Arrays.asList(a1, a2, a3));
 
         producer.produce();
@@ -43,6 +44,15 @@ public class PublishProducerTest {
 
         List articles = Arrays.asList(Iterables.toArray(items.getValue()));
         assertThat(articles).containsExactly(a1, a2, a3);
+    }
+
+    private Article createArticle(){
+        Link link = new Link();
+        link.setUrl("http://goo.com/" + System.currentTimeMillis());
+
+        Article article = new Article();
+        article.setLink(link);
+        return article;
     }
 
 }

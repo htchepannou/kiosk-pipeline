@@ -1,15 +1,14 @@
 package io.tchepannou.kiosk.pipeline.consumer;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.sqs.AmazonSQS;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
 import io.tchepannou.kiosk.pipeline.service.similarity.Pair;
 import io.tchepannou.kiosk.pipeline.service.similarity.SimilarityService;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.assertj.core.util.Iterables;
 import org.junit.Before;
@@ -29,7 +28,6 @@ import static io.tchepannou.kiosk.pipeline.Fixtures.createS3InputStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyFloat;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -83,13 +81,6 @@ public class ArticleDedupConsumerTest {
         consumer.consume(obj);
 
         // Then
-        ArgumentCaptor<InputStream> in = ArgumentCaptor.forClass(InputStream.class);
-        verify(s3).putObject(eq("bucket"), eq("dev/foo/matrix_10-dedup.txt"), in.capture(), any(ObjectMetadata.class));
-        assertThat(IOUtils.toString(in.getValue())).isEqualTo(
-                "11,12,13\n" +
-                "21,22\n"
-        );
-
         assertThat(a11.getStatus()).isEqualTo(Article.STATUS_VALID);
         assertThat(a12.getStatus()).isEqualTo(Article.STATUS_DUPLICATE);
         assertThat(a12.getDuplicateId()).isEqualTo(a11.getId());
@@ -108,10 +99,14 @@ public class ArticleDedupConsumerTest {
     }
 
     Article createArticle(final long id, final Date publishedDate, final int status) {
+        final Link link = new Link();
+        link.setUrl("http://foo.com/" + id);
+
         final Article article = new Article();
         article.setId(id);
         article.setPublishedDate(publishedDate);
         article.setStatus(status);
+        article.setLink(link);
         return article;
     }
 }

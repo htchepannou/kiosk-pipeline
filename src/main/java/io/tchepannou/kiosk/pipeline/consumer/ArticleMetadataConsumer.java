@@ -64,6 +64,7 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
             final Document doc = Jsoup.parse(html);
 
             Article article = new Article();
+            article.setLink(link);
             article.setTitle(extractTitle(doc));
             article.setDisplayTitle(titleSanitizer.filter(article));
             setSummary(doc, article);

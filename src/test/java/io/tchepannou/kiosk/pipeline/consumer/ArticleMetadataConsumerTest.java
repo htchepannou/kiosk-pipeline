@@ -8,6 +8,7 @@ import io.tchepannou.kiosk.pipeline.Fixtures;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
+import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.title.TitleSanitizer;
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
@@ -15,15 +16,19 @@ import org.jsoup.nodes.Document;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -39,6 +44,9 @@ public class ArticleMetadataConsumerTest {
 
     @Mock
     ArticleRepository articleRepository;
+
+    @Mock
+    LinkRepository linkRepository;
 
     @Mock
     TitleSanitizer titleSanitizer;
@@ -57,8 +65,7 @@ public class ArticleMetadataConsumerTest {
     public void testConsume() throws Exception {
         // Given
         final Link link = createLink();
-        final Article article = createArticle(link);
-        when(articleRepository.findOne(123L)).thenReturn(article);
+        when(linkRepository.findOne(123L)).thenReturn(link);
 
         final InputStream xin = getClass().getResourceAsStream("/meta/article.html");
         final String html = IOUtils.toString(xin);
@@ -69,19 +76,23 @@ public class ArticleMetadataConsumerTest {
 
         final DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
-        when(titleSanitizer.filter(article)).thenReturn("This is the sanitized title");
+        when(titleSanitizer.filter(any())).thenReturn("This is the sanitized title");
+
+        doAnswer(saveArticle(567)).when(articleRepository).save(any(Article.class));
 
         // Then
-        consumer.consume("123");
+        consumer.consumeMessage("123");
 
         // Then
-        assertThat(article.getTitle()).isEqualTo("Rigobert Song : « Je suis vraiment revenu de très loin »");
-        assertThat(article.getDisplayTitle()).isEqualTo("This is the sanitized title");
-        assertThat(article.getSummary()).isEqualTo("Et soudain, Rigobert Song apparaît dans l’embrasure de la porte. Quelques kilos en moins, des cheveu...");
-        assertThat(fmt.format(article.getPublishedDate())).startsWith("2016-12-29");
-        verify(articleRepository).save(article);
+        ArgumentCaptor<Article> article = ArgumentCaptor.forClass(Article.class);
+        verify(articleRepository).save(article.capture());
 
-        verify(sqs).sendMessage("output-queue", "123");
+        assertThat(article.getValue().getTitle()).isEqualTo("Rigobert Song : « Je suis vraiment revenu de très loin »");
+        assertThat(article.getValue().getDisplayTitle()).isEqualTo("This is the sanitized title");
+        assertThat(article.getValue().getSummary()).isEqualTo("Et soudain, Rigobert Song apparaît dans l’embrasure de la porte. Quelques kilos en moins, des cheveu...");
+        assertThat(fmt.format(article.getValue().getPublishedDate())).startsWith("2016-12-29");
+
+        verify(sqs).sendMessage("output-queue", "567");
     }
 
     @Test
@@ -108,9 +119,13 @@ public class ArticleMetadataConsumerTest {
         return link;
     }
 
-    private Article createArticle(final Link link) {
-        final Article article = new Article();
-        article.setLink(link);
-        return article;
+
+    private Answer saveArticle(final long id) {
+        return (inv) -> {
+            final Article img = (Article) inv.getArguments()[0];
+            img.setId(id);
+            return null;
+        };
     }
+
 }

@@ -4,30 +4,22 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.sqs.AmazonSQS;
-import io.tchepannou.kiosk.pipeline.aws.sqs.SqsSnsConsumer;
+import io.tchepannou.kiosk.pipeline.aws.sqs.SqsConsumer;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
-import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.content.ContentExtractor;
 import org.apache.commons.io.IOUtils;
-import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import javax.transaction.Transactional;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.Clock;
-import java.util.Date;
 
-@ConfigurationProperties("kiosk.pipeline.ContentExtractorConsumer")
-@Transactional
-public class ContentExtractorConsumer extends SqsSnsConsumer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContentExtractorConsumer.class);
+public class ArticleContentExtractorConsumer implements SqsConsumer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArticleContentExtractorConsumer.class);
 
     @Autowired
     AmazonS3 s3;
@@ -39,13 +31,7 @@ public class ContentExtractorConsumer extends SqsSnsConsumer {
     ContentExtractor extractor;
 
     @Autowired
-    LinkRepository linkRepository;
-
-    @Autowired
     ArticleRepository articleRepository;
-
-    @Autowired
-    Clock clock;
 
     private String inputQueue;
     private String outputQueue;
@@ -54,15 +40,15 @@ public class ContentExtractorConsumer extends SqsSnsConsumer {
     private String s3KeyHtml;
 
     //-- SqsConsumer
-
     @Override
-    protected void consumeMessage(final String body) throws IOException {
+    public void consume(final String body) throws IOException {
         final long id = Long.parseLong(body.toString());
-        final Link link = linkRepository.findOne(id);
-        consume(link);
+        final Article article = articleRepository.findOne(id);
+        consume(article);
     }
 
-    protected void consume(final Link link) throws IOException {
+    protected void consume(final Article article) throws IOException {
+        final Link link = article.getLink();
         LOGGER.info("Extracting content from s3://{}/{}", s3Bucket, link.getS3Key());
 
         final String key = contentKey(link);
@@ -76,7 +62,6 @@ public class ContentExtractorConsumer extends SqsSnsConsumer {
 
             s3.putObject(s3Bucket, key, in, meta);
 
-            final Article article = createArticle(link, key, xhtml);
             sqs.sendMessage(outputQueue, String.valueOf(article.getId()));
         }
     }
@@ -91,22 +76,6 @@ public class ContentExtractorConsumer extends SqsSnsConsumer {
         metadata.setContentType("text/html");
         metadata.setContentLength(html.length());
         return metadata;
-    }
-
-    private Article createArticle(final Link link, final String s3Key, final String html) {
-        final Article article = new Article();
-        article.setLink(link);
-        article.setS3Key(s3Key);
-        article.setPublishedDate(new Date(clock.millis()));
-        article.setContentLength(html.length());
-        article.setSummary(defaultSummary(html));
-        articleRepository.save(article);
-        return article;
-    }
-
-    private String defaultSummary(final String xhtml){
-        final String text = Jsoup.parse(xhtml).text();
-        return Article.normalizeSummary(text);
     }
 
     //-- Getter/Setter

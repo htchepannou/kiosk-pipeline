@@ -42,17 +42,17 @@ kiosk:
       s3Bucket: "${kiosk.aws.s3.s3Bucket}"
       s3Key: "${kiosk.environment}/html"
 
-    ContentExtractorConsumer:
+    ArticleMetadataConsumer:
+      inputQueue: "kiosk-${kiosk.environment}-matadata-extraction-queue"
+      outputQueue: "kiosk-${kiosk.environment}-content-extraction-queue"
+      s3Bucket: "${kiosk.aws.s3.s3Bucket}"
+
+    ArticleContentExtractorConsumer:
       inputQueue: "kiosk-${kiosk.environment}-content-extraction-queue"
-      outputQueue: "kiosk-${kiosk.environment}-matadata-extraction-queue"
+      outputQueue: "kiosk-${kiosk.environment}-validation-queue"
       s3Bucket: "${kiosk.aws.s3.s3Bucket}"
       s3Key: "${kiosk.environment}/content"
       s3KeyHtml: "${kiosk.pipeline.HtmlDownloadConsumer.s3Key}"
-
-    ArticleMetadataConsumer:
-      inputQueue: "kiosk-${kiosk.environment}-matadata-extraction-queue"
-      outputQueue: "kiosk-${kiosk.environment}-validation-queue"
-      s3Bucket: "${kiosk.aws.s3.s3Bucket}"
 
     ArticleValidationConsumer:
       inputQueue: "kiosk-${kiosk.environment}-validation-queue"

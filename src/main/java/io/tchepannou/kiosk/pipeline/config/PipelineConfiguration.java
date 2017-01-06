@@ -5,7 +5,7 @@ import io.tchepannou.kiosk.pipeline.aws.sqs.SqsReader;
 import io.tchepannou.kiosk.pipeline.consumer.ArticleDedupConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.ArticleMetadataConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.ArticleValidationConsumer;
-import io.tchepannou.kiosk.pipeline.consumer.ContentExtractorConsumer;
+import io.tchepannou.kiosk.pipeline.consumer.ArticleContentExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.HtmlDownloadConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.ImageExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.ImageMainConsumer;
@@ -84,12 +84,6 @@ public class PipelineConfiguration {
 
     @Bean
     @Scope("prototype")
-    ContentExtractorConsumer contentExtractorConsumer() {
-        return new ContentExtractorConsumer();
-    }
-
-    @Bean
-    @Scope("prototype")
     ImageExtractorConsumer imageExtractorConsumer() {
         return new ImageExtractorConsumer();
     }
@@ -114,6 +108,14 @@ public class PipelineConfiguration {
 
     @Bean
     @Scope("prototype")
+    @ConfigurationProperties("kiosk.pipeline.ArticleContentExtractorConsumer")
+    ArticleContentExtractorConsumer articleContentExtractorConsumer() {
+        return new ArticleContentExtractorConsumer();
+    }
+
+    @Bean
+    @Scope("prototype")
+    @ConfigurationProperties("kiosk.pipeline.ArticleMetadataConsumer")
     ArticleMetadataConsumer articleMetadataConsumer() {
         return new ArticleMetadataConsumer();
     }
@@ -166,7 +168,7 @@ public class PipelineConfiguration {
 
     private void startContentExtractor(final int threadCount) {
         for (int i = 0; i < threadCount; i++) {
-            final ContentExtractorConsumer consumer = contentExtractorConsumer();
+            final ArticleContentExtractorConsumer consumer = articleContentExtractorConsumer();
             SqsReader.start(consumer.getInputQueue(), sqs, consumer, threadMonitor(), maxThreadWait);
         }
     }

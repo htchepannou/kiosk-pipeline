@@ -5,9 +5,11 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
-import io.tchepannou.kiosk.pipeline.aws.sqs.SqsConsumer;
+import io.tchepannou.kiosk.pipeline.aws.sqs.SqsSnsConsumer;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
+import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.title.TitleSanitizer;
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
@@ -15,7 +17,6 @@ import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
@@ -27,8 +28,7 @@ import static io.tchepannou.kiosk.pipeline.support.JsoupHelper.select;
 import static io.tchepannou.kiosk.pipeline.support.JsoupHelper.selectMeta;
 
 @Transactional
-@ConfigurationProperties("kiosk.pipeline.ArticleMetadataConsumer")
-public class ArticleMetadataConsumer implements SqsConsumer {
+public class ArticleMetadataConsumer extends SqsSnsConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArticleMetadataConsumer.class);
 
     private static final String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssX";
@@ -69,6 +69,9 @@ public class ArticleMetadataConsumer implements SqsConsumer {
     ArticleRepository articleRepository;
 
     @Autowired
+    LinkRepository linkRepository;
+
+    @Autowired
     TitleSanitizer titleSanitizer;
 
     private String inputQueue;
@@ -76,23 +79,23 @@ public class ArticleMetadataConsumer implements SqsConsumer {
     private String s3Bucket;
 
     @Override
-    public void consume(final String body) throws IOException {
+    public void consumeMessage(final String body) throws IOException {
         final long id = Long.parseLong(body);
-        final Article article = articleRepository.findOne(id);
+        final Link link = linkRepository.findOne(id);
 
-        LOGGER.info("Extracting title from {}", article.getLink().getUrl());
-        try (final S3Object s3Object = s3.getObject(s3Bucket, article.getLink().getS3Key())) {
+        LOGGER.info("Extracting metadata from {}", link.getUrl());
+        try (final S3Object s3Object = s3.getObject(s3Bucket, link.getS3Key())) {
             final String html = IOUtils.toString(s3Object.getObjectContent());
             final Document doc = Jsoup.parse(html);
 
+            Article article = new Article();
             article.setTitle(extractTitle(doc));
             article.setDisplayTitle(titleSanitizer.filter(article));
             setSummary(doc, article);
             setPublishedDate(doc, article);
-
             articleRepository.save(article);
 
-            sqs.sendMessage(outputQueue, body);
+            sqs.sendMessage(outputQueue, String.valueOf(article.getId()));
         }
     }
 
@@ -106,7 +109,7 @@ public class ArticleMetadataConsumer implements SqsConsumer {
 
     private void setPublishedDate(final Document doc, final Article article) {
         final Date date = extractPublishedDate(doc);
-        if (date != null){
+        if (date != null) {
             article.setPublishedDate(date);
         }
     }

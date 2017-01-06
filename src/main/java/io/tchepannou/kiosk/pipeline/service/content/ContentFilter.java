@@ -15,15 +15,16 @@ import java.util.StringTokenizer;
 /**
  * Extract main content
  */
-public class ContentFilter implements Filter<String>{
+public class ContentFilter implements Filter<String> {
     //-- Attributes
     private static final List<String> TAG_INLINE = Arrays.asList("br", "a", "span");
     private static final List<String> TAG_FORMATTING = Arrays.asList("i", "b", "font", "em", "small", "mark", "del", "ins", "sub", "sup", "strong");
+    private static final List<String> TAG_HEADING = Arrays.asList("h1", "h2", "h3", "h4", "h5", "h6");
     public static final String CONTENT_ID = "main-content";
 
     private final int blocMinLen;
 
-    public ContentFilter(final int blocMinLen){
+    public ContentFilter(final int blocMinLen) {
         this.blocMinLen = blocMinLen;
     }
 
@@ -56,8 +57,20 @@ public class ContentFilter implements Filter<String>{
                 }
 
                 /* test */
+                boolean result = false;
                 final String tagName = elt.tagName();
-                return !"a".equals(tagName) && isLeaf(elt) && elt.text().length() > blocMinLen && !TAG_FORMATTING.contains(tagName);
+                if (TAG_HEADING.contains(tagName)){
+                    result = true;
+                } else {
+                    result = !"a".equals(tagName)
+                            && isLeaf(elt)
+                            && elt.text().length() > blocMinLen
+                            && !TAG_FORMATTING.contains(tagName);
+                }
+                if (TAG_HEADING.contains(tagName)){
+                    System.out.println(">>>>" + tagName + ":" + result + ": " + elt);
+                }
+                return result;
             }
         };
 
@@ -66,6 +79,10 @@ public class ContentFilter implements Filter<String>{
         JsoupHelper.collect(body, blocs, predicate);
 
         return blocs;
+    }
+
+    private boolean isHeading(final Element elt) {
+        return TAG_FORMATTING.contains(elt.tagName().toLowerCase());
     }
 
     private boolean isLeaf(final Element elt) {

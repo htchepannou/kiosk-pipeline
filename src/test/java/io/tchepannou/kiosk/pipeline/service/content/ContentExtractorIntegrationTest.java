@@ -25,6 +25,16 @@ public class ContentExtractorIntegrationTest {
         testFilter("hotjem");
     }
 
+    @Test
+    public void shouldFilterJeWanda() throws Exception {
+        testFilter("jewanda");
+    }
+
+    @Test
+    public void shouldFilterCulturEbene() throws Exception {
+        testFilter("culturebene");
+    }
+
     private void testFilter(final String name) throws Exception {
         // Given
         final String html = IOUtils.toString(getClass().getResourceAsStream("/extractor/content_" + name + ".html"));

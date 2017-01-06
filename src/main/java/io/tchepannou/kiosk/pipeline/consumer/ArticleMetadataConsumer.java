@@ -11,6 +11,7 @@ import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.title.TitleSanitizer;
+import io.tchepannou.kiosk.pipeline.support.HtmlHelper;
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -32,32 +33,6 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArticleMetadataConsumer.class);
 
     private static final String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssX";
-
-    private final String[] TITLE_CSS_SELECTORS = new String[]{
-            "article header h1",
-            "article h1",
-            ".entry-content h1",
-            ".entry-title",
-            ".post-title",
-            ".pageTitle",
-            ".post_title",
-            ".headline h1",
-            ".headline",
-            ".story h1",
-            ".entry-header h1",
-            ".news_title",
-            "#page-post h1",
-            ".postheader h1",
-            ".postheader h2",
-            ".type-post h1",
-            ".instapaper_title",
-            ".markdown-body h1",
-    };
-
-    private final String[] PUBLISHED_DATE_CSS_SELECTORS = new String[]{
-            "article:published_time",
-            "shareaholic:article_published_time"
-    };
 
     @Autowired
     AmazonSQS sqs;
@@ -118,7 +93,7 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
     protected Date extractPublishedDate(final Document doc) {
         final DateFormat fmt = new SimpleDateFormat(DATETIME_FORMAT);
         Date result = null;
-        for (final String property : PUBLISHED_DATE_CSS_SELECTORS) {
+        for (final String property : HtmlHelper.PUBLISHED_DATE_CSS_SELECTORS) {
 
             final String date = property.startsWith("shareaholic")
                     ? selectMeta(doc, "meta[name=" + property + "]")
@@ -139,7 +114,7 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
     protected String extractTitle(final Document doc) {
         String title = selectMeta(doc, "meta[property=og:title]");
         if (title == null) {
-            for (final String selector : TITLE_CSS_SELECTORS) {
+            for (final String selector : HtmlHelper.TITLE_CSS_SELECTORS) {
                 title = select(doc, selector);
                 if (title != null) {
                     break;

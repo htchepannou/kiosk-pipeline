@@ -57,20 +57,15 @@ public class ContentFilter implements Filter<String> {
                 }
 
                 /* test */
-                boolean result = false;
                 final String tagName = elt.tagName();
                 if (TAG_HEADING.contains(tagName)){
-                    result = true;
+                    return true;
                 } else {
-                    result = !"a".equals(tagName)
+                    return !"a".equals(tagName)
                             && isLeaf(elt)
                             && elt.text().length() > blocMinLen
                             && !TAG_FORMATTING.contains(tagName);
                 }
-                if (TAG_HEADING.contains(tagName)){
-                    System.out.println(">>>>" + tagName + ":" + result + ": " + elt);
-                }
-                return result;
             }
         };
 
@@ -79,10 +74,6 @@ public class ContentFilter implements Filter<String> {
         JsoupHelper.collect(body, blocs, predicate);
 
         return blocs;
-    }
-
-    private boolean isHeading(final Element elt) {
-        return TAG_FORMATTING.contains(elt.tagName().toLowerCase());
     }
 
     private boolean isLeaf(final Element elt) {

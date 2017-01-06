@@ -35,6 +35,11 @@ public class ContentExtractorIntegrationTest {
         testFilter("culturebene");
     }
 
+    @Test
+    public void shouldFilterCamer24() throws Exception {
+        testFilter("camer24");
+    }
+
     private void testFilter(final String name) throws Exception {
         // Given
         final String html = IOUtils.toString(getClass().getResourceAsStream("/extractor/content_" + name + ".html"));

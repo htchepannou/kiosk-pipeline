@@ -1,10 +1,12 @@
 package io.tchepannou.kiosk.pipeline.service.content;
 
+import io.tchepannou.kiosk.pipeline.support.HtmlHelper;
 import io.tchepannou.kiosk.pipeline.support.JsoupHelper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.safety.Whitelist;
+import org.jsoup.select.Elements;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -41,14 +43,21 @@ public class SanitizeFilter implements Filter<String> {
 
     //-- TextFilter overrides
     @Override
-    public String filter(final String str) {
+    public String filter(final String html) {
+
+        /* pre-clean */
+        Document doc = Jsoup.parse(html);
+        Set<Element> items = new HashSet<>();
+        collectTitle(doc.body(), items);
+        collectBlaclistCss(doc.body(), items);
+        removeAll(items);
+
         /* keep only whitelist */
-        final String xhtml = Jsoup.clean(str, this.whitelist);
+        final String xhtml = Jsoup.clean(doc.html(), this.whitelist);
 
         /* post-clean */
-        final Document doc = Jsoup.parse(xhtml);
-        final Set<Element> items = new HashSet<>();
-        collectBlaclistCss(doc.body(), items);
+        doc = Jsoup.parse(xhtml);
+        items = new HashSet<>();
         collectSocialLinks(doc.body(), items);
         collectEmpty(doc.body(), items);
         removeAll(items);
@@ -104,6 +113,14 @@ public class SanitizeFilter implements Filter<String> {
 
         JsoupHelper.collect(node, items, predicate);
     }
+
+    private void collectTitle(final Element node, final Collection<Element> items) {
+        for (String selector : HtmlHelper.TITLE_CSS_SELECTORS){
+            Elements elts = node.select(selector);
+            items.addAll(elts);
+        }
+    }
+
 
     private void removeAll(final Collection<Element> items) {
         for (final Element item : items) {

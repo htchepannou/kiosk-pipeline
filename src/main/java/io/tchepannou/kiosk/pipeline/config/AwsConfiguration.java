@@ -28,17 +28,17 @@ public class AwsConfiguration {
     //-- Beans
     @Bean
     AmazonS3 amazonS3() {
-        return new AmazonS3Client(awsCredentialsProvider(), awsConfiguration());
+        return new AmazonS3Client(awsCredentialsProvider(), awsClientConfiguration());
     }
 
     @Bean
     AmazonSQS amazonSQS() {
-        return new AmazonSQSClient(awsCredentialsProvider(), awsConfiguration());
+        return new AmazonSQSClient(awsCredentialsProvider(), awsClientConfiguration());
     }
 
     @Bean
     AmazonSNS amazonSNS() {
-        return new AmazonSNSAsyncClient(awsCredentialsProvider(), awsConfiguration());
+        return new AmazonSNSAsyncClient(awsCredentialsProvider(), awsClientConfiguration());
     }
 
     @Bean
@@ -52,7 +52,7 @@ public class AwsConfiguration {
     }
 
     @Bean
-    ClientConfiguration awsConfiguration() {
+    ClientConfiguration awsClientConfiguration() {
         return new ClientConfiguration()
                 .withConnectionTimeout(connectionTimeout)
                 .withGzip(true)

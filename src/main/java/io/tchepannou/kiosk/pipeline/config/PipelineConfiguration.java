@@ -15,7 +15,7 @@ import io.tchepannou.kiosk.pipeline.consumer.VideoExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.producer.PublishProducer;
 import io.tchepannou.kiosk.pipeline.producer.FeedProducer;
 import io.tchepannou.kiosk.pipeline.producer.SimilarityMatrixProducer;
-import io.tchepannou.kiosk.pipeline.service.PipelineService;
+import io.tchepannou.kiosk.pipeline.service.PipelineRunner;
 import io.tchepannou.kiosk.pipeline.service.ThreadMonitor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,8 +46,8 @@ public class PipelineConfiguration {
     }
 
     @Bean
-    PipelineService pipelineService(){
-        return new PipelineService();
+    PipelineRunner pipelineRunner(){
+        return new PipelineRunner();
     }
 
 

@@ -7,11 +7,15 @@ import io.tchepannou.kiosk.pipeline.consumer.ArticleDedupConsumer;
 import io.tchepannou.kiosk.pipeline.producer.PublishProducer;
 import io.tchepannou.kiosk.pipeline.producer.FeedProducer;
 import io.tchepannou.kiosk.pipeline.producer.SimilarityMatrixProducer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 
-public class PipelineService {
+public class PipelineRunner {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PipelineRunner.class);
+
     @Autowired
     AmazonSQS sqs;
 
@@ -31,16 +35,27 @@ public class PipelineService {
     ThreadMonitor threadMonitor;
 
     public void run() throws IOException {
-        /* collect articles */
+        fetchArticles();
+        filterOutDedup();
+        publish();
+    }
+
+    private void fetchArticles(){
         feedProducer.produce();
         threadMonitor.waitAllThreads(60000, 60000 * 30);
+    }
 
-        /* dedup */
-        similarityMatrixProducer.produce();
-        run(dedupConsumer.getInputQueue(), dedupConsumer);
-        threadMonitor.waitAllThreads(60000, 60000 * 30);
+    private void filterOutDedup(){
+        try {
+            similarityMatrixProducer.produce();
+            run(dedupConsumer.getInputQueue(), dedupConsumer);
+            threadMonitor.waitAllThreads(60000, 60000 * 30);
+        } catch (Exception e){
+            LOGGER.warn("Unexpected error when filtering dedub", e);
+        }
+    }
 
-        /* publish */
+    private void publish (){
         publishProducer.produce();
     }
 

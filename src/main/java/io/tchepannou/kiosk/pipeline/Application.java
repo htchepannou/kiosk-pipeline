@@ -2,7 +2,7 @@ package io.tchepannou.kiosk.pipeline;
 
 import io.tchepannou.kiosk.pipeline.producer.FeedProducer;
 import io.tchepannou.kiosk.pipeline.producer.SimilarityMatrixProducer;
-import io.tchepannou.kiosk.pipeline.service.PipelineService;
+import io.tchepannou.kiosk.pipeline.service.PipelineRunner;
 import io.tchepannou.kiosk.pipeline.service.ShutdownService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -24,7 +24,7 @@ public class Application {
 
         /* consume the feeds URLs */
         try {
-            ctx.getBean(PipelineService.class).run();
+            ctx.getBean(PipelineRunner.class).run();
         } finally {
             ctx.getBean(ShutdownService.class).shutdown(0);
         }

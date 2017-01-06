@@ -24,6 +24,6 @@ public class PairTest {
         assertThat(clusters).hasSize(3);
         assertThat(clusters.get(0)).containsExactly(1L, 2L, 3L, 6L);
         assertThat(clusters.get(1)).containsExactly(4L, 5L, 13L);
-        assertThat(clusters.get(1)).containsExactly(10L, 11L);
+        assertThat(clusters.get(2)).containsExactly(10L, 11L);
     }
 }

@@ -47,6 +47,7 @@ public class ArticleDedupConsumer extends SqsS3Consumer {
     @Autowired
     SimilarityService similarityService;
 
+    private String inputQueue;
     private float similarityThreshold = 0.9f;
 
     @Override
@@ -73,7 +74,6 @@ public class ArticleDedupConsumer extends SqsS3Consumer {
 
                 /* update status of articles */
                 updateStatus(clusters);
-
             }
         } finally {
             file.delete();
@@ -122,13 +122,10 @@ public class ArticleDedupConsumer extends SqsS3Consumer {
 
             final long articleId = articleIds.get(0);
 
-            for (Long id : articleIds) {
+            for (final Long id : articleIds) {
                 final Article article = articlesById.get(id);
-                if (article == null){
+                if (article == null || id == articleId) {
                     continue;
-                } else if (article.getId() == articleId){
-                    article.setStatus(Article.STATUS_READY_TO_PUBLISH);
-                    persist.add(article);
                 } else if (!article.isDuplicate()) {
                     article.setStatus(Article.STATUS_DUPLICATE);
                     article.setDuplicateId(articleId);
@@ -150,6 +147,15 @@ public class ArticleDedupConsumer extends SqsS3Consumer {
     }
 
     //-- Getter/Setter
+
+    public String getInputQueue() {
+        return inputQueue;
+    }
+
+    public void setInputQueue(final String inputQueue) {
+        this.inputQueue = inputQueue;
+    }
+
     public float getSimilarityThreshold() {
         return similarityThreshold;
     }

@@ -12,8 +12,10 @@ import io.tchepannou.kiosk.pipeline.consumer.ImageMainConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.ImageThumbnailConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.UrlExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.VideoExtractorConsumer;
+import io.tchepannou.kiosk.pipeline.producer.PublishProducer;
 import io.tchepannou.kiosk.pipeline.producer.FeedProducer;
 import io.tchepannou.kiosk.pipeline.producer.SimilarityMatrixProducer;
+import io.tchepannou.kiosk.pipeline.service.PipelineService;
 import io.tchepannou.kiosk.pipeline.service.ThreadMonitor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,7 +39,19 @@ public class PipelineConfiguration {
     @Value("${kiosk.pipeline.autoStartPipeline}")
     boolean autoStartPipeline;
 
-    //-- Produces
+    //-- Beans
+    @Bean
+    ThreadMonitor threadMonitor() {
+        return new ThreadMonitor();
+    }
+
+    @Bean
+    PipelineService pipelineService(){
+        return new PipelineService();
+    }
+
+
+    //-- Producer
     @Bean
     FeedProducer feedProducer() {
         return new FeedProducer();
@@ -49,12 +63,13 @@ public class PipelineConfiguration {
         return new SimilarityMatrixProducer();
     }
 
-    //-- Consumers
     @Bean
-    ThreadMonitor threadMonitor() {
-        return new ThreadMonitor();
+    PublishProducer articlePublishProducer() {
+        return new PublishProducer();
     }
 
+
+    //-- Consumers
     @Bean
     @Scope("prototype")
     UrlExtractorConsumer urlExtractorConsumer() {
@@ -115,6 +130,7 @@ public class PipelineConfiguration {
         return new ArticleDedupConsumer();
     }
 
+
     //-- Startup
     @PostConstruct
     public void init() {
@@ -134,7 +150,6 @@ public class PipelineConfiguration {
         }
     }
 
-    //-- Thread
     private void startUrlExtractor(final int threadCount) {
         for (int i = 0; i < threadCount; i++) {
             final UrlExtractorConsumer consumer = urlExtractorConsumer();

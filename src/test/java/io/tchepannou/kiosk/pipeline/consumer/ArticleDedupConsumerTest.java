@@ -12,6 +12,7 @@ import io.tchepannou.kiosk.pipeline.service.similarity.SimilarityService;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.assertj.core.util.Iterables;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -50,6 +51,11 @@ public class ArticleDedupConsumerTest {
     @InjectMocks
     ArticleDedupConsumer consumer;
 
+    @Before
+    public void setUp (){
+        consumer.setInputQueue("input-queue");
+    }
+
     @Test
     public void testConsume() throws Exception {
         // Given
@@ -84,13 +90,13 @@ public class ArticleDedupConsumerTest {
                 "21,22\n"
         );
 
-        assertThat(a11.getStatus()).isEqualTo(Article.STATUS_READY_TO_PUBLISH);
+        assertThat(a11.getStatus()).isEqualTo(Article.STATUS_VALID);
         assertThat(a12.getStatus()).isEqualTo(Article.STATUS_DUPLICATE);
         assertThat(a12.getDuplicateId()).isEqualTo(a11.getId());
         assertThat(a13.getStatus()).isEqualTo(Article.STATUS_DUPLICATE);
         assertThat(a13.getDuplicateId()).isEqualTo(a11.getId());
 
-        assertThat(a21.getStatus()).isEqualTo(Article.STATUS_READY_TO_PUBLISH);
+        assertThat(a21.getStatus()).isEqualTo(Article.STATUS_VALID);
         assertThat(a22.getStatus()).isEqualTo(Article.STATUS_DUPLICATE);
         assertThat(a22.getDuplicateId()).isEqualTo(a21.getId());
 
@@ -98,7 +104,7 @@ public class ArticleDedupConsumerTest {
         verify(articleRepository).save(articles.capture());
 
         List items = Arrays.asList(Iterables.toArray(articles.getValue()));
-        assertThat(items).contains(a11, a12, a13, a21, a22);
+        assertThat(items).contains(a12, a13, a22);
     }
 
     Article createArticle(final long id, final Date publishedDate, final int status) {

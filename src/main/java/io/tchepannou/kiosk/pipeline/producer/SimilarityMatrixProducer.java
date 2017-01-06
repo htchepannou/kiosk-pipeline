@@ -68,6 +68,8 @@ public class SimilarityMatrixProducer {
         final Date endDate = new Date();
         final Date startDate = DateUtils.addDays(endDate, -7);
         final List<Article> articles = articleRepository.findByStatusNotAndPublishedDateBetween(Article.STATUS_INVALID, startDate, endDate);
+
+        LOGGER.info("Loading content for {} article(s)", articles.size());
         return articles.stream()
                 .map(a -> articleDocumentFactory.createDocument(a))
                 .filter(d -> d != null)

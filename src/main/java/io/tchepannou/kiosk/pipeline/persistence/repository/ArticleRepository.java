@@ -9,5 +9,6 @@ import java.util.List;
 
 @Repository
 public interface ArticleRepository extends CrudRepository<Article, Long> {
+    List<Article> findByStatus(int status);
     List<Article> findByStatusNotAndPublishedDateBetween(int status, Date publishedDateStart, Date publishedDateEnd);
 }

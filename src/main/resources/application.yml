@@ -22,7 +22,7 @@ kiosk:
       - "*#*"           # URL with anchors
 
   pipeline:
-    autoStartPipeline: false
+    autoStartPipeline: true
     maxThreadWait: 60000
 
     FeedProducer:
@@ -83,6 +83,7 @@ kiosk:
       s3Bucket: "${kiosk.aws.s3.s3Bucket}"
 
     ArticleDedupConsumer:
+      inputQueue: "kiosk-${kiosk.environment}-article-dedup-queue"
       similarityThreshold: 0.9
 
 spring:

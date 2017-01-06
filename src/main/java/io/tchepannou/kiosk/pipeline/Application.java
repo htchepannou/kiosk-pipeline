@@ -2,8 +2,8 @@ package io.tchepannou.kiosk.pipeline;
 
 import io.tchepannou.kiosk.pipeline.producer.FeedProducer;
 import io.tchepannou.kiosk.pipeline.producer.SimilarityMatrixProducer;
+import io.tchepannou.kiosk.pipeline.service.PipelineService;
 import io.tchepannou.kiosk.pipeline.service.ShutdownService;
-import io.tchepannou.kiosk.pipeline.service.ThreadMonitor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -22,17 +22,9 @@ public class Application {
     public static void main(final String[] args) throws Exception {
         final ConfigurableApplicationContext ctx = SpringApplication.run(Application.class, args);
 
-        /* produce the feeds */
-        ctx.getBean(FeedProducer.class).produce();
-
         /* consume the feeds URLs */
-        ThreadMonitor monitor = ctx.getBean(ThreadMonitor.class);
         try {
-            monitor.waitAllThreads(60000, 60000*30);
-
-            /* generate the similarity matrix */
-            ctx.getBean(SimilarityMatrixProducer.class).produce();
-
+            ctx.getBean(PipelineService.class).run();
         } finally {
             ctx.getBean(ShutdownService.class).shutdown(0);
         }

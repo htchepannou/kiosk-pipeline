@@ -2,6 +2,7 @@ package io.tchepannou.kiosk.pipeline.service.content;
 
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("dev")
+@Ignore
 public class ContentExtractorIntegrationTest {
     @Autowired
     ContentExtractor extractor;

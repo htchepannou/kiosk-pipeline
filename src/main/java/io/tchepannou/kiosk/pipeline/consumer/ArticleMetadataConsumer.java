@@ -63,7 +63,7 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
             final String html = IOUtils.toString(s3Object.getObjectContent());
             final Document doc = Jsoup.parse(html);
 
-            Article article = new Article();
+            final Article article = new Article();
             article.setLink(link);
             article.setTitle(extractTitle(doc));
             article.setSummary(extractSumary(doc));
@@ -72,7 +72,7 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
 
             articleRepository.save(article);
 
-            LOGGER.info("Sending message {} to {}", article.getId(), outputQueue);
+            LOGGER.info("Sending message <{}> to {}", article.getId(), outputQueue);
             sqs.sendMessage(outputQueue, String.valueOf(article.getId()));
         }
     }
@@ -90,7 +90,7 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
         }
     }
 
-    private String extractSumary(final Document doc){
+    private String extractSumary(final Document doc) {
         final String summary = selectMeta(doc, "meta[property=og:description]");
         return summary != null ? Article.normalizeSummary(summary) : null;
     }

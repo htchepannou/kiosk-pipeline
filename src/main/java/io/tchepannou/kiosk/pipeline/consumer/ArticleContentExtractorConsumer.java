@@ -4,12 +4,13 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.sqs.AmazonSQS;
-import io.tchepannou.kiosk.pipeline.aws.sqs.SqsSnsConsumer;
+import io.tchepannou.kiosk.pipeline.aws.sqs.SqsConsumer;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
 import io.tchepannou.kiosk.pipeline.service.content.ContentExtractor;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ArticleContentExtractorConsumer extends SqsSnsConsumer {
+public class ArticleContentExtractorConsumer implements SqsConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArticleContentExtractorConsumer.class);
 
     @Autowired
@@ -41,7 +42,11 @@ public class ArticleContentExtractorConsumer extends SqsSnsConsumer {
 
     //-- SqsConsumer
     @Override
-    public void consumeMessage(final String body) throws IOException {
+    public void consume(final String body) throws IOException {
+        if (!StringUtils.isNumeric(body)) {
+            LOGGER.info("Invalid message. Expecting a number and got {}", body);
+            return;
+        }
         final long id = Long.parseLong(body.toString());
         final Article article = articleRepository.findOne(id);
         consume(article);
@@ -62,6 +67,7 @@ public class ArticleContentExtractorConsumer extends SqsSnsConsumer {
 
             s3.putObject(s3Bucket, key, in, meta);
 
+            LOGGER.info("Sending message <{}> to {}", article.getId(), outputQueue);
             sqs.sendMessage(outputQueue, String.valueOf(article.getId()));
         }
     }

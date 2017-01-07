@@ -74,6 +74,8 @@ public class ImageExtractorConsumer extends SqsSnsConsumer {
                 final Image img = download(url, link);
                 if (img != null) {
                     imageRepository.save(img);
+
+                    LOGGER.info("Sending message <{}> to {}", img.getId(), outputTopic);
                     sns.publish(outputTopic, String.valueOf(img.getId()));
                 }
             }

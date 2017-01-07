@@ -2,7 +2,7 @@ kiosk:
   environment: prod
   pipeline:
     autoStartPipeline: true
-    maxThreadWait: 120000
+    maxThreadWait: 300000
 
 spring:
   datasource:

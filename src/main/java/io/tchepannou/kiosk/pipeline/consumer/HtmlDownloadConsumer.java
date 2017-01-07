@@ -61,19 +61,19 @@ public class HtmlDownloadConsumer implements SqsConsumer {
     private Iterable<Feed> feeds;
 
     @PostConstruct
-    public void init (){
+    public void init() {
         feeds = feedRepository.findAll();
     }
 
     @Override
     public void consume(final String body) throws IOException {
-        if (alreadyDownloaded(body) || isBlacklisted(body)){
+        if (alreadyDownloaded(body) || isBlacklisted(body)) {
             return;
         }
         try {
             // Feed
             final Feed feed = findFeed(body);
-            if (feed == null){
+            if (feed == null) {
                 LOGGER.error("Bad URL - No feed associated with {}", body);
                 return;
             }
@@ -94,9 +94,9 @@ public class HtmlDownloadConsumer implements SqsConsumer {
             s3.putObject(s3Bucket, s3Key, in, meta);
 
             downloaded(body, s3Key, feed);
-        } catch (DataIntegrityViolationException e){
+        } catch (final DataIntegrityViolationException e) {
             LOGGER.warn("{} already downloaded", body);
-        } catch (InvalidContentTypeException e){
+        } catch (final InvalidContentTypeException e) {
             LOGGER.warn("{} not valid HTML", body);
         }
     }
@@ -108,23 +108,23 @@ public class HtmlDownloadConsumer implements SqsConsumer {
         return String.format("%s/%s/%s.html", s3Key, fmt.format(now), id);
     }
 
-    private ObjectMetadata createObjectMetadata(int len){
+    private ObjectMetadata createObjectMetadata(final int len) {
         final ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentType("text/html");
         metadata.setContentLength(len);
         return metadata;
     }
 
-    private boolean alreadyDownloaded(final String url){
+    private boolean alreadyDownloaded(final String url) {
         final String keyhash = Link.hash(url);
         return linkRepository.findByUrlHash(keyhash) != null;
     }
 
-    private boolean isBlacklisted(final String url){
+    private boolean isBlacklisted(final String url) {
         return urlBlacklistService.contains(url);
     }
 
-    private void downloaded(final String url, final String s3Key, final Feed feed){
+    private void downloaded(final String url, final String s3Key, final Feed feed) {
         final Link link = new Link();
         link.setUrl(url);
         link.setUrlHash(Link.hash(url));
@@ -132,13 +132,13 @@ public class HtmlDownloadConsumer implements SqsConsumer {
         link.setFeed(feed);
         linkRepository.save(link);
 
-        LOGGER.info("Sending message {} to {}", link.getId(), outputTopic);
+        LOGGER.info("Sending {} to {}", link.getId(), outputTopic);
         sns.publish(outputTopic, String.valueOf(link.getId()));
     }
 
-    private Feed findFeed(final String url){
-        for (Feed feed : feeds){
-            if (url.startsWith(feed.getUrl())){
+    private Feed findFeed(final String url) {
+        for (final Feed feed : feeds) {
+            if (url.startsWith(feed.getUrl())) {
                 return feed;
             }
         }

@@ -72,6 +72,7 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
 
             articleRepository.save(article);
 
+            LOGGER.info("Sending message {} to {}", article.getId(), outputQueue);
             sqs.sendMessage(outputQueue, String.valueOf(article.getId()));
         }
     }

@@ -132,6 +132,7 @@ public class HtmlDownloadConsumer implements SqsConsumer {
         link.setFeed(feed);
         linkRepository.save(link);
 
+        LOGGER.info("Sending message {} to {}", link.getId(), outputTopic);
         sns.publish(outputTopic, String.valueOf(link.getId()));
     }
 

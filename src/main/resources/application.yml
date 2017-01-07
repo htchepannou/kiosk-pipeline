@@ -19,7 +19,10 @@ kiosk:
 
     UrlBlacklistService:
       urls:
-      - "/feed/rss"     # RSS feeds
+      - "*.pdf"         # PDF
+      - "*.rss"         # RSS feeds
+      - "*/feed/rss*"
+      - "*/rss.php"
       - "*/wp-login*"   # Wordpress login
       - "*#*"           # URL with anchors
 

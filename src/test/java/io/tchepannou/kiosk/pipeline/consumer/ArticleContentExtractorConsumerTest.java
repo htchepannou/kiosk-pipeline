@@ -71,7 +71,7 @@ public class ArticleContentExtractorConsumerTest {
         when(extractor.extract("hello world")).thenReturn(html);
 
         // When
-        consumer.consume("123");
+        consumer.consumeMessage("123");
 
         // Then
         verify(s3).putObject(

@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static io.tchepannou.kiosk.pipeline.Fixtures.createArticle;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
@@ -35,7 +36,7 @@ public class ArticleValidationConsumerTest {
     @Test
     public void shouldAcceptValidArticle() throws Exception {
         // Given
-        final Article article = new Article();
+        final Article article = createArticle();
         when(articleRepository.findOne(123L)).thenReturn(article);
 
         when(articleValidator.validate(any())).thenReturn(Validation.success());
@@ -52,7 +53,7 @@ public class ArticleValidationConsumerTest {
     @Test
     public void shouldRejectInvalidArticle() throws Exception {
         // Given
-        final Article article = new Article();
+        final Article article = createArticle();
         when(articleRepository.findOne(123L)).thenReturn(article);
 
         when(articleValidator.validate(any())).thenReturn(Validation.failure("error"));

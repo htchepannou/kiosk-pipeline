@@ -15,10 +15,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.transaction.Transactional;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+@Transactional
 public class ArticleContentExtractorConsumer implements SqsConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArticleContentExtractorConsumer.class);
 
@@ -65,7 +67,15 @@ public class ArticleContentExtractorConsumer implements SqsConsumer {
             final InputStream in = new ByteArrayInputStream(bytes);
             final ObjectMetadata meta = createObjectMetadata(xhtml);
 
+            // Storing to S3
+            LOGGER.info("Storing content of {} to s3://{}/{}", link.getUrl(), s3Bucket, key);
             s3.putObject(s3Bucket, key, in, meta);
+
+            // Updating
+            LOGGER.info("Updating {} in the DB", link.getUrl());
+            article.setS3Key(key);
+            article.setContentLength(bytes.length);
+            articleRepository.save(article);
 
             LOGGER.info("Sending message <{}> to {}", article.getId(), outputQueue);
             sqs.sendMessage(outputQueue, String.valueOf(article.getId()));

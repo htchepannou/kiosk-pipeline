@@ -20,6 +20,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.io.InputStream;
 
 import static io.tchepannou.kiosk.pipeline.Fixtures.createS3InputStream;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -82,6 +83,10 @@ public class ArticleContentExtractorConsumerTest {
         );
 
         verify(sqs).sendMessage("output-queue", "123");
+
+        verify(articleRepository).save(article);
+        assertThat(article.getS3Key()).isEqualTo("dev/content/2010/10/11/test.html");
+        assertThat(article.getContentLength()).isEqualTo(17139);
     }
 
     private S3Object createS3Object(final String bucket, final String key) throws Exception {

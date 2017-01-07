@@ -89,9 +89,12 @@ public class ArticleMetadataConsumerTest {
 
         assertThat(article.getValue().getTitle()).isEqualTo("Rigobert Song : « Je suis vraiment revenu de très loin »");
         assertThat(article.getValue().getDisplayTitle()).isEqualTo("This is the sanitized title");
-        assertThat(article.getValue().getSummary()).isEqualTo("Et soudain, Rigobert Song apparaît dans l’embrasure de la porte. Quelques kilos en moins, des cheveu...");
+        assertThat(article.getValue().getSummary()).isEqualTo(
+                "Et soudain, Rigobert Song apparaît dans l’embrasure de la porte. Quelques kilos en moins, des cheveu...");
         assertThat(fmt.format(article.getValue().getPublishedDate())).startsWith("2016-12-29");
         assertThat(article.getValue().getLink()).isEqualTo(link);
+        assertThat(article.getValue().getS3Key()).isNull();
+        assertThat(article.getValue().getStatus()).isEqualTo(Article.STATUS_CREATED);
 
         verify(sqs).sendMessage("output-queue", "567");
     }

@@ -102,14 +102,14 @@ public class ArticleDedupConsumer extends SqsS3Consumer {
             final long validId = articleIds.get(0);
             final Article valid = articlesById.get(validId);
             final String validUrl = valid.getLink().getUrl();
-            LOGGER.info("{} is valid", validUrl);
+            LOGGER.info("{} is OK", validUrl);
 
             for (final Long id : articleIds) {
                 final Article article = articlesById.get(id);
                 if (article == null || id == validId) {
                     continue;
                 } else if (!article.isDuplicate()) {
-                    LOGGER.info("{} is duplicated with {}", article.getLink().getUrl(), validUrl);
+                    LOGGER.info("{} duplicates {}", article.getLink().getUrl(), validUrl);
 
                     article.setStatus(Article.STATUS_DUPLICATE);
                     article.setDuplicateId(validId);

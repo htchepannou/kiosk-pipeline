@@ -5,6 +5,7 @@ import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.service.similarity.Document;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -81,7 +82,16 @@ public class Fixtures {
     public static Article createArticle(){
         Article a = new Article();
         a.setId(++uuid);
+        a.setLink(createLink());
         return a;
+    }
+
+    public static Link createLink(){
+        final Link link = new Link();
+        link.setId(++uuid);
+        link.setUrl("http://gooo.com/" + uuid);
+        link.setFeed(createFeed("Test Feed", "http://kiosk.com/test", null));
+        return link;
     }
 
     private static int read(final String content, final byte[] buff){

@@ -66,9 +66,10 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
             Article article = new Article();
             article.setLink(link);
             article.setTitle(extractTitle(doc));
+            article.setSummary(extractSumary(doc));
             article.setDisplayTitle(titleSanitizer.filter(article));
-            setSummary(doc, article);
             setPublishedDate(doc, article);
+
             articleRepository.save(article);
 
             sqs.sendMessage(outputQueue, String.valueOf(article.getId()));
@@ -78,9 +79,7 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
     //-- Private
     private void setSummary(final Document doc, final Article article) {
         final String summary = selectMeta(doc, "meta[property=og:description]");
-        if (!Strings.isNullOrEmpty(summary)) {
-            article.setSummary(Article.normalizeSummary(summary));
-        }
+        article.setSummary(Article.normalizeSummary(summary));
     }
 
     private void setPublishedDate(final Document doc, final Article article) {
@@ -88,6 +87,11 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
         if (date != null) {
             article.setPublishedDate(date);
         }
+    }
+
+    private String extractSumary(final Document doc){
+        final String summary = selectMeta(doc, "meta[property=og:description]");
+        return summary != null ? Article.normalizeSummary(summary) : null;
     }
 
     @VisibleForTesting

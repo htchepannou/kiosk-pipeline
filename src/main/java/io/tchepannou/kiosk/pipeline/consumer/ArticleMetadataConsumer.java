@@ -15,6 +15,7 @@ import io.tchepannou.kiosk.pipeline.support.HtmlHelper;
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,11 +79,6 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
     }
 
     //-- Private
-    private void setSummary(final Document doc, final Article article) {
-        final String summary = selectMeta(doc, "meta[property=og:description]");
-        article.setSummary(Article.normalizeSummary(summary));
-    }
-
     private void setPublishedDate(final Document doc, final Article article) {
         final Date date = extractPublishedDate(doc);
         if (date != null) {
@@ -105,15 +101,32 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
                     ? selectMeta(doc, "meta[name=" + property + "]")
                     : selectMeta(doc, "meta[property=" + property + "]");
             if (!Strings.isNullOrEmpty(date)) {
-                try {
-                    result = fmt.parse(date);
+                result = asDate(date, fmt);
+                if (result != null){
                     break;
-                } catch (final Exception e) {
-                    LOGGER.warn("Invalid format for published date: {} - Excepting {}", date, DATETIME_FORMAT, e);
+                }
+            }
+        }
+
+        if (result == null) {
+            final Elements elts = doc.select("time[itemprop=dateCreated]");
+            if (elts.size() > 0) {
+                final String date = elts.get(0).attr("datetime");
+                if (date != null){
+                    result = asDate(date, fmt);
                 }
             }
         }
         return result;
+    }
+
+    private Date asDate(final String date, final DateFormat fmt){
+        try {
+            return fmt.parse(date);
+        } catch (final Exception e) {
+            LOGGER.warn("Invalid format for published date: {} - Excepting {}", date, DATETIME_FORMAT, e);
+            return null;
+        }
     }
 
     @VisibleForTesting

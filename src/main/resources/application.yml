@@ -25,9 +25,10 @@ kiosk:
       - "*/rss.php"
       - "*/wp-login*"   # Wordpress login
       - "*#*"           # URL with anchors
+      - "http://www.mamafrika.tv/blog/category/*"       # MamAfrika.tv
 
   pipeline:
-    autoStartPipeline: false
+    autoStartPipeline: true
     maxThreadWait: 120000
 
     FeedProducer:

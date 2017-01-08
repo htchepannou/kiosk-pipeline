@@ -28,7 +28,7 @@ kiosk:
       - "http://www.mamafrika.tv/blog/category/*"       # MamAfrika.tv
 
   pipeline:
-    autoStartPipeline: true
+    autoStartPipeline: false
     maxThreadWait: 120000
 
     FeedProducer:
@@ -109,7 +109,6 @@ spring:
       cachePrepStmts: true
       prepStmtCacheSize: 250
       prepStmtCacheSqlLimit: 2048
-
 
 swagger:
   version: "1.0"

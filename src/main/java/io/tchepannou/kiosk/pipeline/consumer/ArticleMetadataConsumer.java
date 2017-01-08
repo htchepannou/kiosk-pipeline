@@ -24,6 +24,7 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Clock;
 import java.util.Date;
 
 import static io.tchepannou.kiosk.pipeline.support.JsoupHelper.select;
@@ -50,6 +51,9 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
     @Autowired
     TitleSanitizer titleSanitizer;
 
+    @Autowired
+    Clock clock;
+
     private String inputQueue;
     private String outputQueue;
     private String s3Bucket;
@@ -67,9 +71,9 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
             final Article article = new Article();
             article.setLink(link);
             article.setTitle(extractTitle(doc));
-            article.setSummary(extractSumary(doc));
+            article.setSummary(extractSummary(doc));
+            article.setPublishedDate(extractPublishedDate(doc));
             article.setDisplayTitle(titleSanitizer.filter(article));
-            setPublishedDate(doc, article);
 
             articleRepository.save(article);
 
@@ -79,14 +83,7 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
     }
 
     //-- Private
-    private void setPublishedDate(final Document doc, final Article article) {
-        final Date date = extractPublishedDate(doc);
-        if (date != null) {
-            article.setPublishedDate(date);
-        }
-    }
-
-    private String extractSumary(final Document doc) {
+    protected String extractSummary(final Document doc) {
         final String summary = selectMeta(doc, "meta[property=og:description]");
         return summary != null ? Article.normalizeSummary(summary) : null;
     }
@@ -117,7 +114,7 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
                 }
             }
         }
-        return result;
+        return result != null ? result : new Date(clock.millis());
     }
 
     private Date asDate(final String date, final DateFormat fmt){

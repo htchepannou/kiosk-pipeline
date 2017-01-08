@@ -22,7 +22,7 @@ import java.util.Date;
 import static io.tchepannou.kiosk.pipeline.Fixtures.createArticle;
 import static io.tchepannou.kiosk.pipeline.Fixtures.createDocument;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -62,7 +62,7 @@ public class SimilarityMatrixProducerTest {
         final Article a1 = createArticle();
         final Article a2 = createArticle();
         final Article a3 = createArticle();
-        when (articleRepository.findByStatusNotAndPublishedDateBetween(anyInt(), any(), any())).thenReturn(Arrays.asList(a1, a2, a3));
+        when (articleRepository.findByStatusNotInAndPublishedDateBetween(anyList(), any(), any())).thenReturn(Arrays.asList(a1, a2, a3));
 
         final Document d1 = createDocument(a1.getId(), "doc1");
         final Document d2 = createDocument(a2.getId(), "doc2");

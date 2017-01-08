@@ -76,11 +76,6 @@ public class ArticleDedupConsumer extends SqsS3Consumer {
     }
 
     //-- Private
-    private String key(final String matrixKey) {
-        final int i = matrixKey.lastIndexOf('/');
-        return matrixKey.substring(0, i) + "dedup.txt";
-    }
-
     final void updateStatus(final List<Set<Long>> clusters) {
 
         /* get the articles */

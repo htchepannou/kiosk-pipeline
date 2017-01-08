@@ -14,8 +14,10 @@ kiosk:
       s3Bucket: "${kiosk.aws.s3.s3Bucket}"
 
     SimilarityService:
-      shingleSize: 5
-      maxShingles: 200
+      shingleSize: 5      # Number of words per shingle
+      maxShingles: 200    # Max shingle to use for computing similarity
+      maxDays: 7          # Search for similary for articles for the last n days
+      threadCount: 10     # Number of thread that fetch document content
 
     UrlBlacklistService:
       urls:

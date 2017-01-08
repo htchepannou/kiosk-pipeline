@@ -18,9 +18,13 @@ import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class SimilarityMatrixProducer {
     private static final Logger LOGGER = LoggerFactory.getLogger(SimilarityMatrixProducer.class);
@@ -42,6 +46,8 @@ public class SimilarityMatrixProducer {
 
     private String s3Bucket;
     private String s3Key;
+    private int threadCount = 10;
+    private int maxDays = 7;
 
     public void produce() throws IOException {
         LOGGER.info("Generating the similarity matrix");
@@ -66,14 +72,43 @@ public class SimilarityMatrixProducer {
 
     private List<Document> loadDocuments() {
         final Date endDate = new Date();
-        final Date startDate = DateUtils.addDays(endDate, -7);
-        final List<Article> articles = articleRepository.findByStatusNotAndPublishedDateBetween(Article.STATUS_INVALID, startDate, endDate);
+        final Date startDate = DateUtils.addDays(endDate, -maxDays);
+        final List<Article> articles = articleRepository.findByStatusNotInAndPublishedDateBetween(
+                Arrays.asList(Article.STATUS_CREATED, Article.STATUS_INVALID), startDate, endDate);
 
         LOGGER.info("Loading content for {} article(s)", articles.size());
-        return articles.stream()
-                .map(a -> articleDocumentFactory.createDocument(a))
-                .filter(d -> d != null)
-                .collect(Collectors.toList());
+        final Queue<Article> queue = new ConcurrentLinkedDeque<>(articles);
+        final List<Document> documents = Collections.synchronizedList(new ArrayList<>());
+        final List<Thread> threads = new ArrayList<>();
+        for (int i = 0; i < threadCount; i++) {
+            final Thread thread = new Thread(
+                    createWorker(queue, documents),
+                    SimilarityMatrixProducer.class.getSimpleName() + "_" + i
+            );
+            thread.setDaemon(true);
+            threads.add(thread);
+            thread.start();
+        }
+        for (final Thread thread : threads){
+            try {
+                thread.join();
+            } catch (InterruptedException e){
+                // Ignore
+            }
+        }
+        return documents;
+    }
+
+    private Runnable createWorker(final Queue<Article> queue, final List<Document> documents) {
+        return () -> {
+            if (queue.isEmpty()) {
+                return;
+            }
+
+            final Article article = queue.poll();
+            final Document doc = articleDocumentFactory.createDocument(article);
+            documents.add(doc);
+        };
     }
 
     public String getS3Bucket() {
@@ -90,5 +125,13 @@ public class SimilarityMatrixProducer {
 
     public void setS3Key(final String s3Key) {
         this.s3Key = s3Key;
+    }
+
+    public int getThreadCount() {
+        return threadCount;
+    }
+
+    public void setThreadCount(final int threadCount) {
+        this.threadCount = threadCount;
     }
 }

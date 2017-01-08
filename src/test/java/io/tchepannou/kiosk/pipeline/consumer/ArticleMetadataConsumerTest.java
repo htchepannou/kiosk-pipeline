@@ -26,8 +26,8 @@ import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
+import java.util.Date;
 
-import static io.tchepannou.kiosk.pipeline.Fixtures.createArticle;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -112,17 +112,24 @@ public class ArticleMetadataConsumerTest {
 
     @Test
     public void shouldExtractPublishedDateFromSparkCameroon() throws Exception {
-        final Article article = createArticle();
         final Document doc = loadDocument("/meta/sparkcameroon.html");
         final DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
         assertThat(fmt.format(consumer.extractPublishedDate(doc))).isEqualTo("2016-12-04");
     }
 
+    @Test
+    public void shouldSetDefaultPublishedDate() throws Exception {
+        final long time = 11132343;
+        final Date date = new Date(time);
+        when(clock.millis()).thenReturn(time);
+
+        final Document doc = loadDocument("/meta/no_published_date.html");
+        assertThat(consumer.extractPublishedDate(doc)).isEqualTo(date);
+    }
 
 
     @Test
     public void shouldExtractPublishedDateFromMamafika() throws Exception {
-        final Article article = createArticle();
         final Document doc = loadDocument("/meta/mamafrika.html");
         final DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
         assertThat(fmt.format(consumer.extractPublishedDate(doc))).isEqualTo("2017-01-07");

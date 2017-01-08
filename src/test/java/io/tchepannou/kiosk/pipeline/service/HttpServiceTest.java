@@ -1,5 +1,7 @@
 package io.tchepannou.kiosk.pipeline.service;
 
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -21,12 +23,16 @@ public class HttpServiceTest {
     private static final int PORT = 18080;
 
     private Server server;
-    private final HttpService service = new HttpService();
+    private CloseableHttpClient client;
+    private HttpService service;
     private String content;
     private String contentType;
 
     @Before
     public void setUp() throws Exception {
+        client = HttpClients.createDefault();
+        service = new HttpService(client);
+
         server = new Server(PORT);
         server.setHandler(createHandler());
         server.start();
@@ -34,6 +40,7 @@ public class HttpServiceTest {
 
     @After
     public void tearDown() throws Exception {
+        client.close();
         server.stop();
     }
 
@@ -55,8 +62,6 @@ public class HttpServiceTest {
 //        final String html = out.toString();
 //        System.out.println(html);
     }
-
-
 
     @Test
     public void shouldGetHtml() throws Exception {

@@ -5,9 +5,9 @@ import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.tika.parser.txt.CharsetDetector;
 import org.apache.tika.parser.txt.CharsetMatch;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -23,6 +23,15 @@ public class HttpService {
         System.setProperty("http.agent", USER_AGENT);
     }
 
+    @Autowired
+    CloseableHttpClient client;
+
+    public HttpService(){
+    }
+    protected HttpService(CloseableHttpClient client){
+        this.client = client;
+    }
+
     /**
      * Download the content of a web resource
      *
@@ -32,16 +41,14 @@ public class HttpService {
      * @throws IOException
      */
     public String get(final String url, final OutputStream out) throws IOException {
-        try (final CloseableHttpClient client = HttpClients.createDefault()) {
-            final HttpGet method = createHttpGet(url);
-            try (CloseableHttpResponse response = client.execute(method)) {
-                final InputStream in = isText(response)
-                        ? getContentTextAsUTF8(response)
-                        : response.getEntity().getContent();
-                IOUtils.copy(in, out);
+        final HttpGet method = createHttpGet(url);
+        try (CloseableHttpResponse response = client.execute(method)) {
+            final InputStream in = isText(response)
+                    ? getContentTextAsUTF8(response)
+                    : response.getEntity().getContent();
+            IOUtils.copy(in, out);
 
-                return getContentType(response);
-            }
+            return getContentType(response);
         }
     }
 

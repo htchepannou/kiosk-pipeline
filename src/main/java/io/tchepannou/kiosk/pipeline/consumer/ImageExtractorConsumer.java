@@ -13,6 +13,7 @@ import io.tchepannou.kiosk.pipeline.persistence.repository.ImageRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import io.tchepannou.kiosk.pipeline.service.image.ImageExtractor;
+import io.tchepannou.kiosk.pipeline.support.HtmlHelper;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,6 +114,7 @@ public class ImageExtractorConsumer extends SqsSnsConsumer {
         // Store content
         LOGGER.info("Storing {} to s3://{}/{}", url, s3Bucket, key);
         final ObjectMetadata meta = createObjectMetadata(bytes.length, contentType);
+        meta.setCacheControl(HtmlHelper.CACHE_CONTROL_CACHE_FOR_30_DAYS);
         s3.putObject(s3Bucket, key, new ByteArrayInputStream(bytes), meta);
 
         return img;

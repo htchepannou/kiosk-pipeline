@@ -6,7 +6,6 @@ public class HtmlHelper {
             "shareaholic:article_published_time"
     };
 
-
     public static final String[] TITLE_CSS_SELECTORS = new String[]{
             "article header h1",
             "article h1",
@@ -28,4 +27,5 @@ public class HtmlHelper {
             ".markdown-body h1",
     };
 
+    public static final String CACHE_CONTROL_CACHE_FOR_30_DAYS = "public, max-age=2592000";
 }

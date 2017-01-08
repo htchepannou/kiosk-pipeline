@@ -8,6 +8,7 @@ import io.tchepannou.kiosk.pipeline.persistence.domain.Image;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ImageRepository;
 import io.tchepannou.kiosk.pipeline.service.image.ImageProcessorService;
+import io.tchepannou.kiosk.pipeline.support.HtmlHelper;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,12 +75,18 @@ public class ImageMainConsumerTest {
         consumer.consumeMessage("123");
 
         // Then
+        ArgumentCaptor<ObjectMetadata> meta = ArgumentCaptor.forClass(ObjectMetadata.class);
         verify(s3).putObject(
                 eq("bucket"),
                 eq("dev/img/2011/10/11/test-" + Image.TYPE_MAIN + ".png"),
                 any(InputStream.class),
-                any(ObjectMetadata.class)
+                meta.capture()
         );
+        assertThat(meta.getValue().getContentType()).isEqualTo("image/png");
+        assertThat(meta.getValue().getCacheControl()).isEqualTo(HtmlHelper.CACHE_CONTROL_CACHE_FOR_30_DAYS);
+        assertThat(meta.getValue().getContentLength()).isGreaterThan(0);
+
+
 
         final ArgumentCaptor<Image> img = ArgumentCaptor.forClass(Image.class);
         verify(imageRepository).save(img.capture());

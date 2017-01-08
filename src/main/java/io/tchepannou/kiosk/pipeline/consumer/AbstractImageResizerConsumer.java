@@ -8,6 +8,7 @@ import io.tchepannou.kiosk.pipeline.aws.sqs.SqsSnsConsumer;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Image;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ImageRepository;
 import io.tchepannou.kiosk.pipeline.service.image.ImageProcessorService;
+import io.tchepannou.kiosk.pipeline.support.HtmlHelper;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,7 +101,7 @@ public abstract class AbstractImageResizerConsumer extends SqsSnsConsumer {
         final ObjectMetadata meta = new ObjectMetadata();
         meta.setContentLength(len);
         meta.setContentType(image.getContentType());
-
+        meta.setCacheControl(HtmlHelper.CACHE_CONTROL_CACHE_FOR_30_DAYS);
         return meta;
     }
 

@@ -11,6 +11,7 @@ import io.tchepannou.kiosk.pipeline.persistence.repository.ImageRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import io.tchepannou.kiosk.pipeline.service.image.ImageExtractor;
+import io.tchepannou.kiosk.pipeline.support.HtmlHelper;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -92,12 +93,16 @@ public class ImageExtractorConsumerTest {
         consumer.consumeMessage("123");
 
         // Then
+        ArgumentCaptor<ObjectMetadata> meta = ArgumentCaptor.forClass(ObjectMetadata.class);
         verify(s3).putObject(
                 eq("bucket"),
                 eq("dev/img/2010/10/11/test.jpg"),
                 any(InputStream.class),
-                any(ObjectMetadata.class)
+                meta.capture()
         );
+        assertThat(meta.getValue().getContentType()).isEqualTo("image/jpeg");
+        assertThat(meta.getValue().getCacheControl()).isEqualTo(HtmlHelper.CACHE_CONTROL_CACHE_FOR_30_DAYS);
+        assertThat(meta.getValue().getContentLength()).isGreaterThan(0);
 
         final ArgumentCaptor<Image> img = ArgumentCaptor.forClass(Image.class);
         verify(imageRepository).save(img.capture());
@@ -112,6 +117,7 @@ public class ImageExtractorConsumerTest {
 
         verify(sns).publish("output-topic", "567");
     }
+
 
     @Test
     public void shouldNormalizeImageName() throws Exception {

@@ -9,6 +9,7 @@ import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
 import io.tchepannou.kiosk.pipeline.service.content.ContentExtractor;
+import io.tchepannou.kiosk.pipeline.support.HtmlHelper;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -91,6 +92,7 @@ public class ArticleContentExtractorConsumer implements SqsConsumer {
         final ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentType("text/html");
         metadata.setContentLength(html.length());
+        metadata.setCacheControl(HtmlHelper.CACHE_CONTROL_CACHE_FOR_30_DAYS);
         return metadata;
     }
 

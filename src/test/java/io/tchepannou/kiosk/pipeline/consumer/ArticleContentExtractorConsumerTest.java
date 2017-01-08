@@ -9,10 +9,12 @@ import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
 import io.tchepannou.kiosk.pipeline.service.content.ContentExtractor;
+import io.tchepannou.kiosk.pipeline.support.HtmlHelper;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -75,12 +77,16 @@ public class ArticleContentExtractorConsumerTest {
         consumer.consume("123");
 
         // Then
+        ArgumentCaptor<ObjectMetadata> meta = ArgumentCaptor.forClass(ObjectMetadata.class);
         verify(s3).putObject(
                 eq("bucket"),
                 eq("dev/content/2010/10/11/test.html"),
                 any(InputStream.class),
-                any(ObjectMetadata.class)
+                meta.capture()
         );
+        assertThat(meta.getValue().getContentType()).isEqualTo("text/html");
+        assertThat(meta.getValue().getCacheControl()).isEqualTo(HtmlHelper.CACHE_CONTROL_CACHE_FOR_30_DAYS);
+        assertThat(meta.getValue().getContentLength()).isEqualTo(17116L);
 
         verify(sqs).sendMessage("output-queue", "123");
 

@@ -25,6 +25,7 @@ import io.tchepannou.kiosk.pipeline.service.similarity.TextSimilaryAlgorithm;
 import io.tchepannou.kiosk.pipeline.service.similarity.filter.UnaccentTextFilter;
 import io.tchepannou.kiosk.pipeline.service.similarity.filter.WhitespaceTextFilter;
 import io.tchepannou.kiosk.pipeline.service.title.TitleFeedFilter;
+import io.tchepannou.kiosk.pipeline.service.title.TitleRegexFilter;
 import io.tchepannou.kiosk.pipeline.service.title.TitleSanitizer;
 import io.tchepannou.kiosk.pipeline.service.title.TitleSuffixFilter;
 import io.tchepannou.kiosk.pipeline.service.video.VideoExtractor;
@@ -118,8 +119,8 @@ public class AppConfiguration {
     @Bean
     TitleSanitizer titleSanitizer() {
         return new TitleSanitizer(Arrays.asList(
+                new TitleRegexFilter(),
                 new TitleFeedFilter(),
-
                 new TitleSuffixFilter() /* SHOULD BE THE LAST!!! */
         ));
     }

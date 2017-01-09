@@ -25,6 +25,9 @@ public class Feed {
     @Column(name="logo_url")
     private String logoUrl;
 
+    @Column(name="display_title_regex", length = 64)
+    private String displayTitleRegex;
+
     //-- Public
     public boolean urlMatches(String uri) {
         uri = uri.toLowerCase();
@@ -86,5 +89,13 @@ public class Feed {
 
     public void setPath(final String path) {
         this.path = path;
+    }
+
+    public String getDisplayTitleRegex() {
+        return displayTitleRegex;
+    }
+
+    public void setDisplayTitleRegex(final String displayTitleRegex) {
+        this.displayTitleRegex = displayTitleRegex;
     }
 }

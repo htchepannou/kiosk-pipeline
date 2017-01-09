@@ -101,13 +101,13 @@ public class SimilarityMatrixProducer {
 
     private Runnable createWorker(final Queue<Article> queue, final List<Document> documents) {
         return () -> {
-            if (queue.isEmpty()) {
-                return;
+            while (!queue.isEmpty()) {
+                final Article article = queue.poll();
+                if (article != null) {
+                    final Document doc = articleDocumentFactory.createDocument(article);
+                    documents.add(doc);
+                }
             }
-
-            final Article article = queue.poll();
-            final Document doc = articleDocumentFactory.createDocument(article);
-            documents.add(doc);
         };
     }
 

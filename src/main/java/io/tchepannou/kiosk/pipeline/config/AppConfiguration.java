@@ -9,6 +9,7 @@ import io.tchepannou.kiosk.pipeline.service.ShutdownService;
 import io.tchepannou.kiosk.pipeline.service.UrlBlacklistService;
 import io.tchepannou.kiosk.pipeline.service.content.ContentExtractor;
 import io.tchepannou.kiosk.pipeline.service.content.ContentFilter;
+import io.tchepannou.kiosk.pipeline.service.content.HeadingOnlyFilter;
 import io.tchepannou.kiosk.pipeline.service.content.HtmlEntityFilter;
 import io.tchepannou.kiosk.pipeline.service.content.SanitizeFilter;
 import io.tchepannou.kiosk.pipeline.service.content.TrimFilter;
@@ -82,6 +83,7 @@ public class AppConfiguration {
         return new ContentExtractor(Arrays.asList(
                 new SanitizeFilter(),
                 new ContentFilter(100),
+                new HeadingOnlyFilter(),
                 new TrimFilter(),
                 new HtmlEntityFilter()
         ));

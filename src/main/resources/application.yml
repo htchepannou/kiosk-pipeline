@@ -28,6 +28,7 @@ kiosk:
       - "*/wp-login*"   # Wordpress login
       - "*#*"           # URL with anchors
       - "http://www.mamafrika.tv/blog/category/*"       # MamAfrika.tv
+      - "http://www.237online.com/publications-du-*"    # 237 online
 
   pipeline:
     autoStartPipeline: false

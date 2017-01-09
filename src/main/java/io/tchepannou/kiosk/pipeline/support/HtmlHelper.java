@@ -1,6 +1,13 @@
 package io.tchepannou.kiosk.pipeline.support;
 
+import org.jsoup.nodes.Element;
+
+import java.util.Arrays;
+import java.util.List;
+
 public class HtmlHelper {
+    public static final List<String> TAG_HEADING = Arrays.asList("h1", "h2", "h3", "h4", "h5", "h6");
+
     public static final String[] PUBLISHED_DATE_CSS_SELECTORS = new String[]{
             "article:published_time",
             "shareaholic:article_published_time"
@@ -13,6 +20,8 @@ public class HtmlHelper {
             ".entry-title",
             ".post-title",
             ".pageTitle",
+            ".page-title",
+            "#page-title",
             ".post_title",
             ".headline h1",
             ".headline",
@@ -28,4 +37,8 @@ public class HtmlHelper {
     };
 
     public static final String CACHE_CONTROL_CACHE_FOR_30_DAYS = "public, max-age=2592000";
+
+    public static boolean isHeading (Element elt){
+        return TAG_HEADING.contains(elt.tagName().toLowerCase());
+    }
 }

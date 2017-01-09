@@ -32,7 +32,7 @@ kiosk:
 
   pipeline:
     autoStartPipeline: false
-    maxThreadWait: 120000
+    maxThreadWait: 60000
 
     FeedProducer:
       outputQueue: "kiosk-${kiosk.environment}-feed-queue"

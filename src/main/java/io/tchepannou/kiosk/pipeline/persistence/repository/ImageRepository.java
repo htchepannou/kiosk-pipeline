@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface ImageRepository extends CrudRepository<Image, Long> {
-    List<Image> findByLinkByTypeByUrl(Link link, int type, String url);
+    List<Image> findByLinkAndTypeAndUrl(Link link, int type, String url);
 }

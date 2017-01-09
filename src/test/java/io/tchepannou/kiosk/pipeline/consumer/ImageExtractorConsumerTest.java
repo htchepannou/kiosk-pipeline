@@ -69,7 +69,7 @@ public class ImageExtractorConsumerTest {
         consumer.setS3Key("dev/img");
         consumer.setS3KeyHtml("dev/html");
 
-        when(imageRepository.findByLinkByTypeByUrl(any(Link.class), anyInt(), anyString())).thenReturn(Collections.emptyList());
+        when(imageRepository.findByLinkAndTypeAndUrl(any(Link.class), anyInt(), anyString())).thenReturn(Collections.emptyList());
     }
 
     @Test
@@ -143,7 +143,7 @@ public class ImageExtractorConsumerTest {
 
         final Image img = new Image();
         img.setId(567);
-        when(imageRepository.findByLinkByTypeByUrl(link, Image.TYPE_ORIGINAL, "http://camfoot.com/IMG/arton25520.jpg")).thenReturn(Collections.singletonList(img));
+        when(imageRepository.findByLinkAndTypeAndUrl(link, Image.TYPE_ORIGINAL, "http://camfoot.com/IMG/arton25520.jpg")).thenReturn(Collections.singletonList(img));
 
 
         // Then

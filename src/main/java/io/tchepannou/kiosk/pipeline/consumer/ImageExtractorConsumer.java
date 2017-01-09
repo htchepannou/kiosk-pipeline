@@ -73,7 +73,7 @@ public class ImageExtractorConsumer extends SqsSnsConsumer {
             final String html = IOUtils.toString(s3Object.getObjectContent());
             final String url = imageExtractor.extract(html);
             if (!Strings.isNullOrEmpty(url)) {
-                final List<Image> imgs = imageRepository.findByLinkByTypeByUrl(link, Image.TYPE_ORIGINAL, url);
+                final List<Image> imgs = imageRepository.findByLinkAndTypeAndUrl(link, Image.TYPE_ORIGINAL, url);
                 if (imgs.isEmpty()) {
                     final Image img = download(url, link);
                     if (img != null) {

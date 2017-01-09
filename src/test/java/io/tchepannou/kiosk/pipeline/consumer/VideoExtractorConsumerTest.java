@@ -124,7 +124,7 @@ public class VideoExtractorConsumerTest {
 
         when(extractor.extract(anyString())).thenReturn(Arrays.asList("http://youtu.be/XOcCOBe8PTc"));
 
-        when(videoRepository.findByEmbedUrl("http://youtu.be/XOcCOBe8PTc")).thenReturn(Arrays.asList(new Video()));
+        when(videoRepository.findByLinkAndEmbedUrl(link, "http://youtu.be/XOcCOBe8PTc")).thenReturn(Arrays.asList(new Video()));
 
         // Then
         consumer.consumeMessage("123");

@@ -27,6 +27,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 @ConfigurationProperties("kiosk.pipeline.ImageExtractorConsumer")
 @Transactional
@@ -72,15 +73,21 @@ public class ImageExtractorConsumer extends SqsSnsConsumer {
             final String html = IOUtils.toString(s3Object.getObjectContent());
             final String url = imageExtractor.extract(html);
             if (!Strings.isNullOrEmpty(url)) {
-                final Image img = download(url, link);
-                if (img != null) {
-                    imageRepository.save(img);
-
-                    LOGGER.info("Sending message <{}> to {}", img.getId(), outputTopic);
-                    sns.publish(outputTopic, String.valueOf(img.getId()));
+                final List<Image> imgs = imageRepository.findByLinkByTypeByUrl(link, Image.TYPE_ORIGINAL, url);
+                if (imgs.isEmpty()) {
+                    final Image img = download(url, link);
+                    if (img != null) {
+                        imageRepository.save(img);
+                        publish(img);
+                    }
                 }
             }
         }
+    }
+
+    private void publish(Image img){
+        LOGGER.info("Sending message <{}> to {}", img.getId(), outputTopic);
+        sns.publish(outputTopic, String.valueOf(img.getId()));
     }
 
     private Image download(final String url, final Link link) throws IOException {

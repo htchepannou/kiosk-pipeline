@@ -24,10 +24,12 @@ import org.mockito.stubbing.Answer;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
 
 import static io.tchepannou.kiosk.pipeline.Fixtures.createS3InputStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -66,6 +68,8 @@ public class ImageExtractorConsumerTest {
         consumer.setS3Bucket("bucket");
         consumer.setS3Key("dev/img");
         consumer.setS3KeyHtml("dev/html");
+
+        when(imageRepository.findByLinkByTypeByUrl(any(Link.class), anyInt(), anyString())).thenReturn(Collections.emptyList());
     }
 
     @Test
@@ -118,6 +122,44 @@ public class ImageExtractorConsumerTest {
         verify(sns).publish("output-topic", "567");
     }
 
+    @Test
+    public void shouldNotDownloadExistingImage() throws Exception {
+        // Given
+        final String s3Key = "dev/html/2010/10/11/test.html";
+        final Link link = new Link();
+        link.setId(123);
+        link.setS3Key(s3Key);
+        when(linkRepository.findOne(123L)).thenReturn(link);
+
+        final String html = IOUtils.toString(getClass().getResource("/image/article.html"));
+        final S3ObjectInputStream in = createS3InputStream(html);
+        final S3Object obj = createS3Object("bucket", s3Key);
+        when(obj.getObjectContent()).thenReturn(in);
+        when(s3.getObject("bucket", s3Key)).thenReturn(obj);
+
+        when(extractor.extract(anyString())).thenReturn("http://camfoot.com/IMG/arton25520.jpg");
+
+        doAnswer(get("/image/jordan.jpg", "image/jpeg")).when(http).get(any(), any());
+
+        final Image img = new Image();
+        img.setId(567);
+        when(imageRepository.findByLinkByTypeByUrl(link, Image.TYPE_ORIGINAL, "http://camfoot.com/IMG/arton25520.jpg")).thenReturn(Collections.singletonList(img));
+
+
+        // Then
+        consumer.consumeMessage("123");
+
+        // Then
+        verify(s3, never()).putObject(
+                anyString(),
+                anyString(),
+                any(InputStream.class),
+                any(ObjectMetadata.class)
+        );
+
+        verify(imageRepository, never()).save(any(Image.class));
+        verify(sns, never()).publish(anyString(), anyString());
+    }
 
     @Test
     public void shouldNormalizeImageName() throws Exception {

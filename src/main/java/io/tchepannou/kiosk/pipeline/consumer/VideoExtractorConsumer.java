@@ -74,7 +74,7 @@ public class VideoExtractorConsumer extends SqsSnsConsumer {
     }
 
     private boolean alreadyDownloaded(final Link link, final String url){
-        List<Video> videos = videoRepository.findByLinkAndEmbedUrl(link, url);
+        List<Video> videos = videoRepository.findByEmbedUrl(url);
         return videos != null && !videos.isEmpty();
     }
 

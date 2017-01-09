@@ -31,7 +31,7 @@ kiosk:
       - "http://www.237online.com/publications-du-*"    # 237 online
 
   pipeline:
-    autoStartPipeline: true
+    autoStartPipeline: false
     maxThreadWait: 60000
 
     FeedProducer:

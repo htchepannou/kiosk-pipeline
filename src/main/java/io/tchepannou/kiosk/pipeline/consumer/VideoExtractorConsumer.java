@@ -54,7 +54,7 @@ public class VideoExtractorConsumer extends SqsSnsConsumer {
             final List<String> urls = videoExtractor.extract(html);
             if (!urls.isEmpty()) {
                 for (final String url : urls) {
-                    if (alreadyDownloaded(link, url)){
+                    if (alreadyDownloaded(url)){
                         LOGGER.info("{} already downloaded. Ignoring it", url);
                         continue;
                     }
@@ -73,7 +73,7 @@ public class VideoExtractorConsumer extends SqsSnsConsumer {
         return video;
     }
 
-    private boolean alreadyDownloaded(final Link link, final String url){
+    private boolean alreadyDownloaded(final String url){
         List<Video> videos = videoRepository.findByEmbedUrl(url);
         return videos != null && !videos.isEmpty();
     }

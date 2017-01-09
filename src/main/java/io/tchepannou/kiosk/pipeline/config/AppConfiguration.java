@@ -7,6 +7,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import io.tchepannou.kiosk.pipeline.service.ShutdownService;
 import io.tchepannou.kiosk.pipeline.service.UrlBlacklistService;
+import io.tchepannou.kiosk.pipeline.service.content.AnchorFilter;
 import io.tchepannou.kiosk.pipeline.service.content.ContentExtractor;
 import io.tchepannou.kiosk.pipeline.service.content.ContentFilter;
 import io.tchepannou.kiosk.pipeline.service.content.HeadingOnlyFilter;
@@ -84,6 +85,7 @@ public class AppConfiguration {
         return new ContentExtractor(Arrays.asList(
                 new SanitizeFilter(),
                 new ContentFilter(100),
+                new AnchorFilter(),
                 new HeadingOnlyFilter(),
                 new TrimFilter(),
                 new HtmlEntityFilter()

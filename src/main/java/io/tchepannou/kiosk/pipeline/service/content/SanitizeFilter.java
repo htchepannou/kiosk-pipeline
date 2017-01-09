@@ -62,9 +62,6 @@ public class SanitizeFilter implements Filter<String> {
         collectEmpty(doc.body(), items);
         removeAll(items);
 
-        /* clean anchors */
-        clearHref(doc);
-
         return doc.html();
     }
 
@@ -96,12 +93,6 @@ public class SanitizeFilter implements Filter<String> {
             return false;
         }
         return href.startsWith("https://twitter.com/intent/tweet");
-    }
-
-    private void clearHref(final Document doc) {
-        for (final Element elt : doc.select("a")) {
-            elt.removeAttr("href");
-        }
     }
 
     private void collectEmpty(final Element node, final Collection<Element> items) {

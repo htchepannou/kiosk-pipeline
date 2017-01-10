@@ -14,7 +14,7 @@ public class AnchorFilterTest {
         assertThat(filter.filter(html)).isEqualTo("<html>\n"
                 + " <head></head>\n"
                 + " <body>\n"
-                + "  <a href=\"#\" onclick=\"navigate('http://www.google.ca')\" class=\"kiosk-link\">Email</a>\n"
+                + "  <a href=\"http://www.google.ca\" class=\"kiosk-link\">Email</a>\n"
                 + "  <p>hello</p>\n"
                 + " </body>\n"
                 + "</html>");
@@ -27,7 +27,7 @@ public class AnchorFilterTest {
         assertThat(filter.filter(html)).isEqualTo("<html>\n"
                 + " <head></head>\n"
                 + " <body>\n"
-                + "  <a href=\"#\" onclick=\"navigate('https://www.google.ca')\" class=\"kiosk-link\">Email</a>\n"
+                + "  <a href=\"https://www.google.ca\" class=\"kiosk-link\">Email</a>\n"
                 + "  <p>hello</p>\n"
                 + " </body>\n"
                 + "</html>");

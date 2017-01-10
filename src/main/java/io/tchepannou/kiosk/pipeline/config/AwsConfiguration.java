@@ -4,6 +4,7 @@ import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.auth.PropertiesFileCredentialsProvider;
+import com.amazonaws.auth.SystemPropertiesCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.sns.AmazonSNS;
@@ -43,7 +44,9 @@ public class AwsConfiguration {
 
     @Bean
     AWSCredentialsProvider awsCredentialsProvider() {
-        if (env.acceptsProfiles("dev")) {
+        if (env.acceptsProfiles("ci")) {
+            return new SystemPropertiesCredentialsProvider();
+        } else if (env.acceptsProfiles("dev")) {
             final String home = System.getProperty("user.home");
             return new PropertiesFileCredentialsProvider(home + "/.aws/credentials");
         } else {
@@ -57,7 +60,7 @@ public class AwsConfiguration {
                 .withConnectionTimeout(connectionTimeout)
                 .withGzip(true)
                 .withMaxErrorRetry(maxErrorRetries)
-        ;
+                ;
     }
 
     public int getConnectionTimeout() {

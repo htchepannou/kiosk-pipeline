@@ -59,6 +59,11 @@ public class SqsS3ConsumerTest {
 
     public static class ConsumerImpl extends SqsS3Consumer {
         @Override
+        public String getInputQueue() {
+            return null;
+        }
+
+        @Override
         protected void consume(final S3Object s3Object) throws IOException {
 
         }

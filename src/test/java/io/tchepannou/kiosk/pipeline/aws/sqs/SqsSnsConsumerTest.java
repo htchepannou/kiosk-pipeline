@@ -60,6 +60,11 @@ public class SqsSnsConsumerTest {
 
     public static class ConsumerImpl extends SqsSnsConsumer{
         @Override
+        public String getInputQueue() {
+            return null;
+        }
+
+        @Override
         protected void consumeMessage(final String message) throws IOException {
         }
     }

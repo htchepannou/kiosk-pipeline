@@ -2,7 +2,6 @@ package io.tchepannou.kiosk.pipeline.consumer;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.sqs.AmazonSQS;
 import io.tchepannou.kiosk.pipeline.aws.sqs.SqsS3Consumer;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
@@ -34,9 +33,6 @@ public class ArticleDedupConsumer extends SqsS3Consumer {
 
     @Autowired
     AmazonS3 s3;
-
-    @Autowired
-    AmazonSQS sqs;
 
     @Autowired
     ArticleRepository articleRepository;
@@ -126,7 +122,6 @@ public class ArticleDedupConsumer extends SqsS3Consumer {
     }
 
     //-- Getter/Setter
-
     public String getInputQueue() {
         return inputQueue;
     }

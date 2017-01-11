@@ -31,8 +31,9 @@ kiosk:
       - "http://www.237online.com/publications-du-*"    # 237 online
 
   pipeline:
-    autoStartPipeline: false
+    autoStart: true
     maxThreadWait: 60000
+    workersPerConsumer: 10
 
     FeedProducer:
       outputQueue: "kiosk-${kiosk.environment}-feed-queue"
@@ -40,6 +41,9 @@ kiosk:
     SimilarityMatrixProducer:
       s3Bucket: "${kiosk.aws.s3.s3Bucket}"
       s3Key: "${kiosk.environment}/similarity"
+
+    PublishProducer:
+      outputQueue: "kiosk-${kiosk.environment}-article-publish-queue"
 
     UrlExtractorConsumer:
       inputQueue: "kiosk-${kiosk.environment}-feed-queue"
@@ -94,6 +98,9 @@ kiosk:
     ArticleDedupConsumer:
       inputQueue: "kiosk-${kiosk.environment}-article-dedup-queue"
       similarityThreshold: 0.9
+
+    ArticlePublishConsumer:
+      inputQueue: "kiosk-${kiosk.environment}-article-publish-queue"
 
 spring:
   datasource:

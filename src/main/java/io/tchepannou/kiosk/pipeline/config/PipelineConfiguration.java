@@ -1,9 +1,11 @@
 package io.tchepannou.kiosk.pipeline.config;
 
 import com.amazonaws.services.sqs.AmazonSQS;
+import io.tchepannou.kiosk.pipeline.aws.sqs.SqsConsumerGroup;
 import io.tchepannou.kiosk.pipeline.consumer.ArticleContentExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.ArticleDedupConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.ArticleMetadataConsumer;
+import io.tchepannou.kiosk.pipeline.consumer.ArticlePublishConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.ArticleValidationConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.HtmlDownloadConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.ImageExtractorConsumer;
@@ -19,20 +21,25 @@ import io.tchepannou.kiosk.pipeline.service.ThreadMonitor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+
 
 @Configuration
 public class PipelineConfiguration {
     @Autowired
     AmazonSQS sqs;
 
+    @Autowired
+    ConfigurableApplicationContext applicationContext;
+
     @Value("${kiosk.pipeline.maxThreadWait}")
     int maxThreadWait;
 
-    @Value("${kiosk.pipeline.autoStartPipeline}")
-    boolean autoStartPipeline;
+    @Value("${kiosk.pipeline.workersPerConsumer}")
+    int workersPerConsumer;
 
     //-- Beans
     @Bean
@@ -59,12 +66,33 @@ public class PipelineConfiguration {
     }
 
     @Bean
-    PublishProducer articlePublishProducer() {
+    @ConfigurationProperties("kiosk.pipeline.PublishProducer")
+    PublishProducer publishProducer() {
         return new PublishProducer();
     }
 
 
+
     //-- Consumers
+    @Bean("AquisitionConsumers")
+    public SqsConsumerGroup aquisitionConsumers() {
+        final SqsConsumerGroup group = new SqsConsumerGroup(sqs, threadMonitor(), applicationContext);
+        group.add(UrlExtractorConsumer.class, workersPerConsumer);
+        group.add(HtmlDownloadConsumer.class, workersPerConsumer);
+
+        group.add(ArticleContentExtractorConsumer.class, workersPerConsumer);
+        group.add(ArticleMetadataConsumer.class, workersPerConsumer);
+        group.add(ArticleValidationConsumer.class, workersPerConsumer);
+
+        group.add(ImageExtractorConsumer.class, workersPerConsumer);
+        group.add(ImageThumbnailConsumer.class, 2 * workersPerConsumer);
+        group.add(ImageMainConsumer.class, 2 * workersPerConsumer);
+
+        group.add(VideoExtractorConsumer.class, 2 * workersPerConsumer);
+
+        return group;
+    }
+
     @Bean
     @Scope("prototype")
     UrlExtractorConsumer urlExtractorConsumer() {
@@ -121,10 +149,34 @@ public class PipelineConfiguration {
         return new ArticleValidationConsumer();
     }
 
+
+    @Bean("DedupConsumers")
+    SqsConsumerGroup dedupConsumers() {
+        final SqsConsumerGroup group = new SqsConsumerGroup(sqs, threadMonitor(), applicationContext);
+        group.add(ArticleDedupConsumer.class, workersPerConsumer);
+        return group;
+    }
+
     @Bean
     @Scope("prototype")
     @ConfigurationProperties("kiosk.pipeline.ArticleDedupConsumer")
     ArticleDedupConsumer articleDedupConsumer() {
         return new ArticleDedupConsumer();
+    }
+
+
+
+    @Bean("PublishConsumers")
+    SqsConsumerGroup publishConsumers() {
+        final SqsConsumerGroup group = new SqsConsumerGroup(sqs, threadMonitor(), applicationContext);
+        group.add(ArticlePublishConsumer.class, workersPerConsumer);
+        return group;
+    }
+
+    @Bean
+    @Scope("prototype")
+    @ConfigurationProperties("kiosk.pipeline.ArticlePublishConsumer")
+    ArticlePublishConsumer articlePublishConsumer() {
+        return new ArticlePublishConsumer();
     }
 }

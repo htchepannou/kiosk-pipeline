@@ -3,7 +3,6 @@ package io.tchepannou.kiosk.pipeline.consumer;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
-import com.amazonaws.services.sqs.AmazonSQS;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
@@ -38,9 +37,6 @@ public class ArticleDedupConsumerTest {
     AmazonS3 s3;
 
     @Mock
-    AmazonSQS sqs;
-
-    @Mock
     ArticleRepository articleRepository;
 
     @Mock
@@ -50,7 +46,7 @@ public class ArticleDedupConsumerTest {
     ArticleDedupConsumer consumer;
 
     @Before
-    public void setUp (){
+    public void setUp() {
         consumer.setInputQueue("input-queue");
     }
 
@@ -91,10 +87,10 @@ public class ArticleDedupConsumerTest {
         assertThat(a22.getStatus()).isEqualTo(Article.STATUS_DUPLICATE);
         assertThat(a22.getDuplicateId()).isEqualTo(a21.getId());
 
-        ArgumentCaptor<Iterable> articles = ArgumentCaptor.forClass(Iterable.class);
+        final ArgumentCaptor<Iterable> articles = ArgumentCaptor.forClass(Iterable.class);
         verify(articleRepository).save(articles.capture());
 
-        List items = Arrays.asList(Iterables.toArray(articles.getValue()));
+        final List items = Arrays.asList(Iterables.toArray(articles.getValue()));
         assertThat(items).contains(a12, a13, a22);
     }
 

@@ -33,15 +33,15 @@ public class SqsConsumerGroup {
         workersByConsummer.put(consumer, workers);
     }
 
-    public void run() {
+    public void consume() {
         for (final Class<? extends SqsConsumer> consumerClass : workersByConsummer.keySet()) {
-            run(consumerClass);
+            consume(consumerClass);
         }
         threadMonitor.waitAllThreads(ONE_MINUTE, maxDuration);
     }
 
     //-- Private
-    private void run(final Class<? extends SqsConsumer> consumerClass) {
+    private void consume(final Class<? extends SqsConsumer> consumerClass) {
 
         final int workers = workersByConsummer.get(consumerClass);
         for (int i = 0; i < workers; i++) {

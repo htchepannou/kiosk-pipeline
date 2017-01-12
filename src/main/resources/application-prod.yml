@@ -1,7 +1,7 @@
 kiosk:
   environment: prod
   pipeline:
-    reprocess: extract-content
+    reprocess: none
     maxThreadWait: 300000
 
 spring:

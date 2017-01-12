@@ -8,33 +8,33 @@ public class AnchorFilterTest {
     Filter<String> filter = new AnchorFilter();
 
     @Test
-    public void shouldOpenHttpUrl() throws Exception {
+    public void shouldFilterHttpUrl() throws Exception {
         final String html = "<a href='http://www.google.ca'>Email</a><p>hello</p>";
 
         assertThat(filter.filter(html)).isEqualTo("<html>\n"
                 + " <head></head>\n"
                 + " <body>\n"
-                + "  <a href=\"http://www.google.ca\" class=\"kiosk-link\">Email</a>\n"
+                + "  <a href=\"#\">Email</a>\n"
                 + "  <p>hello</p>\n"
                 + " </body>\n"
                 + "</html>");
     }
 
     @Test
-    public void shouldOpenHttpsUrl() throws Exception {
+    public void shouldFilterHttpsUrl() throws Exception {
         final String html = "<a href='https://www.google.ca'>Email</a><p>hello</p>";
 
         assertThat(filter.filter(html)).isEqualTo("<html>\n"
                 + " <head></head>\n"
                 + " <body>\n"
-                + "  <a href=\"https://www.google.ca\" class=\"kiosk-link\">Email</a>\n"
+                + "  <a href=\"#\">Email</a>\n"
                 + "  <p>hello</p>\n"
                 + " </body>\n"
                 + "</html>");
     }
 
     @Test
-    public void shouldSanitizeAnchorWithEmails() throws Exception {
+    public void shouldFilterUrlWithEmails() throws Exception {
         final String html = "<a href='mailto:foo@gmail.com'>Email</a><p>hello</p>";
 
         assertThat(filter.filter(html)).isEqualTo("<html>\n"
@@ -47,7 +47,7 @@ public class AnchorFilterTest {
     }
 
     @Test
-    public void shouldSanitizeAnchorWithDash() throws Exception {
+    public void shouldFilterUrlWithDash() throws Exception {
         final String html = "<a href='http://www.google.ca#comments'>Email</a><p>hello</p>";
 
         assertThat(filter.filter(html)).isEqualTo("<html>\n"

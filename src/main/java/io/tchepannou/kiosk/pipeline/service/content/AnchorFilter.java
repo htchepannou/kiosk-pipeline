@@ -16,18 +16,9 @@ public class AnchorFilter implements Filter<String> {
         final Elements elts = doc.select("a");
         for (final Element elt : elts) {
             final String href = elt.attr("href").trim();
-            if (!isValid(href)) {
-                elt.attr("href", "#");
-            } else {
-                elt.attr("class", "kiosk-link");
-            }
+            elt.attr("href", "#");
         }
 
         return doc.html();
-    }
-
-    private boolean isValid(final String url) {
-        return (url.startsWith("http://") || url.startsWith("https://"))
-                && !url.contains("#");
     }
 }

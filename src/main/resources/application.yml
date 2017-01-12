@@ -31,7 +31,7 @@ kiosk:
       - "http://www.237online.com/publications-du-*"    # 237 online
 
   pipeline:
-    autoStart: true
+    reprocess: none        # none, extract-content
     maxThreadWait: 60000
     workersPerConsumer: 10
 

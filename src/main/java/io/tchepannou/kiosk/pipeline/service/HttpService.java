@@ -26,9 +26,10 @@ public class HttpService {
     @Autowired
     CloseableHttpClient client;
 
-    public HttpService(){
+    public HttpService() {
     }
-    protected HttpService(CloseableHttpClient client){
+
+    protected HttpService(final CloseableHttpClient client) {
         this.client = client;
     }
 
@@ -93,7 +94,7 @@ public class HttpService {
         detector.setText(bytes);
 
         final CharsetMatch charset = detector.detect();
-        if (charset == null || "utf-8".equalsIgnoreCase(charset.getName())) {
+        if (charset == null || !charset.getName().startsWith("ISO-")) {
             return new ByteArrayInputStream(bout.toByteArray());
         }
 

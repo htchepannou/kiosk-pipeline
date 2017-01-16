@@ -61,7 +61,7 @@ public class ArticleContentExtractorConsumer implements SqsConsumer {
 
         final String key = contentKey(link);
         try (final S3Object s3Object = s3.getObject(s3Bucket, link.getS3Key())) {
-            final String html = IOUtils.toString(s3Object.getObjectContent());
+            final String html = IOUtils.toString(s3Object.getObjectContent(), "utf-8");
             final String xhtml = extractor.extract(html);
 
             final byte[] bytes = xhtml.getBytes("utf-8");

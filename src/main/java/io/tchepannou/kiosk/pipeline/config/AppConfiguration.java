@@ -29,6 +29,7 @@ import io.tchepannou.kiosk.pipeline.service.title.TitleFeedFilter;
 import io.tchepannou.kiosk.pipeline.service.title.TitleRegexFilter;
 import io.tchepannou.kiosk.pipeline.service.title.TitleSanitizer;
 import io.tchepannou.kiosk.pipeline.service.title.TitleSuffixFilter;
+import io.tchepannou.kiosk.pipeline.service.title.TitleVideoFilter;
 import io.tchepannou.kiosk.pipeline.service.video.VideoExtractor;
 import io.tchepannou.kiosk.pipeline.service.video.YouTube;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
@@ -123,6 +124,8 @@ public class AppConfiguration {
         return new TitleSanitizer(Arrays.asList(
                 new TitleRegexFilter(),
                 new TitleFeedFilter(),
+                new TitleVideoFilter(),
+
                 new TitleSuffixFilter() /* SHOULD BE THE LAST!!! */
         ));
     }

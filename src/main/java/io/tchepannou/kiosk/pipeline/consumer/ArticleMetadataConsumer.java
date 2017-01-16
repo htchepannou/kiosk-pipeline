@@ -65,7 +65,7 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
 
         LOGGER.info("Extracting metadata from {}", link.getUrl());
         try (final S3Object s3Object = s3.getObject(s3Bucket, link.getS3Key())) {
-            final String html = IOUtils.toString(s3Object.getObjectContent());
+            final String html = IOUtils.toString(s3Object.getObjectContent(), "utf-8");
             final Document doc = Jsoup.parse(html);
 
             final Article article = new Article();

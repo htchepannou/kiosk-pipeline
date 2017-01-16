@@ -136,13 +136,12 @@ public class SimilarityService {
         }
     }
 
-//
 //    public static void main(final String[] args) throws Exception {
 //        final File file = new File(System.getProperty("user.home") + "/Downloads/matrix_13.txt");
 //        try (final FileInputStream fin = new FileInputStream(file)) {
-//            final Collection<Dedup> dedups = new SimilarityService().filter(fin, .9f, 100f);
+//            final Collection<Pair> dedups = new SimilarityService().filter(fin, .1f, .3f);
 //            System.out.println(dedups.size() + " dedup");
-//            for (final Dedup dedup : dedups) {
+//            for (final Pair dedup : dedups) {
 //                System.out.println(String.format("%s - %s - %s", dedup.getId1(), dedup.getId2(), dedup.getRatio()));
 //            }
 //        }

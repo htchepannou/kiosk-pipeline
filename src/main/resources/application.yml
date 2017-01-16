@@ -29,6 +29,7 @@ kiosk:
       - "*#*"           # URL with anchors
       - "http://www.mamafrika.tv/blog/category/*"       # MamAfrika.tv
       - "http://www.237online.com/publications-du-*"    # 237 online
+      - "https://lefilmcamerounais.com/category/*"      # Le Film Camerounais
 
   pipeline:
     reprocess: none        # none, extract-content

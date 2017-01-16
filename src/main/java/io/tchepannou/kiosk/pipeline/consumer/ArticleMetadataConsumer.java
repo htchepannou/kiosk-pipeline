@@ -92,32 +92,35 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
     protected Date extractPublishedDate(final Document doc) {
         final DateFormat fmt = new SimpleDateFormat(DATETIME_FORMAT);
         Date result = null;
-        for (final String property : HtmlHelper.PUBLISHED_DATE_CSS_SELECTORS) {
+        for (final String property : HtmlHelper.META_PUBLISHED_DATE_CSS_SELECTORS) {
 
             final String date = property.startsWith("shareaholic")
                     ? selectMeta(doc, "meta[name=" + property + "]")
                     : selectMeta(doc, "meta[property=" + property + "]");
             if (!Strings.isNullOrEmpty(date)) {
                 result = asDate(date, fmt);
-                if (result != null){
+                if (result != null) {
                     break;
                 }
             }
         }
 
         if (result == null) {
-            final Elements elts = doc.select("time[itemprop=dateCreated]");
-            if (elts.size() > 0) {
-                final String date = elts.get(0).attr("datetime");
-                if (date != null){
-                    result = asDate(date, fmt);
+            for (final String property : HtmlHelper.TIME_PUBLISHED_DATE_CSS_SELECTORS) {
+                final Elements elts = doc.select(property);
+                if (elts.size() > 0) {
+                    final String date = elts.get(0).attr("datetime");
+                    if (date != null) {
+                        result = asDate(date, fmt);
+                    }
                 }
+
             }
         }
         return result != null ? result : new Date(clock.millis());
     }
 
-    private Date asDate(final String date, final DateFormat fmt){
+    private Date asDate(final String date, final DateFormat fmt) {
         try {
             return fmt.parse(date);
         } catch (final Exception e) {

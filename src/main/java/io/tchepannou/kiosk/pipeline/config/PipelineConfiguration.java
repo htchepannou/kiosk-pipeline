@@ -26,7 +26,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
-
 @Configuration
 public class PipelineConfiguration {
     @Autowired
@@ -52,7 +51,6 @@ public class PipelineConfiguration {
         return new PipelineRunner();
     }
 
-
     //-- Producer
     @Bean
     FeedProducer feedProducer() {
@@ -70,8 +68,6 @@ public class PipelineConfiguration {
     PublishProducer publishProducer() {
         return new PublishProducer();
     }
-
-
 
     //-- Consumers
     @Bean("AquisitionConsumers")
@@ -149,11 +145,11 @@ public class PipelineConfiguration {
         return new ArticleValidationConsumer();
     }
 
-
     @Bean("DedupConsumers")
     SqsConsumerGroup dedupConsumers() {
         final SqsConsumerGroup group = new SqsConsumerGroup(sqs, threadMonitor(), applicationContext);
         group.add(ArticleDedupConsumer.class, workersPerConsumer);
+        group.setMaxThreadWait(1 * SqsConsumerGroup.ONE_MINUTE);
         return group;
     }
 
@@ -164,12 +160,11 @@ public class PipelineConfiguration {
         return new ArticleDedupConsumer();
     }
 
-
-
     @Bean("PublishConsumers")
     SqsConsumerGroup publishConsumers() {
         final SqsConsumerGroup group = new SqsConsumerGroup(sqs, threadMonitor(), applicationContext);
         group.add(ArticlePublishConsumer.class, workersPerConsumer);
+        group.setMaxThreadWait(1 * SqsConsumerGroup.ONE_MINUTE);
         return group;
     }
 

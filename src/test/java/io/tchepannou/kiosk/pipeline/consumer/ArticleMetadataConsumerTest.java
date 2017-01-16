@@ -89,7 +89,7 @@ public class ArticleMetadataConsumerTest {
         consumer.consumeMessage("123");
 
         // Then
-        ArgumentCaptor<Article> article = ArgumentCaptor.forClass(Article.class);
+        final ArgumentCaptor<Article> article = ArgumentCaptor.forClass(Article.class);
         verify(articleRepository).save(article.capture());
 
         assertThat(article.getValue().getTitle()).isEqualTo("Rigobert Song : « Je suis vraiment revenu de très loin »");
@@ -127,12 +127,18 @@ public class ArticleMetadataConsumerTest {
         assertThat(consumer.extractPublishedDate(doc)).isEqualTo(date);
     }
 
-
     @Test
     public void shouldExtractPublishedDateFromMamafika() throws Exception {
         final Document doc = loadDocument("/meta/mamafrika.html");
         final DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
         assertThat(fmt.format(consumer.extractPublishedDate(doc))).isEqualTo("2017-01-07");
+    }
+
+    @Test
+    public void shouldExtractPublishedDateFromLFCamerounais() throws Exception {
+        final Document doc = loadDocument("/meta/lefilmcamerounais.html");
+        final DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
+        assertThat(fmt.format(consumer.extractPublishedDate(doc))).isEqualTo("2017-01-06");
     }
 
     private Document loadDocument(final String path) throws Exception {
@@ -145,7 +151,6 @@ public class ArticleMetadataConsumerTest {
         link.setS3Key("dev/html/2011/01/01/foo.html");
         return link;
     }
-
 
     private Answer saveArticle(final long id) {
         return (inv) -> {

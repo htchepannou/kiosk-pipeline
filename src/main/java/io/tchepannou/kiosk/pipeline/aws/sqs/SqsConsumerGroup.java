@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SqsConsumerGroup {
-    private static final int ONE_MINUTE = 60 * 1000;
+    public static final int ONE_MINUTE = 60 * 1000;
 
     private final AmazonSQS sqs;
     private final ThreadMonitor threadMonitor;

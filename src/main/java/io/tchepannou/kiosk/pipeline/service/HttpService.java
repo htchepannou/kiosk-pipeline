@@ -90,18 +90,38 @@ public class HttpService {
         IOUtils.copy(response.getEntity().getContent(), bout);
 
         final byte[] bytes = bout.toByteArray();
+        String encoding = getEncoding(response);
+        if (encoding == null) {
+            encoding = detectEncoding(bytes);
+        }
+
+        if (encoding == null || "UTF-8".equalsIgnoreCase(encoding)) {
+            return new ByteArrayInputStream(bytes);
+        } else {
+            final String html = new String(bytes, encoding);
+            final byte[] utf8 = html.getBytes("UTF-8");
+            return new ByteArrayInputStream(utf8);
+        }
+    }
+
+    private String getEncoding(final CloseableHttpResponse response) {
+        final Header header = response.getFirstHeader("Content-Type");
+        if (header == null) {
+            return null;
+        }
+
+        final String contentType = header.getValue();
+        final String prefix = "charset=";
+        final int i = contentType.indexOf(prefix);
+        return i > 0 ? contentType.substring(i + prefix.length()) : null;
+    }
+
+    private String detectEncoding(final byte[] bytes) {
         final CharsetDetector detector = new CharsetDetector();
         detector.setText(bytes);
 
         final CharsetMatch charset = detector.detect();
-        if (charset == null || !charset.getName().startsWith("ISO-")) {
-            return new ByteArrayInputStream(bout.toByteArray());
-        }
-
-        final String encoding = charset.getName();
-        final String html = new String(bytes, encoding);
-        final byte[] utf8 = html.getBytes("UTF-8");
-        return new ByteArrayInputStream(utf8);
+        return charset != null ? charset.getName() : null;
     }
 
     private boolean isText(final CloseableHttpResponse response) {

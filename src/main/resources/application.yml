@@ -31,6 +31,9 @@ kiosk:
       - "http://www.237online.com/publications-du-*"    # 237 online
       - "https://lefilmcamerounais.com/category/*"      # Le Film Camerounais
       - "http://okabolmedia.com/category/*"             # Okabol Media
+      - "http://achouka.mondoblog.org/tag/*"            # MondoBlog
+      - "http://mondoblog.org/author/*"
+      - "http://mondoblog.org/category/*"
 
   pipeline:
     reprocess: none        # none, extract-content

@@ -34,6 +34,13 @@ kiosk:
       - "http://achouka.mondoblog.org/tag/*"            # MondoBlog
       - "http://mondoblog.org/author/*"
       - "http://mondoblog.org/category/*"
+      - "http://mamymuna.com/contact/"                  # Contact
+      - "http://mamymuna.com/contribuer/"
+      - "http://mamymuna.com/about/"
+      - "http://mamymuna.com/members/"
+      - "http://mamymuna.com/groupes/"
+      - "http://mamymuna.com/inscriptions/"
+
 
   pipeline:
     reprocess: none        # none, extract-content

@@ -25,6 +25,7 @@ import io.tchepannou.kiosk.pipeline.service.similarity.ShingleExtractor;
 import io.tchepannou.kiosk.pipeline.service.similarity.TextSimilaryAlgorithm;
 import io.tchepannou.kiosk.pipeline.service.similarity.filter.UnaccentTextFilter;
 import io.tchepannou.kiosk.pipeline.service.similarity.filter.WhitespaceTextFilter;
+import io.tchepannou.kiosk.pipeline.service.title.TitleCountryFilter;
 import io.tchepannou.kiosk.pipeline.service.title.TitleFeedFilter;
 import io.tchepannou.kiosk.pipeline.service.title.TitleRegexFilter;
 import io.tchepannou.kiosk.pipeline.service.title.TitleSanitizer;
@@ -123,6 +124,7 @@ public class AppConfiguration {
     TitleSanitizer titleSanitizer() {
         return new TitleSanitizer(Arrays.asList(
                 new TitleRegexFilter(),
+                new TitleCountryFilter(),
                 new TitleFeedFilter(),
                 new TitleVideoFilter(),
 

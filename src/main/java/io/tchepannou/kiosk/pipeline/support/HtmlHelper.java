@@ -15,7 +15,8 @@ public class HtmlHelper {
 
     public static final String[] TIME_PUBLISHED_DATE_CSS_SELECTORS = new String[]{
             "time[itemprop=dateCreated]",
-            "time.entry-date"
+            "time.entry-date",
+            "abbr[itemprop~=datePublished]",
     };
 
     public static final String[] TITLE_CSS_SELECTORS = new String[]{

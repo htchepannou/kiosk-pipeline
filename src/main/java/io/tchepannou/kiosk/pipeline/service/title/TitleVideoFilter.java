@@ -9,7 +9,8 @@ public class TitleVideoFilter implements TitleFilter {
             "( video )",
             "[video]",
             "[ video ]",
-            "[►]"
+            "[►]",
+            "[ ► ]"
     };
 
     final UnaccentTextFilter unaccentTextFilter = new UnaccentTextFilter();

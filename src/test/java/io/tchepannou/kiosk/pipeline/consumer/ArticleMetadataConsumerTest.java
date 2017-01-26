@@ -141,6 +141,13 @@ public class ArticleMetadataConsumerTest {
         assertThat(fmt.format(consumer.extractPublishedDate(doc))).isEqualTo("2017-01-06");
     }
 
+    @Test
+    public void shouldExtractPublishedDateFromEtoudiBlog() throws Exception {
+        final Document doc = loadDocument("/meta/etoudiblog.html");
+        final DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
+        assertThat(fmt.format(consumer.extractPublishedDate(doc))).isEqualTo("2016-09-19");
+    }
+
     private Document loadDocument(final String path) throws Exception {
         final String html = IOUtils.toString(getClass().getResourceAsStream(path));
         return Jsoup.parse(html);

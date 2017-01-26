@@ -40,6 +40,10 @@ kiosk:
       - "http://mamymuna.com/members/"
       - "http://mamymuna.com/groupes/"
       - "http://mamymuna.com/inscriptions/"
+      - "http://www.camerpost.com/page/*"              # CamerPost
+      - "http://www.etoudiblog.com/search/*"           # EtoudiBlog
+      - "http://www.etoudiblog.com/p/*"
+
 
 
   pipeline:

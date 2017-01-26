@@ -15,6 +15,7 @@ import io.tchepannou.kiosk.pipeline.support.HtmlHelper;
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,7 +110,11 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
             for (final String property : HtmlHelper.TIME_PUBLISHED_DATE_CSS_SELECTORS) {
                 final Elements elts = doc.select(property);
                 if (elts.size() > 0) {
-                    final String date = elts.get(0).attr("datetime");
+                    final Element elt = elts.get(0);
+                    String date = elt.attr("datetime");
+                    if (Strings.isNullOrEmpty(date)){
+                        date = elt.attr("title");
+                    }
                     if (date != null) {
                         result = asDate(date, fmt);
                     }

@@ -43,7 +43,9 @@ kiosk:
       - "http://www.camerpost.com/page/*"              # CamerPost
       - "http://www.etoudiblog.com/search/*"           # EtoudiBlog
       - "http://www.etoudiblog.com/p/*"
-      - "http://www.bamendaonline.com/blog/category/*"  # BamendaOnline
+      - "http://bamendaonline.net/blog/category/*"         # BamendaOnline
+      - "http://www.cameroun-online.com/fr/rubriques/*"    # CameronOnline
+      - "http://www.cameroun-online.com/fr/etiquettes/*"
 
 
 

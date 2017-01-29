@@ -27,7 +27,7 @@ public class UrlBlacklistService {
     }
 
     private boolean matches(final String url, final String urlToVerify) {
-        final String regex = ("\\Q" + url.toLowerCase() + "\\E").replace("*", "\\E.*\\Q");
+        final String regex = (url.toLowerCase()).replace("*", ".*");
         return urlToVerify.matches(regex);
     }
 

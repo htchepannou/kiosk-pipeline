@@ -14,6 +14,7 @@ public class UrlBlacklistServiceTest {
         service.getUrls().add("*/wp-login.php*");
         service.getUrls().add("*/feed/rss");
         service.getUrls().add("*#*");
+        service.getUrls().add("*/\\d{4}/\\d{2}/\\d{2}");
 
         // Then
         assertThat(service.contains(null)).isTrue();
@@ -22,8 +23,14 @@ public class UrlBlacklistServiceTest {
         assertThat(service.contains("http://www.sparkcameroun.com/wp-login.php")).isTrue();
         assertThat(service.contains("http://www.camer24.de/feed/rss/")).isTrue();
 
-        assertThat(service.contains("http://www.jewanda-magazine.com/2016/01/video-eudoxie-yao-mon-physique-de-reve-ma-ouvert-beaucoup-de-portes/#comment-216278")).isTrue();
+        assertThat(service.contains(
+                "http://www.jewanda-magazine.com/2016/01/video-eudoxie-yao-mon-physique-de-reve-ma-ouvert-beaucoup-de-portes/#comment-216278")).isTrue();
+        assertThat(service.contains("http://www.jewanda-magazine.com/2017/01/29")).isTrue();
+        assertThat(service.contains("http://www.jewanda-magazine.com/2017/01/29/")).isTrue();
+        assertThat(service.contains(
+                "http://www.jewanda-magazine.com/2016/01/video-eudoxie-yao-mon-physique-de-reve-ma-ouvert-beaucoup-de-portes/")).isFalse();
 
         assertThat(service.contains("http://www.sparkcameroun.com")).isFalse();
+
     }
 }

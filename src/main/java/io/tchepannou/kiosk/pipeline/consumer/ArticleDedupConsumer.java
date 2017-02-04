@@ -90,27 +90,44 @@ public class ArticleDedupConsumer extends SqsS3Consumer {
             final List<Long> articleIds = new ArrayList<>(cluster);
             Collections.sort(articleIds, comparator);
 
+            /* get valid article */
+            final Article valid = getValidArticle(ids, articlesById);
+            if (valid == null) {
+                continue;
+            }
             final long validId = articleIds.get(0);
-            final Article valid = articlesById.get(validId);
             final String validUrl = valid.getLink().getUrl();
-            LOGGER.info("{} is OK", validUrl);
 
+            /* invalidate other articles of the cluster */
             for (final Long id : articleIds) {
                 final Article article = articlesById.get(id);
                 if (article == null || id == validId) {
-                    continue;
-                } else if (!article.isDuplicate()) {
-                    LOGGER.info("{} duplicates {}", article.getLink().getUrl(), validUrl);
+
+                    LOGGER.info("{} is not a duplicate - status={}", article.getLink().getUrl(), article.getStatus());
+
+                } else {
+                    LOGGER.info("{} duplicates {} - status={}", article.getLink().getUrl(), validUrl, article.getStatus());
 
                     article.setStatus(Article.STATUS_DUPLICATE);
                     article.setDuplicateId(validId);
                     persist.add(article);
+
                 }
             }
         }
 
         /* update */
         articleRepository.save(persist);
+    }
+
+    private Article getValidArticle(final Collection<Long> ids, final Map<Long, Article> articlesById) {
+        for (final Long id : ids) {
+            final Article article = articlesById.get(id);
+            if (article.isValid()) {
+                return article;
+            }
+        }
+        return null;
     }
 
     private Set<Long> extractIds(final Collection<Set<Long>> clusters) {

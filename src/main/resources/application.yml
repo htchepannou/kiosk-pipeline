@@ -119,7 +119,7 @@ kiosk:
 
     ArticleDedupConsumer:
       inputQueue: "kiosk-${kiosk.environment}-article-dedup-queue"
-      similarityThreshold: 0.9
+      similarityThreshold: 0.8
 
     ArticlePublishConsumer:
       inputQueue: "kiosk-${kiosk.environment}-article-publish-queue"

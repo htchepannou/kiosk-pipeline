@@ -49,6 +49,7 @@ kiosk:
       - "http://www.cameroun-online.com/fr/rubriques/*"    # CameronOnline
       - "http://www.cameroun-online.com/fr/étiquettes/*"
       - "http://www.cameroun-online.com/node/*"
+      - "http://www.aucunlait.net/?PHPSESSID=*"            # Aucunlait
 
 
 

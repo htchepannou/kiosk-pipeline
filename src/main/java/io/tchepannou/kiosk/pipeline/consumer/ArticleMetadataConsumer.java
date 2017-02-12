@@ -80,6 +80,7 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
             article.setSummary(extractSummary(doc));
             article.setPublishedDate(extractPublishedDate(doc, feed));
             article.setDisplayTitle(titleSanitizer.filter(article));
+            article.setType(extractType(doc));
 
             articleRepository.save(article);
 
@@ -89,6 +90,15 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
     }
 
     //-- Private
+    private String extractType(final Document doc) {
+        if (selectMeta(doc, "meta[property=og:title]") != null) {
+            // This document supports OG
+            return selectMeta(doc, "meta[property=og:type]");
+        } else {
+            return Article.TYPE_ARTICLE;
+        }
+    }
+
     protected String extractSummary(final Document doc) {
         final String summary = selectMeta(doc, "meta[property=og:description]");
         return summary != null ? Article.normalizeSummary(summary) : null;
@@ -117,7 +127,7 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
                 if (elts.size() > 0) {
                     final Element elt = elts.get(0);
                     String date = elt.attr("datetime");
-                    if (Strings.isNullOrEmpty(date)){
+                    if (Strings.isNullOrEmpty(date)) {
                         date = elt.attr("title");
                     }
                     if (date != null) {
@@ -128,13 +138,13 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
             }
         }
 
-        if (result != null){
+        if (result != null) {
             return result;
         } else {
             final Date now = new Date(clock.millis());
             final Date onboardDate = feed.getOnboardDate();
             final DateFormat fmt2 = new SimpleDateFormat(DATE_FORMAT);
-            if (fmt2.format(now).equals(fmt2.format(onboardDate))){
+            if (fmt2.format(now).equals(fmt2.format(onboardDate))) {
                 return DateUtils.addDays(now, defaultPublishDateOffsetDays);
             }
             return now;

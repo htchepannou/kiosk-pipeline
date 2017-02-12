@@ -106,6 +106,7 @@ public class ArticleMetadataConsumerTest {
         assertThat(article.getValue().getLink()).isEqualTo(link);
         assertThat(article.getValue().getS3Key()).isNull();
         assertThat(article.getValue().getStatus()).isEqualTo(Article.STATUS_CREATED);
+        assertThat(article.getValue().getType()).isEqualTo(Article.TYPE_ARTICLE);
 
         verify(sqs).sendMessage("output-queue", "567");
     }

@@ -28,6 +28,7 @@ kiosk:
       - "*/wp-login*"   # Wordpress login
       - "*#*"           # URL with anchor
       - "*/about"
+      - "*/about-us"
       - "*/contact"
       - "*/shop"
       - "*/[0-9]{4}/[0-9]{2}/[0-9]{2}"                  # Archives

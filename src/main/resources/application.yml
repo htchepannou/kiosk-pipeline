@@ -56,6 +56,7 @@ kiosk:
       - "http://actucameroun.com/category/*"               # Actu Cameroon
       - "https://dailyretrocmr.wordpress.com/tag/*"        # Daily Retro CMR
       - "https://dailyretrocmr.wordpress.com/page/*"
+      - "https://dailyretrocmr.wordpress.com/category/*"
 
 
 

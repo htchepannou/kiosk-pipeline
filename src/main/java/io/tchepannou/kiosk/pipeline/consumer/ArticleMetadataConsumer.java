@@ -80,7 +80,6 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
             article.setSummary(extractSummary(doc));
             article.setPublishedDate(extractPublishedDate(doc, feed));
             article.setDisplayTitle(titleSanitizer.filter(article));
-            article.setType(extractType(doc));
 
             articleRepository.save(article);
 
@@ -90,15 +89,6 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
     }
 
     //-- Private
-    private String extractType(final Document doc) {
-        if (selectMeta(doc, "meta[property=og:title]") != null) {
-            // This document supports OG
-            return selectMeta(doc, "meta[property=og:type]");
-        } else {
-            return Article.TYPE_ARTICLE;
-        }
-    }
-
     protected String extractSummary(final Document doc) {
         final String summary = selectMeta(doc, "meta[property=og:description]");
         return summary != null ? Article.normalizeSummary(summary) : null;

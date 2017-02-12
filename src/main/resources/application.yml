@@ -55,6 +55,7 @@ kiosk:
       - "http://www.aucunlait.net/?PHPSESSID=*"            # Aucunlait
       - "http://actucameroun.com/category/*"               # Actu Cameroon
       - "https://dailyretrocmr.wordpress.com/tag/*"        # Daily Retro CMR
+      - "https://dailyretrocmr.wordpress.com/page/*"
 
 
 
@@ -74,6 +75,7 @@ kiosk:
       outputQueue: "kiosk-${kiosk.environment}-article-publish-queue"
 
     UrlExtractorConsumer:
+      workerCount: 100
       inputQueue: "kiosk-${kiosk.environment}-feed-queue"
       outputQueue: "kiosk-${kiosk.environment}-url-queue"
 

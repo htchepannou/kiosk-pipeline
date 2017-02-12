@@ -40,6 +40,9 @@ public class PipelineConfiguration {
     @Value("${kiosk.pipeline.workersPerConsumer}")
     int workersPerConsumer;
 
+    @Value("${kiosk.pipeline.UrlExtractorConsumer.workerCount}")
+    int urlConsumerWorkerCount;
+
     //-- Beans
     @Bean
     ThreadMonitor threadMonitor() {
@@ -73,7 +76,7 @@ public class PipelineConfiguration {
     @Bean("AquisitionConsumers")
     public SqsConsumerGroup aquisitionConsumers() {
         final SqsConsumerGroup group = new SqsConsumerGroup(sqs, threadMonitor(), applicationContext);
-        group.add(UrlExtractorConsumer.class, workersPerConsumer);
+        group.add(UrlExtractorConsumer.class, urlConsumerWorkerCount);
         group.add(HtmlDownloadConsumer.class, workersPerConsumer);
 
         group.add(ArticleContentExtractorConsumer.class, workersPerConsumer);

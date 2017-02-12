@@ -7,7 +7,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Date;
 
 @Entity
 public class Feed {
@@ -28,9 +27,6 @@ public class Feed {
 
     @Column(name="display_title_regex", length = 64)
     private String displayTitleRegex;
-
-    @Column(name="onboard_date")
-    private Date onboardDate;
 
     //-- Public
     public boolean urlMatches(String uri) {
@@ -101,13 +97,5 @@ public class Feed {
 
     public void setDisplayTitleRegex(final String displayTitleRegex) {
         this.displayTitleRegex = displayTitleRegex;
-    }
-
-    public Date getOnboardDate() {
-        return onboardDate;
-    }
-
-    public void setOnboardDate(final Date onboardDate) {
-        this.onboardDate = onboardDate;
     }
 }

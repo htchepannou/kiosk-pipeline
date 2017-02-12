@@ -53,6 +53,8 @@ kiosk:
       - "http://www.cameroun-online.com/fr/étiquettes/*"
       - "http://www.cameroun-online.com/node/*"
       - "http://www.aucunlait.net/?PHPSESSID=*"            # Aucunlait
+      - "http://actucameroun.com/category/*"               # Actu Cameroon
+      - "https://dailyretrocmr.wordpress.com/tag/*"        # Daily Retro CMR
 
 
 

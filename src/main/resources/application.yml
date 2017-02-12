@@ -27,6 +27,9 @@ kiosk:
       - "*/rss.php"
       - "*/wp-login*"   # Wordpress login
       - "*#*"           # URL with anchor
+      - "*/about"
+      - "*/contact"
+      - "*/shop"
       - "*/[0-9]{4}/[0-9]{2}/[0-9]{2}"                  # Archives
       - "http://www.mamafrika.tv/blog/category/*"       # MamAfrika.tv
       - "http://www.237online.com/publications-du-*"    # 237 online

@@ -77,7 +77,6 @@ kiosk:
       outputQueue: "kiosk-${kiosk.environment}-article-publish-queue"
 
     UrlExtractorConsumer:
-      workerCount: 100
       inputQueue: "kiosk-${kiosk.environment}-feed-queue"
       outputQueue: "kiosk-${kiosk.environment}-url-queue"
 

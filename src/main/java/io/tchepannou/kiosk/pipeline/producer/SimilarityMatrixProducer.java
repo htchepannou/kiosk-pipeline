@@ -134,4 +134,12 @@ public class SimilarityMatrixProducer {
     public void setThreadCount(final int threadCount) {
         this.threadCount = threadCount;
     }
+
+    public int getMaxDays() {
+        return maxDays;
+    }
+
+    public void setMaxDays(final int maxDays) {
+        this.maxDays = maxDays;
+    }
 }

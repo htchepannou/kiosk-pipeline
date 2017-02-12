@@ -12,6 +12,7 @@ import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -41,6 +42,7 @@ public class Fixtures {
         feed.setUrl(url);
         feed.setPath(path);
         feed.setName(name);
+        feed.setOnboardDate(new Date());
         return feed;
     }
 

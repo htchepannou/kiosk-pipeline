@@ -7,12 +7,14 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import io.tchepannou.kiosk.pipeline.aws.sqs.SqsSnsConsumer;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.title.TitleSanitizer;
 import io.tchepannou.kiosk.pipeline.support.HtmlHelper;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -36,6 +38,7 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArticleMetadataConsumer.class);
 
     private static final String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssX";
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
 
     @Autowired
     AmazonSQS sqs;
@@ -58,11 +61,13 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
     private String inputQueue;
     private String outputQueue;
     private String s3Bucket;
+    private int defaultPublishDateOffsetDays = -7;
 
     @Override
     public void consumeMessage(final String body) throws IOException {
         final long id = Long.parseLong(body);
         final Link link = linkRepository.findOne(id);
+        final Feed feed = link.getFeed();
 
         LOGGER.info("Extracting metadata from {}", link.getUrl());
         try (final S3Object s3Object = s3.getObject(s3Bucket, link.getS3Key())) {
@@ -73,7 +78,7 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
             article.setLink(link);
             article.setTitle(extractTitle(doc));
             article.setSummary(extractSummary(doc));
-            article.setPublishedDate(extractPublishedDate(doc));
+            article.setPublishedDate(extractPublishedDate(doc, feed));
             article.setDisplayTitle(titleSanitizer.filter(article));
 
             articleRepository.save(article);
@@ -90,7 +95,7 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
     }
 
     @VisibleForTesting
-    protected Date extractPublishedDate(final Document doc) {
+    protected Date extractPublishedDate(final Document doc, final Feed feed) {
         final DateFormat fmt = new SimpleDateFormat(DATETIME_FORMAT);
         Date result = null;
         for (final String property : HtmlHelper.META_PUBLISHED_DATE_CSS_SELECTORS) {
@@ -122,7 +127,18 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
 
             }
         }
-        return result != null ? result : new Date(clock.millis());
+
+        if (result != null){
+            return result;
+        } else {
+            final Date now = new Date(clock.millis());
+            final Date onboardDate = feed.getOnboardDate();
+            final DateFormat fmt2 = new SimpleDateFormat(DATE_FORMAT);
+            if (fmt2.format(now).equals(fmt2.format(onboardDate))){
+                return DateUtils.addDays(now, defaultPublishDateOffsetDays);
+            }
+            return now;
+        }
     }
 
     private Date asDate(final String date, final DateFormat fmt) {
@@ -171,5 +187,13 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
 
     public void setS3Bucket(final String s3Bucket) {
         this.s3Bucket = s3Bucket;
+    }
+
+    public int getDefaultPublishDateOffsetDays() {
+        return defaultPublishDateOffsetDays;
+    }
+
+    public void setDefaultPublishDateOffsetDays(final int defaultPublishDateOffsetDays) {
+        this.defaultPublishDateOffsetDays = defaultPublishDateOffsetDays;
     }
 }

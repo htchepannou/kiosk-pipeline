@@ -6,11 +6,13 @@ import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.sqs.AmazonSQS;
 import io.tchepannou.kiosk.pipeline.Fixtures;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.title.TitleSanitizer;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Before;
@@ -56,6 +58,9 @@ public class ArticleMetadataConsumerTest {
     @Mock
     Clock clock;
 
+    @Mock
+    Feed feed;
+
     @InjectMocks
     ArticleMetadataConsumer consumer;
 
@@ -64,6 +69,7 @@ public class ArticleMetadataConsumerTest {
         consumer.setInputQueue("input-queue");
         consumer.setOutputQueue("output-queue");
         consumer.setS3Bucket("bucket");
+        consumer.setDefaultPublishDateOffsetDays(-2);
     }
 
     @Test
@@ -114,38 +120,54 @@ public class ArticleMetadataConsumerTest {
     public void shouldExtractPublishedDateFromSparkCameroon() throws Exception {
         final Document doc = loadDocument("/meta/sparkcameroon.html");
         final DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
-        assertThat(fmt.format(consumer.extractPublishedDate(doc))).isEqualTo("2016-12-04");
+        assertThat(fmt.format(consumer.extractPublishedDate(doc, feed))).isEqualTo("2016-12-04");
     }
 
     @Test
-    public void shouldSetDefaultPublishedDate() throws Exception {
-        final long time = 11132343;
-        final Date date = new Date(time);
-        when(clock.millis()).thenReturn(time);
+    public void shouldSetDefaultPublishedDateInPastWhenFeedOnboardDateIsToday() throws Exception {
+        final Date now = DateUtils.addDays(new Date(), -10);
+
+        when(feed.getOnboardDate()).thenReturn(now);
+
+        when(clock.millis()).thenReturn(now.getTime());
 
         final Document doc = loadDocument("/meta/no_published_date.html");
-        assertThat(consumer.extractPublishedDate(doc)).isEqualTo(date);
+        assertThat(consumer.extractPublishedDate(doc, feed)).isEqualTo(
+                DateUtils.addDays(now, consumer.getDefaultPublishDateOffsetDays())
+        );
+    }
+
+    @Test
+    public void shouldSetDefaultPublishedDateToNowWhenFeedOnboardDateIsNotToday() throws Exception {
+        final Date now = new Date();
+
+        when(feed.getOnboardDate()).thenReturn(DateUtils.addDays(now, -10));
+
+        when(clock.millis()).thenReturn(now.getTime());
+
+        final Document doc = loadDocument("/meta/no_published_date.html");
+        assertThat(consumer.extractPublishedDate(doc, feed)).isEqualTo(now);
     }
 
     @Test
     public void shouldExtractPublishedDateFromMamafika() throws Exception {
         final Document doc = loadDocument("/meta/mamafrika.html");
         final DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
-        assertThat(fmt.format(consumer.extractPublishedDate(doc))).isEqualTo("2017-01-07");
+        assertThat(fmt.format(consumer.extractPublishedDate(doc, feed))).isEqualTo("2017-01-07");
     }
 
     @Test
     public void shouldExtractPublishedDateFromLFCamerounais() throws Exception {
         final Document doc = loadDocument("/meta/lefilmcamerounais.html");
         final DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
-        assertThat(fmt.format(consumer.extractPublishedDate(doc))).isEqualTo("2017-01-06");
+        assertThat(fmt.format(consumer.extractPublishedDate(doc, feed))).isEqualTo("2017-01-06");
     }
 
     @Test
     public void shouldExtractPublishedDateFromEtoudiBlog() throws Exception {
         final Document doc = loadDocument("/meta/etoudiblog.html");
         final DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
-        assertThat(fmt.format(consumer.extractPublishedDate(doc))).isEqualTo("2016-09-19");
+        assertThat(fmt.format(consumer.extractPublishedDate(doc, feed))).isEqualTo("2016-09-19");
     }
 
     private Document loadDocument(final String path) throws Exception {

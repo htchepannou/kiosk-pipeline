@@ -50,6 +50,10 @@ public class UrlExtractorConsumer implements SqsConsumer {
         final Feed feed = feedRepository.findOne(Long.parseLong(body));
         final List<String> urls = extractUrls(feed);
         for (final String url : urls) {
+            if (isHomePage(url, feed)) {
+                LOGGER.info("{} is home page", url);
+                continue;
+            }
             if (alreadyDownloaded(url)) {
                 LOGGER.info("{} already downloaded", url);
                 continue;
@@ -65,6 +69,12 @@ public class UrlExtractorConsumer implements SqsConsumer {
     }
 
     //-- Private
+    private boolean isHomePage(final String url, final Feed feed) {
+        final String xurl = url.toLowerCase();
+        final String feedUrl = feed.getUrl().toLowerCase();
+        return xurl.equals(feedUrl) || xurl.equals(feedUrl + "/");
+    }
+
     private boolean alreadyDownloaded(final String url) {
         final String keyhash = Link.hash(url);
         return linkRepository.findByUrlHash(keyhash) != null;

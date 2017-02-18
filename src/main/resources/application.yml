@@ -52,6 +52,7 @@ kiosk:
       - "http://bamendaonline.net/blog/author/*"           # BamendaOnline
       - "http://www.cameroun-online.com/fr/rubriques/*"    # CameronOnline
       - "http://www.cameroun-online.com/fr/étiquettes/*"
+      - "http://www.cameroun-online.com/fr/node?page*"
       - "http://www.cameroun-online.com/node/*"
       - "http://www.aucunlait.net/?PHPSESSID=*"            # Aucunlait
       - "http://actucameroun.com/category/*"               # Actu Cameroon

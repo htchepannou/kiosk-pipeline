@@ -5,7 +5,7 @@ import java.util.List;
 
 public class ShingleExtractor {
     public List<String> extract(final String text, final int len) {
-        String[] parts = text.split(" ");
+        String[] parts = text.split("\\s");
         List<String> result = new ArrayList<>();
         for(int i = 0; i < parts.length - len + 1; i++) {
             StringBuilder sb = new StringBuilder();

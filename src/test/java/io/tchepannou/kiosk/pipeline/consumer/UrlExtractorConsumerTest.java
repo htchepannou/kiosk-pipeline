@@ -109,6 +109,28 @@ public class UrlExtractorConsumerTest {
         verify(sqs).sendMessage("output-queue", "http://www.google.ca/article/test_456.html");
     }
 
+    @Test
+    public void shouldNormalizeUrls() throws Exception {
+        // Given
+        final Feed feed = createFeed("test", "http://www.google.ca", null);
+        when(feedRepository.findOne(feed.getId())).thenReturn(feed);
+
+        final String html = "<body>"
+                + "<a href='http://www.google.ca/article/Test_123.html'>"
+                + "<a href='http://www.google.ca/category/SPORT/'>"
+                + "</body>";
+
+        doAnswer(get(html)).when(http).get(any(), any());
+
+        // When
+        consumer.consume(String.valueOf(feed.getId()));
+
+        // Then
+        verify(sqs).sendMessage("output-queue", "http://www.google.ca/article/test_123.html");
+        verify(sqs).sendMessage("output-queue", "http://www.google.ca/category/sport");
+    }
+
+
     private Answer get(final String html) {
         return (inv) -> {
             final OutputStream out = (OutputStream) inv.getArguments()[1];

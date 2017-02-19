@@ -49,7 +49,8 @@ public class UrlExtractorConsumer implements SqsConsumer {
     public void consume(final String body) throws IOException {
         final Feed feed = feedRepository.findOne(Long.parseLong(body));
         final List<String> urls = extractUrls(feed);
-        for (final String url : urls) {
+        for (String url : urls) {
+            url = normalize(url);
             if (isHomePage(url, feed)) {
                 LOGGER.info("{} is home page", url);
                 continue;
@@ -69,6 +70,10 @@ public class UrlExtractorConsumer implements SqsConsumer {
     }
 
     //-- Private
+    private String normalize(final String url) {
+        return url.endsWith("/") ? url.substring(0, url.length() - 1).toLowerCase() : url.toLowerCase();
+    }
+
     private boolean isHomePage(final String url, final Feed feed) {
         final String xurl = url.toLowerCase();
         final String feedUrl = feed.getUrl().toLowerCase();

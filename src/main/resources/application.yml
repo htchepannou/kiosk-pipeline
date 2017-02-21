@@ -54,12 +54,12 @@ kiosk:
       - "http://www.cameroun-online.com/fr/étiquettes/*"
       - "http://www.cameroun-online.com/fr/node?page*"
       - "http://www.cameroun-online.com/node/*"
-      - "http://www.aucunlait.net/?PHPSESSID=*"            # Aucunlait
+      - "http://www.aucunlait.net/?phpsessid=*"            # Aucunlait
       - "http://actucameroun.com/category/*"               # Actu Cameroon
       - "https://dailyretrocmr.wordpress.com/tag/*"        # Daily Retro CMR
       - "https://dailyretrocmr.wordpress.com/page/*"
       - "https://dailyretrocmr.wordpress.com/category/*"
-
+      - "https://www.lebledparle.com/component/tags/*"     # LeBledParle
 
 
   pipeline:
@@ -112,12 +112,12 @@ kiosk:
       s3Key: "${kiosk.environment}/image"
       s3KeyHtml: "${kiosk.pipeline.HtmlDownloadConsumer.s3Key}"
 
-    ImageThumbnailConsumer:
-      inputQueue: "kiosk-${kiosk.environment}-image-thumbnail-queue"
-      s3Bucket: "${kiosk.aws.s3.s3Bucket}"
-      s3Key: "${kiosk.environment}/image"
-      width: 144
-      height:  144
+#    ImageThumbnailConsumer:
+#      inputQueue: "kiosk-${kiosk.environment}-image-thumbnail-queue"
+#      s3Bucket: "${kiosk.aws.s3.s3Bucket}"
+#      s3Key: "${kiosk.environment}/image"
+#      width: 144
+#      height:  144
 
     ImageMainConsumer:
       inputQueue: "kiosk-${kiosk.environment}-image-main-queue"

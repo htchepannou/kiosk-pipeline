@@ -66,38 +66,40 @@ public class HtmlDownloadConsumer implements SqsConsumer {
     }
 
     @Override
-    public void consume(final String body) throws IOException {
-        if (alreadyDownloaded(body) || isBlacklisted(body)) {
+    public void consume(final String url) {
+        if (alreadyDownloaded(url) || isBlacklisted(url)) {
             return;
         }
         try {
             // Feed
-            final Feed feed = findFeed(body);
+            final Feed feed = findFeed(url);
             if (feed == null) {
-                LOGGER.error("Bad URL - No feed associated with {}", body);
+                LOGGER.error("Bad URL - No feed associated with {}", url);
                 return;
             }
 
             // Download
-            LOGGER.info("Downloading {}", body);
+            LOGGER.info("Downloading {}", url);
             final ByteArrayOutputStream out = new ByteArrayOutputStream();
-            http.getHtml(body, out);
+            http.getHtml(url, out);
 
             // Store
-            final String id = DigestUtils.md5Hex(body);
+            final String id = DigestUtils.md5Hex(url);
             final String s3Key = generateKey(id);
             final byte[] bytes = out.toByteArray();
             final ByteArrayInputStream in = new ByteArrayInputStream(bytes);
             final ObjectMetadata meta = createObjectMetadata(bytes.length);
 
-            LOGGER.info("Storing {} to s3://{}/{}", body, s3Bucket, s3Key);
+            LOGGER.info("Storing {} to s3://{}/{}", url, s3Bucket, s3Key);
             s3.putObject(s3Bucket, s3Key, in, meta);
 
-            downloaded(body, s3Key, feed);
+            downloaded(url, s3Key, feed);
         } catch (final DataIntegrityViolationException e) {
-            LOGGER.warn("{} already downloaded", body);
+            LOGGER.warn("{} already downloaded", url, e);
         } catch (final InvalidContentTypeException e) {
-            LOGGER.warn("{} not valid HTML", body);
+            LOGGER.warn("{} not valid HTML", url, e);
+        } catch (final IOException e) {
+            LOGGER.warn("Unable to download {}", url, e);
         }
     }
 

@@ -49,20 +49,34 @@ kiosk:
       - "http://mamymuna.com/groupes/"
       - "http://mamymuna.com/inscriptions/"
       - "http://www.camerpost.com/page/*"              # CamerPost
+      - "http://www.camerpost.com/tag/*"
+      - "http://www.camerpost.com/category/*"
       - "http://www.etoudiblog.com/search/*"           # EtoudiBlog
       - "http://www.etoudiblog.com/p/*"
       - "http://bamendaonline.net/blog/category/*"         # BamendaOnline
-      - "http://bamendaonline.net/blog/author/*"           # BamendaOnline
+      - "http://bamendaonline.net/blog/author/*"
       - "http://www.cameroun-online.com/fr/rubriques/*"    # CameronOnline
       - "http://www.cameroun-online.com/fr/étiquettes/*"
       - "http://www.cameroun-online.com/fr/node?page*"
       - "http://www.cameroun-online.com/node/*"
       - "http://www.aucunlait.net/?phpsessid=*"            # Aucunlait
+      - "http://www.aucunlait.net/feature"
+      - "http://www.aucunlait.net/lifestyle"
+      - "http://www.aucunlait.net/decouverte"
+      - "http://www.aucunlait.net/reaction"
+      - "http://www.aucunlait.net/members/*"
       - "http://actucameroun.com/category/*"               # Actu Cameroon
       - "https://dailyretrocmr.wordpress.com/tag/*"        # Daily Retro CMR
       - "https://dailyretrocmr.wordpress.com/page/*"
       - "https://dailyretrocmr.wordpress.com/category/*"
       - "https://www.lebledparle.com/component/tags/*"     # LeBledParle
+      - "http://www.camer24.de/live-tchat-buzz"            # camer24.de
+      - "http://www.camer24.de/mboa-actu/*"
+      - "http://www.camer.be/index.php*"                   # camer.be
+      - "http://thehotjem.com/category/*"                  # thehotdjem
+      - "http://thehotjem.com/page/*"
+      - "http://thehotjem.com/tag/*"
+      - "http://cameroon-concord.com/?start=*"             # cameroon-concord
 
 
   pipeline:

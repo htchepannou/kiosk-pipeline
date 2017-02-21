@@ -6,6 +6,9 @@ kiosk:
     s3:
       s3Bucket: "${kiosk.namespace}.kiosk"
 
+  executor:
+    poolSize: 100
+
   validation:
     minContentLength: 100
 
@@ -19,8 +22,8 @@ kiosk:
       maxDays: 7          # Search for similary for articles for the last n days
       threadCount: 10     # Number of thread that fetch document content
 
-    UrlBlacklistService:
-      urls:
+    UrlService:
+      blacklist:
       - "*.pdf"         # PDF
       - "*.rss"         # RSS feeds
       - "*/feed/rss*"
@@ -67,8 +70,11 @@ kiosk:
     maxThreadWait: 60000
     workersPerConsumer: 10
 
-    FeedProducer:
-      outputQueue: "kiosk-${kiosk.environment}-feed-queue"
+    UrlProducer:
+      outputQueue: "kiosk-${kiosk.environment}-url-queue"
+
+#    FeedProducer:
+#      outputQueue: "kiosk-${kiosk.environment}-feed-queue"
 
     SimilarityMatrixProducer:
       s3Bucket: "${kiosk.aws.s3.s3Bucket}"
@@ -79,9 +85,9 @@ kiosk:
     PublishProducer:
       outputQueue: "kiosk-${kiosk.environment}-article-publish-queue"
 
-    UrlExtractorConsumer:
-      inputQueue: "kiosk-${kiosk.environment}-feed-queue"
-      outputQueue: "kiosk-${kiosk.environment}-url-queue"
+#    UrlExtractorConsumer:
+#      inputQueue: "kiosk-${kiosk.environment}-feed-queue"
+#      outputQueue: "kiosk-${kiosk.environment}-url-queue"
 
     HtmlDownloadConsumer:
       inputQueue: "kiosk-${kiosk.environment}-url-queue"

@@ -5,9 +5,9 @@ import io.tchepannou.kiosk.pipeline.aws.sqs.SqsConsumerGroup;
 import io.tchepannou.kiosk.pipeline.consumer.ArticleContentExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
-import io.tchepannou.kiosk.pipeline.producer.FeedProducer;
 import io.tchepannou.kiosk.pipeline.producer.PublishProducer;
 import io.tchepannou.kiosk.pipeline.producer.SimilarityMatrixProducer;
+import io.tchepannou.kiosk.pipeline.producer.UrlProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ public class PipelineRunner {
     ThreadMonitor threadMonitor;
 
     @Autowired
-    FeedProducer feedProducer;
+    UrlProducer urlProducer;
 
     @Autowired
     SimilarityMatrixProducer similarityMatrixProducer;
@@ -84,7 +84,7 @@ public class PipelineRunner {
 
     //-- Private
     private void fetch() {
-        feedProducer.produce();
+        urlProducer.produce();
         aquisitionConsumers.consume();
     }
 

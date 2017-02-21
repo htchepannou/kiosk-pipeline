@@ -9,7 +9,7 @@ import io.tchepannou.kiosk.pipeline.persistence.repository.FeedRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import io.tchepannou.kiosk.pipeline.service.InvalidContentTypeException;
-import io.tchepannou.kiosk.pipeline.service.UrlBlacklistService;
+import io.tchepannou.kiosk.pipeline.service.UrlService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -58,7 +58,7 @@ public class HtmlDownloadConsumerTest {
     LinkRepository linkRepository;
 
     @Mock
-    UrlBlacklistService urlBlacklistService;
+    UrlService urlService;
 
     @Mock
     FeedRepository feedRepository;
@@ -171,7 +171,7 @@ public class HtmlDownloadConsumerTest {
     public void shouldNotConsumeBlacklistedUrl() throws Exception {
         // Given
         final String url = "http://www.goo.com/test.html";
-        when(urlBlacklistService.contains(url)).thenReturn(true);
+        when(urlService.isBlacklisted(url)).thenReturn(true);
 
         // Given
         consumer.consume(url);

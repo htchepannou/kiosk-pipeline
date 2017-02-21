@@ -11,11 +11,10 @@ import io.tchepannou.kiosk.pipeline.consumer.HtmlDownloadConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.ImageExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.ImageMainConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.ImageThumbnailConsumer;
-import io.tchepannou.kiosk.pipeline.consumer.UrlExtractorConsumer;
 import io.tchepannou.kiosk.pipeline.consumer.VideoExtractorConsumer;
-import io.tchepannou.kiosk.pipeline.producer.FeedProducer;
 import io.tchepannou.kiosk.pipeline.producer.PublishProducer;
 import io.tchepannou.kiosk.pipeline.producer.SimilarityMatrixProducer;
+import io.tchepannou.kiosk.pipeline.producer.UrlProducer;
 import io.tchepannou.kiosk.pipeline.service.PipelineRunner;
 import io.tchepannou.kiosk.pipeline.service.ThreadMonitor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,8 +52,9 @@ public class PipelineConfiguration {
 
     //-- Producer
     @Bean
-    FeedProducer feedProducer() {
-        return new FeedProducer();
+    @ConfigurationProperties("kiosk.pipeline.UrlProducer")
+    UrlProducer urlProducer() {
+        return new UrlProducer();
     }
 
     @Bean
@@ -73,7 +73,6 @@ public class PipelineConfiguration {
     @Bean("AquisitionConsumers")
     public SqsConsumerGroup aquisitionConsumers() {
         final SqsConsumerGroup group = new SqsConsumerGroup(sqs, threadMonitor(), applicationContext);
-        group.add(UrlExtractorConsumer.class, 2 * workersPerConsumer);
         group.add(HtmlDownloadConsumer.class, workersPerConsumer);
 
         group.add(ArticleContentExtractorConsumer.class, workersPerConsumer);
@@ -82,17 +81,11 @@ public class PipelineConfiguration {
 
         group.add(ImageExtractorConsumer.class, workersPerConsumer);
 //        group.add(ImageThumbnailConsumer.class, 2 * workersPerConsumer);
-        group.add(ImageMainConsumer.class, 2 * workersPerConsumer);
+        group.add(ImageMainConsumer.class, workersPerConsumer);
 
-        group.add(VideoExtractorConsumer.class, 2 * workersPerConsumer);
+        group.add(VideoExtractorConsumer.class, workersPerConsumer);
 
         return group;
-    }
-
-    @Bean
-    @Scope("prototype")
-    UrlExtractorConsumer urlExtractorConsumer() {
-        return new UrlExtractorConsumer();
     }
 
     @Bean

@@ -36,6 +36,15 @@ public class Fixtures {
         return msg;
     }
 
+    public static Feed createFeed() {
+        final Feed feed = new Feed();
+        feed.setId(++uuid);
+        feed.setUrl("http://ffed.com/" + uuid);
+        feed.setName("feed_" + uuid);
+        feed.setOnboardDate(new Date());
+        return feed;
+
+    }
     public static Feed createFeed(final String name, final String url, final String path) {
         final Feed feed = new Feed();
         feed.setId(++uuid);

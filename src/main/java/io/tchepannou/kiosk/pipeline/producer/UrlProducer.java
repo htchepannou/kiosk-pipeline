@@ -3,33 +3,42 @@ package io.tchepannou.kiosk.pipeline.producer;
 import com.amazonaws.services.sqs.AmazonSQS;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.repository.FeedRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
+import io.tchepannou.kiosk.pipeline.service.UrlService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties("kiosk.pipeline.FeedProducer")
-public class FeedProducer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FeedProducer.class);
+import java.util.concurrent.Executor;
+
+public class UrlProducer {
+    @Autowired
+    UrlService urlService;
 
     @Autowired
     FeedRepository feedRepository;
+
+    @Autowired
+    LinkRepository linkRepository;
+
+    @Autowired
+    Executor executor;
 
     @Autowired
     AmazonSQS sqs;
 
     private String outputQueue;
 
+    //-- Public
     public void produce() {
         final Iterable<Feed> feeds = feedRepository.findAll();
         for (final Feed feed : feeds) {
-            try {
-                LOGGER.info("Feed: {}", feed.getName());
-                sqs.sendMessage(outputQueue, String.valueOf(feed.getId()));
-            } catch (final Exception e) {
-                LOGGER.error("Unable to process feed: {}", feed.getName(), e);
-            }
+            final Runnable worker = createWorker(feed);
+            executor.execute(worker);
         }
+    }
+
+
+    private Runnable createWorker(final Feed feed){
+        return new UrlProducerRunnable(feed, urlService, linkRepository, sqs, outputQueue);
     }
 
     //-- Getter/Setter

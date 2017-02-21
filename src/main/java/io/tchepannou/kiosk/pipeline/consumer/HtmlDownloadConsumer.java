@@ -10,7 +10,7 @@ import io.tchepannou.kiosk.pipeline.persistence.repository.FeedRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import io.tchepannou.kiosk.pipeline.service.InvalidContentTypeException;
-import io.tchepannou.kiosk.pipeline.service.UrlBlacklistService;
+import io.tchepannou.kiosk.pipeline.service.UrlService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +52,7 @@ public class HtmlDownloadConsumer implements SqsConsumer {
     LinkRepository linkRepository;
 
     @Autowired
-    UrlBlacklistService urlBlacklistService;
+    UrlService urlService;
 
     private String inputQueue;
     private String outputTopic;
@@ -121,7 +121,7 @@ public class HtmlDownloadConsumer implements SqsConsumer {
     }
 
     private boolean isBlacklisted(final String url) {
-        return urlBlacklistService.contains(url);
+        return urlService.isBlacklisted(url);
     }
 
     private void downloaded(final String url, final String s3Key, final Feed feed) {

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaxxer.hikari.HikariDataSource;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import io.tchepannou.kiosk.pipeline.service.ShutdownService;
-import io.tchepannou.kiosk.pipeline.service.UrlBlacklistService;
+import io.tchepannou.kiosk.pipeline.service.UrlService;
 import io.tchepannou.kiosk.pipeline.service.content.AnchorFilter;
 import io.tchepannou.kiosk.pipeline.service.content.ContentExtractor;
 import io.tchepannou.kiosk.pipeline.service.content.ContentFilter;
@@ -33,21 +33,39 @@ import io.tchepannou.kiosk.pipeline.service.title.TitleSuffixFilter;
 import io.tchepannou.kiosk.pipeline.service.title.TitleVideoFilter;
 import io.tchepannou.kiosk.pipeline.service.video.VideoExtractor;
 import io.tchepannou.kiosk.pipeline.service.video.YouTube;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.sql.DataSource;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.TimeZone;
+import java.util.concurrent.Executor;
 
 @Configuration
 public class AppConfiguration {
-    //-- Spring
+    @Value("${kiosk.executor.poolSize}")
+    private int poolSize;
+
+
+    //-- Beans
+    @Bean(destroyMethod = "shutdown")
+    Executor executor() {
+        final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(poolSize);
+        executor.setMaxPoolSize(poolSize);
+        executor.setThreadGroupName("KioskExecutor");
+        executor.setThreadNamePrefix("KioskExecutor");
+        executor.initialize();
+        return executor;
+    }
+
     @Bean
     Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder() {
         return new Jackson2ObjectMapperBuilder()
@@ -115,12 +133,6 @@ public class AppConfiguration {
     }
 
     @Bean
-    @ConfigurationProperties("kiosk.service.UrlBlacklistService")
-    public UrlBlacklistService urlBlacklistService() {
-        return new UrlBlacklistService();
-    }
-
-    @Bean
     TitleSanitizer titleSanitizer() {
         return new TitleSanitizer(Arrays.asList(
                 new TitleRegexFilter(),
@@ -171,4 +183,9 @@ public class AppConfiguration {
         ));
     }
 
+    @Bean
+    @ConfigurationProperties("kiosk.service.UrlService")
+    UrlService urlService(){
+        return new UrlService();
+    }
 }

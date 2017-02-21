@@ -73,8 +73,12 @@ public class SimilarityMatrixProducer {
     private List<Document> loadDocuments() {
         final Date endDate = new Date();
         final Date startDate = DateUtils.addDays(endDate, -maxDays);
-        final List<Article> articles = articleRepository.findByStatusNotInAndPublishedDateBetween(
-                Arrays.asList(Article.STATUS_CREATED, Article.STATUS_INVALID), startDate, endDate);
+        final List<Integer> status = Arrays.asList(
+                Article.STATUS_DUPLICATE,
+                Article.STATUS_PUBLISHED,
+                Article.STATUS_VALID
+        );
+        final List<Article> articles = articleRepository.findByStatusInAndPublishedDateBetween(status, startDate, endDate);
 
         LOGGER.info("Loading content for {} article(s)", articles.size());
         final Queue<Article> queue = new ConcurrentLinkedDeque<>(articles);

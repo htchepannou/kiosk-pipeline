@@ -62,7 +62,7 @@ public class SimilarityMatrixProducerTest {
         final Article a1 = createArticle();
         final Article a2 = createArticle();
         final Article a3 = createArticle();
-        when (articleRepository.findByStatusNotInAndPublishedDateBetween(anyList(), any(), any())).thenReturn(Arrays.asList(a1, a2, a3));
+        when (articleRepository.findByStatusInAndPublishedDateBetween(anyList(), any(), any())).thenReturn(Arrays.asList(a1, a2, a3));
 
         final Document d1 = createDocument(a1.getId(), "doc1");
         final Document d2 = createDocument(a2.getId(), "doc2");

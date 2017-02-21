@@ -5,6 +5,7 @@ import io.tchepannou.kiosk.pipeline.service.validation.Validator;
 import io.tchepannou.kiosk.pipeline.service.validation.article.ArticleShouldHaveContentRule;
 import io.tchepannou.kiosk.pipeline.service.validation.article.ArticleShouldHaveMinContentLengthRule;
 import io.tchepannou.kiosk.pipeline.service.validation.article.ArticleShouldHaveTitleRule;
+import io.tchepannou.kiosk.pipeline.service.validation.article.ArticleUrlShouldNotBeBlacklistedRule;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +23,8 @@ public class ValidationConfiguration {
                 Arrays.asList(
                         articleShouldHaveContent(),
                         articleShouldHaveMinContentRule(),
-                        articleShouldHaveTitleRule()
+                        articleShouldHaveTitleRule(),
+                        articleUrlShouldNotBeBlacklistedRule()
                 )
         );
     }
@@ -40,6 +42,11 @@ public class ValidationConfiguration {
     @Bean
     ArticleShouldHaveTitleRule articleShouldHaveTitleRule(){
         return new ArticleShouldHaveTitleRule();
+    }
+
+    @Bean
+    ArticleUrlShouldNotBeBlacklistedRule articleUrlShouldNotBeBlacklistedRule(){
+        return new ArticleUrlShouldNotBeBlacklistedRule();
     }
 
     public int getMinContextLength() {

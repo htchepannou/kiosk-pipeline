@@ -10,6 +10,11 @@ public class YouTube implements VideoService {
 
     //--  VideoPlatform overrides
 
+    @Override
+    public String getName() {
+        return "youtube";
+    }
+
     /**
      * See https://gist.github.com/jvanderwee/b30fdb496acff43aef8e
      */

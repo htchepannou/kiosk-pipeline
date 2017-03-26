@@ -25,7 +25,7 @@ public class SqsMessageQueue implements MessageQueue {
     @Override
     public void push(final String msg) throws IOException {
         try {
-            LOGGER.info("{}: pushing {}", getName(), msg);
+            LOGGER.info("pushing <{}> to <{}>", msg, getUrl());
             sqs.sendMessage(url, msg);
         } catch (AmazonClientException e){
             throw new IOException(String.format("Unable to send to %s: %s", url, msg), e);

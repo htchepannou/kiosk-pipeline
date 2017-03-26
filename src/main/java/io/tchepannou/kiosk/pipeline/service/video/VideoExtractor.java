@@ -1,6 +1,6 @@
 package io.tchepannou.kiosk.pipeline.service.video;
 
-import io.tchepannou.kiosk.pipeline.service.content.SanitizeFilter;
+import io.tchepannou.kiosk.pipeline.step.content.filter.SanitizeFilter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

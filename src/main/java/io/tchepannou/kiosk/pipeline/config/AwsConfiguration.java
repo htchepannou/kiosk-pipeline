@@ -39,4 +39,10 @@ public class AwsConfiguration {
     MessageQueue contentMessageQueue() {
         return new SqsMessageQueue();
     }
+
+    @Bean(name = "ValidationMessageQueue")
+    @ConfigurationProperties("kiosk.aws.queue.ValidationMessageQueue")
+    MessageQueue validationMessageQueue() {
+        return new SqsMessageQueue();
+    }
 }

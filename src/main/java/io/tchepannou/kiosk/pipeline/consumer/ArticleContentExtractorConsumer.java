@@ -8,7 +8,7 @@ import io.tchepannou.kiosk.pipeline.aws.sqs.SqsConsumer;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
-import io.tchepannou.kiosk.pipeline.service.content.ContentExtractor;
+import io.tchepannou.kiosk.pipeline.step.content.filter.ContentExtractor;
 import io.tchepannou.kiosk.pipeline.support.HtmlHelper;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;

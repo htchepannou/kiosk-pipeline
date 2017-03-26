@@ -33,7 +33,7 @@ public class LocalMessageQueue implements MessageQueue {
         // Write the file
         final File file = new File(dir, UUID.randomUUID().toString() + ".txt");
         try (final OutputStream out = new FileOutputStream(file)) {
-            LOGGER.info("{}: pushing {}", getName(), msg);
+            LOGGER.info("pushing <{}> to <{}>", msg, getName());
             final InputStream in = new ByteArrayInputStream(msg.getBytes());
             IOUtils.copy(in, out);
         }

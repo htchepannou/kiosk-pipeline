@@ -1,5 +1,6 @@
-package io.tchepannou.kiosk.pipeline.service.content;
+package io.tchepannou.kiosk.pipeline.step.content.filter;
 
+import io.tchepannou.kiosk.pipeline.step.content.Filter;
 import io.tchepannou.kiosk.pipeline.support.HtmlHelper;
 import io.tchepannou.kiosk.pipeline.support.JsoupHelper;
 import org.jsoup.Jsoup;

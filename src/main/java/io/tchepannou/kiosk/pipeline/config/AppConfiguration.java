@@ -7,13 +7,13 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import io.tchepannou.kiosk.pipeline.service.ShutdownService;
 import io.tchepannou.kiosk.pipeline.service.UrlService;
-import io.tchepannou.kiosk.pipeline.service.content.AnchorFilter;
-import io.tchepannou.kiosk.pipeline.service.content.ContentExtractor;
-import io.tchepannou.kiosk.pipeline.service.content.ContentFilter;
-import io.tchepannou.kiosk.pipeline.service.content.HeadingOnlyFilter;
-import io.tchepannou.kiosk.pipeline.service.content.HtmlEntityFilter;
-import io.tchepannou.kiosk.pipeline.service.content.SanitizeFilter;
-import io.tchepannou.kiosk.pipeline.service.content.TrimFilter;
+import io.tchepannou.kiosk.pipeline.step.content.filter.AnchorFilter;
+import io.tchepannou.kiosk.pipeline.step.content.filter.ContentExtractor;
+import io.tchepannou.kiosk.pipeline.step.content.filter.ContentFilter;
+import io.tchepannou.kiosk.pipeline.step.content.filter.HeadingOnlyFilter;
+import io.tchepannou.kiosk.pipeline.step.content.filter.HtmlEntityFilter;
+import io.tchepannou.kiosk.pipeline.step.content.filter.SanitizeFilter;
+import io.tchepannou.kiosk.pipeline.step.content.filter.TrimFilter;
 import io.tchepannou.kiosk.pipeline.service.image.ImageExtractor;
 import io.tchepannou.kiosk.pipeline.service.image.ImageProcessorService;
 import io.tchepannou.kiosk.pipeline.service.similarity.ArticleDocumentFactory;
@@ -125,18 +125,6 @@ public class AppConfiguration implements AsyncConfigurer {
 
     //-- Services
     @Bean
-    ContentExtractor contentExtractor() {
-        return new ContentExtractor(Arrays.asList(
-                new SanitizeFilter(),
-                new ContentFilter(100),
-                new AnchorFilter(),
-                new HeadingOnlyFilter(),
-                new TrimFilter(),
-                new HtmlEntityFilter()
-        ));
-    }
-
-    @Bean
     public ShutdownService shutdownService() {
         return new ShutdownService();
     }
@@ -157,6 +145,7 @@ public class AppConfiguration implements AsyncConfigurer {
     }
 
     @Bean
+    @Deprecated
     TitleSanitizer titleSanitizer() {
         return new TitleSanitizer(Arrays.asList(
                 new TitleRegexFilter(),

@@ -1,5 +1,7 @@
 package io.tchepannou.kiosk.pipeline.service.content;
 
+import io.tchepannou.kiosk.pipeline.step.content.Filter;
+import io.tchepannou.kiosk.pipeline.step.content.filter.HeadingOnlyFilter;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

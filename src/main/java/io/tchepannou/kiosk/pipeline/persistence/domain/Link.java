@@ -27,6 +27,9 @@ public class Link {
     @Column(name = "s3_key", columnDefinition = "TEXT")
     private String s3Key;
 
+    @Column(name = "content_key", columnDefinition = "TEXT")
+    private String contentKey;
+
     @Column(name="url_hash", columnDefinition = "char(32)")
     private String urlHash;
 
@@ -44,6 +47,12 @@ public class Link {
 
     @Column(length = 20)
     private String type;
+
+    @Column(name="content_length")
+    private int contentLength;
+
+    @Column(length = 64)
+    private String contentType;
 
     //-- Public
     public static String hash(final String url) {
@@ -129,5 +138,29 @@ public class Link {
 
     public void setType(final String type) {
         this.type = type;
+    }
+
+    public String getContentKey() {
+        return contentKey;
+    }
+
+    public void setContentKey(final String contentKey) {
+        this.contentKey = contentKey;
+    }
+
+    public int getContentLength() {
+        return contentLength;
+    }
+
+    public void setContentLength(final int contentLength) {
+        this.contentLength = contentLength;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(final String contentType) {
+        this.contentType = contentType;
     }
 }

@@ -1,5 +1,6 @@
 package io.tchepannou.kiosk.pipeline.service.content;
 
+import io.tchepannou.kiosk.pipeline.step.content.filter.HtmlEntityFilter;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

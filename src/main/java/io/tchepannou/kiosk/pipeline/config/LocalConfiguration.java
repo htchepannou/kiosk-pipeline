@@ -2,7 +2,6 @@ package io.tchepannou.kiosk.pipeline.config;
 
 import io.tchepannou.kiosk.core.service.FileRepository;
 import io.tchepannou.kiosk.core.service.MessageQueue;
-import io.tchepannou.kiosk.core.service.aws.SqsMessageQueue;
 import io.tchepannou.kiosk.core.service.local.LocalFileRepository;
 import io.tchepannou.kiosk.core.service.local.LocalMessageQueue;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -36,11 +35,16 @@ public class LocalConfiguration {
         return new LocalMessageQueue();
     }
 
-
     @Bean(name = "ContentMessageQueue")
     @ConfigurationProperties("kiosk.local.queue.ContentMessageQueue")
     MessageQueue contentMessageQueue() {
-        return new SqsMessageQueue();
+        return new LocalMessageQueue();
+    }
+
+    @Bean(name = "ValidationMessageQueue")
+    @ConfigurationProperties("kiosk.local.queue.ValidationMessageQueue")
+    MessageQueue validationMessageQueue() {
+        return new LocalMessageQueue();
     }
 
     //-- Getter/Setter

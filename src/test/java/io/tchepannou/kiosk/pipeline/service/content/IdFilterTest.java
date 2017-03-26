@@ -1,5 +1,6 @@
 package io.tchepannou.kiosk.pipeline.service.content;
 
+import io.tchepannou.kiosk.pipeline.step.content.filter.IdFilter;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 

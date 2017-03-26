@@ -1,5 +1,6 @@
 kiosk:
   namespace: "io.tchepannou"
+
   aws:
     connectionTimeout: 30000
     maxErrorRetries: 5
@@ -36,6 +37,9 @@ kiosk:
       folder: "html"
     MetadataConsumer:
       defaultPublishDateOffsetDays: -7
+    ContentConsumer:
+      rawFolder: "html"
+      contentFolder: "content"
 
   executor:
     poolSize: 200

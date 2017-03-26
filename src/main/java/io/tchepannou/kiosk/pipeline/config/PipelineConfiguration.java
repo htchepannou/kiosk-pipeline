@@ -1,9 +1,19 @@
 package io.tchepannou.kiosk.pipeline.config;
 
+import io.tchepannou.kiosk.core.service.Consumer;
 import io.tchepannou.kiosk.core.service.Delay;
 import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.core.service.MessageQueueProcessor;
 import io.tchepannou.kiosk.core.service.impl.ConstantDelay;
+import io.tchepannou.kiosk.pipeline.step.UrlProducer;
+import io.tchepannou.kiosk.pipeline.step.content.ContentConsumer;
+import io.tchepannou.kiosk.pipeline.step.content.filter.AnchorFilter;
+import io.tchepannou.kiosk.pipeline.step.content.filter.ContentExtractor;
+import io.tchepannou.kiosk.pipeline.step.content.filter.ContentFilter;
+import io.tchepannou.kiosk.pipeline.step.content.filter.HeadingOnlyFilter;
+import io.tchepannou.kiosk.pipeline.step.content.filter.HtmlEntityFilter;
+import io.tchepannou.kiosk.pipeline.step.content.filter.SanitizeFilter;
+import io.tchepannou.kiosk.pipeline.step.content.filter.TrimFilter;
 import io.tchepannou.kiosk.pipeline.step.download.DownloadConsumer;
 import io.tchepannou.kiosk.pipeline.step.metadata.MetadataConsumer;
 import io.tchepannou.kiosk.pipeline.step.metadata.TitleFilter;
@@ -14,7 +24,6 @@ import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleRegexFilter;
 import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleSuffixFilter;
 import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleVideoFilter;
 import io.tchepannou.kiosk.pipeline.step.url.FeedUrlProducer;
-import io.tchepannou.kiosk.pipeline.step.UrlProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -39,6 +48,10 @@ public class PipelineConfiguration {
     @Qualifier("MetadataMessageQueue")
     MessageQueue metadataMessageQueue;
 
+    @Autowired
+    @Qualifier("ContentMessageQueue")
+    MessageQueue contentMessageQueue;
+
     int workers;
 
 
@@ -50,6 +63,7 @@ public class PipelineConfiguration {
         // URL processing
         execute(downloadMessageQueueProcessor());
         execute(metadataMessageQueueProcessor());
+        execute(contentMessageQueueProcessor());
     }
 
     private void execute(Runnable runnable){
@@ -87,7 +101,7 @@ public class PipelineConfiguration {
 
     @Bean
     @ConfigurationProperties("kiosk.step.DownloadConsumer")
-    DownloadConsumer downloadConsumer(){
+    Consumer downloadConsumer(){
         return new DownloadConsumer();
     }
 
@@ -103,7 +117,7 @@ public class PipelineConfiguration {
 
     @Bean
     @ConfigurationProperties("kiosk.step.MetadataConsumer")
-    MetadataConsumer metadataConsumer() {
+    Consumer metadataConsumer() {
         return new MetadataConsumer();
     }
 
@@ -119,6 +133,36 @@ public class PipelineConfiguration {
         ));
     }
 
+    //-- Content
+    @Bean
+    MessageQueueProcessor contentMessageQueueProcessor (){
+        return new MessageQueueProcessor(
+                contentMessageQueue,
+                contentConsumer(),
+                delay()
+        );
+    }
+
+    @Bean
+    @ConfigurationProperties("kiosk.step.ContentConsumer")
+    Consumer contentConsumer() {
+        return new ContentConsumer();
+    }
+
+    @Bean
+    ContentExtractor contentExtractor() {
+        return new ContentExtractor(Arrays.asList(
+                new SanitizeFilter(),
+                new ContentFilter(100),
+                new AnchorFilter(),
+                new HeadingOnlyFilter(),
+                new TrimFilter(),
+                new HtmlEntityFilter()
+        ));
+    }
+
+
+    //-- Getter/Setter
     public int getWorkers() {
         return workers;
     }

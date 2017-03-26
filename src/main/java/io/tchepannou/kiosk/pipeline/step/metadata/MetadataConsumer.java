@@ -60,7 +60,7 @@ public class MetadataConsumer extends LinkConsumer {
     @Autowired
     TitleFilter titleFilter;
 
-    private final int defaultPublishDateOffsetDays = -7;
+    private int defaultPublishDateOffsetDays = -7;
 
     @Override
     protected void consume(final Link link) throws IOException {
@@ -187,5 +187,13 @@ public class MetadataConsumer extends LinkConsumer {
 
     private String extractType(final Document doc) {
         return selectMeta(doc, "meta[property=og:type]").toLowerCase();
+    }
+
+    public int getDefaultPublishDateOffsetDays() {
+        return defaultPublishDateOffsetDays;
+    }
+
+    public void setDefaultPublishDateOffsetDays(final int defaultPublishDateOffsetDays) {
+        this.defaultPublishDateOffsetDays = defaultPublishDateOffsetDays;
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.Executor;
 
+@Deprecated
 public class UrlProducer {
     @Autowired
     UrlService urlService;

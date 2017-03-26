@@ -33,6 +33,10 @@ import io.tchepannou.kiosk.pipeline.service.title.TitleSuffixFilter;
 import io.tchepannou.kiosk.pipeline.service.title.TitleVideoFilter;
 import io.tchepannou.kiosk.pipeline.service.video.VideoExtractor;
 import io.tchepannou.kiosk.pipeline.service.video.YouTube;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -42,6 +46,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import javax.net.ssl.SSLContext;
 import javax.sql.DataSource;
 import java.time.Clock;
 import java.util.Arrays;
@@ -78,6 +83,11 @@ public class AppConfiguration {
                 );
     }
 
+    @Bean
+    ObjectMapper objectMapper() {
+        return jackson2ObjectMapperBuilder().build();
+    }
+
     @Bean(destroyMethod = "close")
     @ConfigurationProperties(prefix = "spring.datasource")
     @Primary
@@ -90,13 +100,19 @@ public class AppConfiguration {
     }
 
     @Bean
-    ObjectMapper objectMapper() {
-        return jackson2ObjectMapperBuilder().build();
-    }
-
-    @Bean
     Clock clock() {
         return Clock.systemUTC();
+    }
+
+    @Bean(destroyMethod = "close")
+    CloseableHttpClient closeableHttpClient() throws Exception {
+        final SSLContext sslContext = new SSLContextBuilder()
+                .loadTrustMaterial(null, (certificate, authType) -> true).build();
+
+        return HttpClients.custom()
+                .setSSLContext(sslContext)
+                .setSSLHostnameVerifier(new NoopHostnameVerifier())
+                .build();
     }
 
     //-- Services

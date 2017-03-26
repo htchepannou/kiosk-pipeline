@@ -1,7 +1,5 @@
 package io.tchepannou.kiosk.pipeline;
 
-import io.tchepannou.kiosk.pipeline.service.PipelineRunner;
-import io.tchepannou.kiosk.pipeline.service.ShutdownService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -14,10 +12,10 @@ public class Application {
         final ConfigurableApplicationContext ctx = SpringApplication.run(Application.class, args);
 
         /* consume the feeds URLs */
-        try {
-            ctx.getBean(PipelineRunner.class).run();
-        } finally {
-            ctx.getBean(ShutdownService.class).shutdown(0);
-        }
+//        try {
+//            ctx.getBean(AwsPipelineRunner.class).run();
+//        } finally {
+//            ctx.getBean(ShutdownService.class).shutdown(0);
+//        }
     }
 }

@@ -1,5 +1,6 @@
 package io.tchepannou.kiosk.pipeline;
 
+import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
@@ -55,6 +56,16 @@ public class Fixtures {
         return feed;
     }
 
+    public static S3Object createS3Object(final String bucket, final String key, final String content) throws IOException {
+        final S3Object obj = mock(S3Object.class);
+        when(obj.getBucketName()).thenReturn(bucket);
+        when(obj.getKey()).thenReturn(key);
+
+        final S3ObjectInputStream in = createS3InputStream(content);
+        when(obj.getObjectContent()).thenReturn(in);
+
+        return obj;
+    }
     public static S3ObjectInputStream createS3InputStream(final String content) throws IOException {
         final S3ObjectInputStream in = mock(S3ObjectInputStream.class);
         when(in.read(any(byte[].class), anyInt(), anyInt())).then(new Answer<Integer>() {

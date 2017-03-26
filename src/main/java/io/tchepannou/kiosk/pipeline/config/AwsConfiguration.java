@@ -11,14 +11,20 @@ import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSAsyncClient;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClient;
+import io.tchepannou.kiosk.core.service.FileRepository;
+import io.tchepannou.kiosk.core.service.MessageQueue;
+import io.tchepannou.kiosk.core.service.aws.S3FileRepository;
+import io.tchepannou.kiosk.core.service.aws.SqsMessageQueue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 
 @Configuration
 @ConfigurationProperties("kiosk.aws")
+@Profile("!local")
 public class AwsConfiguration {
     @Autowired
     Environment env;
@@ -26,7 +32,22 @@ public class AwsConfiguration {
     private int connectionTimeout;
     private int maxErrorRetries;
 
-    //-- Beans
+    //-- Service Beans
+    @Bean
+    @ConfigurationProperties("kiosk.aws.services.FileRepository")
+    FileRepository fileRepository(){
+        return new S3FileRepository();
+    }
+
+
+    //-- Queues
+    @Bean(name = "UrlMessageQueue")
+    @ConfigurationProperties("kiosk.aws.queues.UrlMessageQueue")
+    MessageQueue urlMessageQueue() {
+        return new SqsMessageQueue();
+    }
+
+    //-- AWS Bean
     @Bean
     AmazonS3 amazonS3() {
         return new AmazonS3Client(awsCredentialsProvider(), awsClientConfiguration());
@@ -60,9 +81,10 @@ public class AwsConfiguration {
                 .withConnectionTimeout(connectionTimeout)
                 .withGzip(true)
                 .withMaxErrorRetry(maxErrorRetries)
-                ;
+        ;
     }
 
+    //-- Getter/Setter
     public int getConnectionTimeout() {
         return connectionTimeout;
     }

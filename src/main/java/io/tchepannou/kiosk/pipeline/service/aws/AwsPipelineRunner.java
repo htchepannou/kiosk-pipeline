@@ -1,4 +1,4 @@
-package io.tchepannou.kiosk.pipeline.service;
+package io.tchepannou.kiosk.pipeline.service.aws;
 
 import com.amazonaws.services.sqs.AmazonSQS;
 import io.tchepannou.kiosk.pipeline.aws.sqs.SqsConsumerGroup;
@@ -8,6 +8,7 @@ import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
 import io.tchepannou.kiosk.pipeline.producer.PublishProducer;
 import io.tchepannou.kiosk.pipeline.producer.SimilarityMatrixProducer;
 import io.tchepannou.kiosk.pipeline.producer.UrlProducer;
+import io.tchepannou.kiosk.pipeline.service.ThreadMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 
-public class PipelineRunner {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PipelineRunner.class);
+public class AwsPipelineRunner {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AwsPipelineRunner.class);
 
     @Autowired
     AmazonSQS sqs;

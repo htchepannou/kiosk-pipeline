@@ -5,6 +5,22 @@ kiosk:
     maxErrorRetries: 5
     s3:
       s3Bucket: "${kiosk.namespace}.kiosk"
+    services:
+      FileRepository:
+        bucket: "${kiosk.namespace}.kiosk"
+    queues:
+      UrlMessageQueue:
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-url-queue"
+
+  local:
+    home: "${user.home}/kiosk"
+    services:
+      FileRepository:
+        home: "${kiosk.local.home}/repository"
+    queues:
+      home: "${kiosk.local.home}/queues"
+      UrlMessageQueue:
+        home: "${kiosk.local.queues.home}/url"
 
   executor:
     poolSize: 100

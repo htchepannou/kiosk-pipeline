@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+@Deprecated
 public class UrlProducerRunnable implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(UrlProducerRunnable.class);
 

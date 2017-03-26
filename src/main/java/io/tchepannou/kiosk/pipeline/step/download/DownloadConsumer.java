@@ -71,7 +71,10 @@ public class DownloadConsumer implements Consumer {
             repository.write(key, new ByteArrayInputStream(bytes));
 
             // Create Link
-            createLink(url, key);
+            final Link link = createLink(url, key);
+
+            // Publish
+            queue.push(String.valueOf(link.getId()));
 
         } catch (final DataIntegrityViolationException e) {
 

@@ -31,6 +31,8 @@ public class FeedUrlProducer {
     @Async
     public void produce (final Feed feed) throws IOException {
         final Collection<String> urls = urlService.extractUrls(feed);
+        LOGGER.info("{} URLs found for {}", urls.size(), feed.getUrl());
+
         for (final String url : urls) {
             if (shouldConsume(url, feed)){
                 output.push(url);

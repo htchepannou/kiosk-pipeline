@@ -17,15 +17,21 @@ public class LocalConfiguration {
 
     //-- Service Beans
     @Bean
-    @ConfigurationProperties("kiosk.local.services.FileRepository")
+    @ConfigurationProperties("kiosk.local.service.FileRepository")
     FileRepository fileRepository(){
         return new LocalFileRepository();
     }
 
     //-- Queues
     @Bean(name = "UrlMessageQueue")
-    @ConfigurationProperties("kiosk.local.queues.UrlMessageQueue")
+    @ConfigurationProperties("kiosk.local.queue.UrlMessageQueue")
     MessageQueue urlMessageQueue() {
+        return new LocalMessageQueue();
+    }
+
+    @Bean(name = "MetadataMessageQueue")
+    @ConfigurationProperties("kiosk.local.queue.MetadataMessageQueue")
+    MessageQueue metadataMessageQueue() {
         return new LocalMessageQueue();
     }
 

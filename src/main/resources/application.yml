@@ -5,22 +5,31 @@ kiosk:
     maxErrorRetries: 5
     s3:
       s3Bucket: "${kiosk.namespace}.kiosk"
-    services:
+    service:
       FileRepository:
         bucket: "${kiosk.namespace}.kiosk"
-    queues:
+    queue:
       UrlMessageQueue:
         url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-url-queue"
+      MetadataMessageQueue:
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-metadata-queue"
 
   local:
     home: "${user.home}/kiosk"
-    services:
+    service:
       FileRepository:
         home: "${kiosk.local.home}/repository"
-    queues:
+    queue:
       home: "${kiosk.local.home}/queues"
       UrlMessageQueue:
-        home: "${kiosk.local.queues.home}/url"
+        home: "${kiosk.local.queue.home}/url"
+      MetadataMessageQueue:
+        home: "${kiosk.local.queue.home}/metadata"
+
+  step:
+    workers: 1
+    DownloadConsumer:
+      folder: "html"
 
   executor:
     poolSize: 100
@@ -50,6 +59,7 @@ kiosk:
       - "*/about-us"
       - "*/contact"
       - "*/shop"
+      - "*/[0-9]{4}/[0-9]{2}"                           # Monthly Archives
       - "*/[0-9]{4}/[0-9]{2}/[0-9]{2}"                  # Archives
       - "http://www.mamafrika.tv/blog/category/*"       # MamAfrika.tv
       - "http://www.237online.com/publications-du-*"    # 237 online

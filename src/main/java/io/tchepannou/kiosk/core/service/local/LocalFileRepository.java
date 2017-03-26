@@ -2,6 +2,8 @@ package io.tchepannou.kiosk.core.service.local;
 
 import com.amazonaws.util.IOUtils;
 import io.tchepannou.kiosk.core.service.FileRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,6 +14,8 @@ import java.io.OutputStream;
 import java.nio.file.Paths;
 
 public class LocalFileRepository implements FileRepository {
+    public static final Logger LOGGER = LoggerFactory.getLogger(LocalFileRepository.class);
+
     private String home;
 
     @Override
@@ -30,6 +34,7 @@ public class LocalFileRepository implements FileRepository {
         }
 
         try (FileOutputStream out = new FileOutputStream(file)){
+            LOGGER.info("Storing {}", file.getAbsolutePath());
             IOUtils.copy(in, out);
         }
     }

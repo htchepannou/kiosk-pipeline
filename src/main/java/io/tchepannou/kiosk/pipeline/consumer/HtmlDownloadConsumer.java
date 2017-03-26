@@ -30,6 +30,7 @@ import java.util.Date;
 
 @ConfigurationProperties("kiosk.pipeline.HtmlDownloadConsumer")
 @Transactional
+@Deprecated
 public class HtmlDownloadConsumer implements SqsConsumer {
     public static final Logger LOGGER = LoggerFactory.getLogger(HtmlDownloadConsumer.class);
 

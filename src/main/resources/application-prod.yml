@@ -1,5 +1,8 @@
 kiosk:
   environment: prod
+  step:
+    workers: 10
+
   pipeline:
     reprocess: none
     maxThreadWait: 300000

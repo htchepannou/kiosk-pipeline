@@ -1,4 +1,4 @@
-package io.tchepannou.kiosk.pipeline.service.title;
+package io.tchepannou.kiosk.pipeline.step.metadata.filter;
 
 import org.junit.Test;
 

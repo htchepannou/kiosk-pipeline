@@ -1,17 +1,15 @@
-package io.tchepannou.kiosk.pipeline.consumer;
+package io.tchepannou.kiosk.pipeline.step.metadata;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.sqs.AmazonSQS;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
-import io.tchepannou.kiosk.pipeline.aws.sqs.SqsSnsConsumer;
+import io.tchepannou.kiosk.core.service.FileRepository;
+import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
-import io.tchepannou.kiosk.pipeline.step.metadata.TitleSanitizer;
+import io.tchepannou.kiosk.pipeline.step.LinkConsumer;
 import io.tchepannou.kiosk.pipeline.support.HtmlHelper;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -22,8 +20,11 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.transaction.Transactional;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -34,17 +35,18 @@ import static io.tchepannou.kiosk.pipeline.support.JsoupHelper.select;
 import static io.tchepannou.kiosk.pipeline.support.JsoupHelper.selectMeta;
 
 @Transactional
-public class ArticleMetadataConsumer extends SqsSnsConsumer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ArticleMetadataConsumer.class);
+public class MetadataConsumer extends LinkConsumer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetadataConsumer.class);
 
     private static final String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssX";
     private static final String DATE_FORMAT = "yyyy-MM-dd";
 
     @Autowired
-    AmazonSQS sqs;
+    @Qualifier("ContentMessageQueue")
+    MessageQueue queue;
 
     @Autowired
-    AmazonS3 s3;
+    FileRepository repository;
 
     @Autowired
     ArticleRepository articleRepository;
@@ -53,42 +55,24 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
     LinkRepository linkRepository;
 
     @Autowired
-    TitleSanitizer titleSanitizer;
-
-    @Autowired
     Clock clock;
 
-    private String inputQueue;
-    private String outputQueue;
-    private String s3Bucket;
-    private int defaultPublishDateOffsetDays = -7;
+    @Autowired
+    TitleFilter titleFilter;
+
+    private final int defaultPublishDateOffsetDays = -7;
 
     @Override
-    public void consumeMessage(final String body) throws IOException {
-        final long id = Long.parseLong(body);
-        final Link link = linkRepository.findOne(id);
-        final Feed feed = link.getFeed();
+    protected void consume(final Link link) throws IOException {
+        final Document doc = getRawDocument(link);
 
-        LOGGER.info("Extracting metadata from {}", link.getUrl());
-        try (final S3Object s3Object = s3.getObject(s3Bucket, link.getS3Key())) {
-            final String html = IOUtils.toString(s3Object.getObjectContent(), "utf-8");
-            final Document doc = Jsoup.parse(html);
+        updateLink(link, doc);
+        toArticle(link, doc);
 
-            final Article article = new Article();
-            article.setLink(link);
-            article.setTitle(extractTitle(doc));
-            article.setSummary(extractSummary(doc));
-            article.setPublishedDate(extractPublishedDate(doc, feed));
-            article.setDisplayTitle(titleSanitizer.filter(article));
-
-            articleRepository.save(article);
-
-            LOGGER.info("Sending message <{}> to {}", article.getId(), outputQueue);
-            sqs.sendMessage(outputQueue, String.valueOf(article.getId()));
-        }
+        queue.push(String.valueOf(link.getId()));
     }
 
-    //-- Private
+    @VisibleForTesting
     protected String extractSummary(final Document doc) {
         final String summary = selectMeta(doc, "meta[property=og:description]");
         return summary != null ? Article.normalizeSummary(summary) : null;
@@ -141,14 +125,6 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
         }
     }
 
-    private Date asDate(final String date, final DateFormat fmt) {
-        try {
-            return fmt.parse(date);
-        } catch (final Exception e) {
-            LOGGER.warn("Invalid format for published date: {} - Excepting {}", date, DATETIME_FORMAT, e);
-            return null;
-        }
-    }
 
     @VisibleForTesting
     protected String extractTitle(final Document doc) {
@@ -164,36 +140,52 @@ public class ArticleMetadataConsumer extends SqsSnsConsumer {
         return title;
     }
 
-    //-- Getter/Setter
-    public String getInputQueue() {
-        return inputQueue;
+    private void toArticle(final Link link, final Document doc) {
+        final String title = extractTitle(doc);
+        final Feed feed = link.getFeed();
+
+        final Article article = new Article();
+        article.setLink(link);
+        article.setTitle(extractTitle(doc));
+        article.setSummary(extractSummary(doc));
+        article.setPublishedDate(extractPublishedDate(doc, feed));
+        article.setDisplayTitle(titleFilter.filter(title, feed));
+
+        articleRepository.save(article);
     }
 
-    public void setInputQueue(final String inputQueue) {
-        this.inputQueue = inputQueue;
+    private void updateLink(final Link link, final Document doc) {
+        final String title = extractTitle(doc);
+        final Feed feed = link.getFeed();
+
+        link.setTitle(extractTitle(doc));
+        link.setSummary(extractSummary(doc));
+        link.setPublishedDate(extractPublishedDate(doc, link.getFeed()));
+        link.setDisplayTitle(titleFilter.filter(title, feed));
+        link.setType(extractType(doc));
+
+        linkRepository.save(link);
     }
 
-    public String getOutputQueue() {
-        return outputQueue;
+    private Document getRawDocument(final Link link) throws IOException {
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        repository.read(link.getS3Key(), out);
+
+        final String html = IOUtils.toString(new ByteArrayInputStream(out.toByteArray()), "utf-8");
+        return Jsoup.parse(html);
     }
 
-    public void setOutputQueue(final String outputQueue) {
-        this.outputQueue = outputQueue;
+
+    private Date asDate(final String date, final DateFormat fmt) {
+        try {
+            return fmt.parse(date);
+        } catch (final Exception e) {
+            LOGGER.warn("Invalid format for published date: {} - Excepting {}", date, DATETIME_FORMAT, e);
+            return null;
+        }
     }
 
-    public String getS3Bucket() {
-        return s3Bucket;
-    }
-
-    public void setS3Bucket(final String s3Bucket) {
-        this.s3Bucket = s3Bucket;
-    }
-
-    public int getDefaultPublishDateOffsetDays() {
-        return defaultPublishDateOffsetDays;
-    }
-
-    public void setDefaultPublishDateOffsetDays(final int defaultPublishDateOffsetDays) {
-        this.defaultPublishDateOffsetDays = defaultPublishDateOffsetDays;
+    private String extractType(final Document doc) {
+        return selectMeta(doc, "meta[property=og:type]").toLowerCase();
     }
 }

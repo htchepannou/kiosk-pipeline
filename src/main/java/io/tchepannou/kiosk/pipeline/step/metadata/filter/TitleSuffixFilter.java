@@ -1,12 +1,13 @@
-package io.tchepannou.kiosk.pipeline.service.title;
+package io.tchepannou.kiosk.pipeline.step.metadata.filter;
 
-import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
+import io.tchepannou.kiosk.pipeline.step.metadata.TitleFilter;
 
 public class TitleSuffixFilter implements TitleFilter {
     private static final String TRIM = ":|- ";
 
     @Override
-    public String filter(final String title, final Article article) {
+    public String filter(final String title, final Feed feed) {
         final String xtitle = title.trim();
         int i = xtitle.length() - 1;
 

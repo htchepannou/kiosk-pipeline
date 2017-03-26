@@ -1,6 +1,8 @@
-package io.tchepannou.kiosk.pipeline.service.title;
+package io.tchepannou.kiosk.pipeline.step.metadata.filter;
 
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
+import io.tchepannou.kiosk.pipeline.step.metadata.TitleFilter;
+import io.tchepannou.kiosk.pipeline.step.metadata.TitleSanitizer;
 import org.junit.Test;
 
 import java.util.Arrays;

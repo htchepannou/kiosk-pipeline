@@ -9,6 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import java.util.Date;
 
 @Entity
 public class Link {
@@ -28,6 +29,21 @@ public class Link {
 
     @Column(name="url_hash", columnDefinition = "char(32)")
     private String urlHash;
+
+    @Column(columnDefinition = "TEXT")
+    private String title;
+
+    @Column(columnDefinition = "TEXT")
+    private String displayTitle;
+
+    @Column(columnDefinition = "TEXT")
+    private String summary;
+
+    @Column(name = "published_date")
+    private Date publishedDate;
+
+    @Column(length = 20)
+    private String type;
 
     //-- Public
     public static String hash(final String url) {
@@ -73,5 +89,45 @@ public class Link {
 
     public void setFeed(final Feed feed) {
         this.feed = feed;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(final String title) {
+        this.title = title;
+    }
+
+    public String getDisplayTitle() {
+        return displayTitle;
+    }
+
+    public void setDisplayTitle(final String displayTitle) {
+        this.displayTitle = displayTitle;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(final String summary) {
+        this.summary = summary;
+    }
+
+    public Date getPublishedDate() {
+        return publishedDate;
+    }
+
+    public void setPublishedDate(final Date publishedDate) {
+        this.publishedDate = publishedDate;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(final String type) {
+        this.type = type;
     }
 }

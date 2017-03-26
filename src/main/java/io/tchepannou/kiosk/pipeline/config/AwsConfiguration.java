@@ -33,4 +33,10 @@ public class AwsConfiguration {
     MessageQueue metadataMessageQueue() {
         return new SqsMessageQueue();
     }
+
+    @Bean(name = "ContentMessageQueue")
+    @ConfigurationProperties("kiosk.aws.queue.ContentMessageQueue")
+    MessageQueue contentMessageQueue() {
+        return new SqsMessageQueue();
+    }
 }

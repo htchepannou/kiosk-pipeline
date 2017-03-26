@@ -1,13 +1,14 @@
-package io.tchepannou.kiosk.pipeline.service.title;
+package io.tchepannou.kiosk.pipeline.step.metadata.filter;
 
-import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
+import io.tchepannou.kiosk.pipeline.step.metadata.TitleFilter;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TitleCountryFilterTest {
     TitleFilter filter = new TitleCountryFilter();
-    Article article = new Article ();
+    Feed article = new Feed ();
 
     @Test
     public void testFilter() throws Exception {

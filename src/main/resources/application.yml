@@ -13,6 +13,8 @@ kiosk:
         url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-url-queue"
       MetadataMessageQueue:
         url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-metadata-queue"
+      ContentMessageQueue:
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-content-queue"
 
   local:
     home: "${user.home}/kiosk"
@@ -25,14 +27,18 @@ kiosk:
         home: "${kiosk.local.queue.home}/url"
       MetadataMessageQueue:
         home: "${kiosk.local.queue.home}/metadata"
+      ContentMessageQueue:
+        home: "${kiosk.local.queue.home}/content"
 
   step:
     workers: 1
     DownloadConsumer:
       folder: "html"
+    MetadataConsumer:
+      defaultPublishDateOffsetDays: -7
 
   executor:
-    poolSize: 100
+    poolSize: 200
 
   validation:
     minContentLength: 100

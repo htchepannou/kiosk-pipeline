@@ -17,26 +17,28 @@ import io.tchepannou.kiosk.pipeline.service.content.TrimFilter;
 import io.tchepannou.kiosk.pipeline.service.image.ImageExtractor;
 import io.tchepannou.kiosk.pipeline.service.image.ImageProcessorService;
 import io.tchepannou.kiosk.pipeline.service.similarity.ArticleDocumentFactory;
+import io.tchepannou.kiosk.pipeline.service.similarity.ShingleExtractor;
 import io.tchepannou.kiosk.pipeline.service.similarity.SimilarityService;
+import io.tchepannou.kiosk.pipeline.service.similarity.TextSimilaryAlgorithm;
 import io.tchepannou.kiosk.pipeline.service.similarity.algo.JaccardSimilaryAlgorithm;
 import io.tchepannou.kiosk.pipeline.service.similarity.filter.LowecaseTextFilter;
 import io.tchepannou.kiosk.pipeline.service.similarity.filter.PunctuationTextFilter;
-import io.tchepannou.kiosk.pipeline.service.similarity.ShingleExtractor;
-import io.tchepannou.kiosk.pipeline.service.similarity.TextSimilaryAlgorithm;
 import io.tchepannou.kiosk.pipeline.service.similarity.filter.UnaccentTextFilter;
 import io.tchepannou.kiosk.pipeline.service.similarity.filter.WhitespaceTextFilter;
-import io.tchepannou.kiosk.pipeline.service.title.TitleCountryFilter;
-import io.tchepannou.kiosk.pipeline.service.title.TitleFeedFilter;
-import io.tchepannou.kiosk.pipeline.service.title.TitleRegexFilter;
-import io.tchepannou.kiosk.pipeline.service.title.TitleSanitizer;
-import io.tchepannou.kiosk.pipeline.service.title.TitleSuffixFilter;
-import io.tchepannou.kiosk.pipeline.service.title.TitleVideoFilter;
 import io.tchepannou.kiosk.pipeline.service.video.VideoExtractor;
 import io.tchepannou.kiosk.pipeline.service.video.YouTube;
+import io.tchepannou.kiosk.pipeline.step.metadata.TitleSanitizer;
+import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleCountryFilter;
+import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleFeedFilter;
+import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleRegexFilter;
+import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleSuffixFilter;
+import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleVideoFilter;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
+import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
+import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -44,6 +46,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.net.ssl.SSLContext;
@@ -54,14 +57,13 @@ import java.util.TimeZone;
 import java.util.concurrent.Executor;
 
 @Configuration
-public class AppConfiguration {
+public class AppConfiguration implements AsyncConfigurer {
     @Value("${kiosk.executor.poolSize}")
     private int poolSize;
 
-
-    //-- Beans
+    @Override
     @Bean(destroyMethod = "shutdown")
-    Executor executor() {
+    public Executor getAsyncExecutor() {
         final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(poolSize);
         executor.setMaxPoolSize(poolSize);
@@ -71,6 +73,12 @@ public class AppConfiguration {
         return executor;
     }
 
+    @Override
+    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+        return new SimpleAsyncUncaughtExceptionHandler();
+    }
+
+    //-- Beans
     @Bean
     Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder() {
         return new Jackson2ObjectMapperBuilder()
@@ -173,24 +181,24 @@ public class AppConfiguration {
     }
 
     @Bean
-    TextSimilaryAlgorithm textSimilaryAlgorithm () {
+    TextSimilaryAlgorithm textSimilaryAlgorithm() {
         return new JaccardSimilaryAlgorithm();
     }
 
     @Bean
-    ShingleExtractor shingleExtractor (){
+    ShingleExtractor shingleExtractor() {
         return new ShingleExtractor();
     }
 
     @Bean
     @ConfigurationProperties("kiosk.service.ArticleDocumentFactory")
-    ArticleDocumentFactory articleDocumentFactory (){
+    ArticleDocumentFactory articleDocumentFactory() {
         return new ArticleDocumentFactory();
     }
 
     @Bean
     @ConfigurationProperties("kiosk.service.SimilarityService")
-    SimilarityService documentSimilarityService (){
+    SimilarityService documentSimilarityService() {
         return new SimilarityService(Arrays.asList(
                 new LowecaseTextFilter(),
                 new UnaccentTextFilter(),
@@ -201,7 +209,7 @@ public class AppConfiguration {
 
     @Bean
     @ConfigurationProperties("kiosk.service.UrlService")
-    UrlService urlService(){
+    UrlService urlService() {
         return new UrlService();
     }
 }

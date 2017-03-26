@@ -1,15 +1,14 @@
-package io.tchepannou.kiosk.pipeline.service.title;
+package io.tchepannou.kiosk.pipeline.step.metadata.filter;
 
-import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
+import io.tchepannou.kiosk.pipeline.step.metadata.TitleFilter;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TitleRegexFilter implements TitleFilter{
+public class TitleRegexFilter implements TitleFilter {
     @Override
-    public String filter(final String title, final Article article) {
-        final Feed feed = article.getLink().getFeed();
+    public String filter(final String title, final Feed feed) {
         final String regex = feed.getDisplayTitleRegex();
         if (regex != null) {
             final Pattern pattern = Pattern.compile(regex);

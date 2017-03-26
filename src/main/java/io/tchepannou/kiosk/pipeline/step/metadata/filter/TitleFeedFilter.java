@@ -1,12 +1,11 @@
-package io.tchepannou.kiosk.pipeline.service.title;
+package io.tchepannou.kiosk.pipeline.step.metadata.filter;
 
-import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
+import io.tchepannou.kiosk.pipeline.step.metadata.TitleFilter;
 
 public class TitleFeedFilter implements TitleFilter {
     @Override
-    public String filter(final String title, final Article article) {
-        final Feed feed = article.getLink().getFeed();
+    public String filter(final String title, final Feed feed) {
         final String feedName = feed.getName().toLowerCase();
         final String xtitle = title.toLowerCase();
 

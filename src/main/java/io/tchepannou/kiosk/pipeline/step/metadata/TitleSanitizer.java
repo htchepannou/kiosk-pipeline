@@ -1,9 +1,11 @@
-package io.tchepannou.kiosk.pipeline.service.title;
+package io.tchepannou.kiosk.pipeline.step.metadata;
 
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 
 import java.util.List;
 
+@Deprecated
 public class TitleSanitizer {
     private final List<TitleFilter> filters;
 
@@ -17,8 +19,9 @@ public class TitleSanitizer {
             return null;
         }
 
+        final Feed feed = article.getLink().getFeed();
         for (final TitleFilter filter : filters) {
-            title = filter.filter(title, article);
+            title = filter.filter(title, feed);
         }
         return title;
     }

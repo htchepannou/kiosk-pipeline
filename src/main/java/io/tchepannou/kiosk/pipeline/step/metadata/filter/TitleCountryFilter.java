@@ -1,6 +1,7 @@
-package io.tchepannou.kiosk.pipeline.service.title;
+package io.tchepannou.kiosk.pipeline.step.metadata.filter;
 
-import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
+import io.tchepannou.kiosk.pipeline.step.metadata.TitleFilter;
 
 /**
  * Filter for site like camber.be where the title is <code>COUNTRY::title::COUNTRY</code>
@@ -9,7 +10,7 @@ public class TitleCountryFilter implements TitleFilter {
     private static final String SEPARATOR = "::";
 
     @Override
-    public String filter(final String title, final Article article) {
+    public String filter(final String title, final Feed feed) {
         return extract(extract(title)).trim();
     }
 

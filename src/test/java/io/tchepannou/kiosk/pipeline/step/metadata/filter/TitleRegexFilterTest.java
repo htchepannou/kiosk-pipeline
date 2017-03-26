@@ -1,10 +1,9 @@
-package io.tchepannou.kiosk.pipeline.service.title;
+package io.tchepannou.kiosk.pipeline.step.metadata.filter;
 
-import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
+import io.tchepannou.kiosk.pipeline.step.metadata.TitleFilter;
 import org.junit.Test;
 
-import static io.tchepannou.kiosk.pipeline.Fixtures.createArticle;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TitleRegexFilterTest {
@@ -16,11 +15,8 @@ public class TitleRegexFilterTest {
         final Feed feed = new Feed();
         feed.setDisplayTitleRegex(".+::(.+)::.+");
 
-        final Article article = createArticle();
-        article.getLink().setFeed(feed);
-
         // When/Then
-        assertThat(filter.filter("CAMEROUN :: Eséka : Ville cruelle, ville maudite :: CAMEROON", article))
+        assertThat(filter.filter("CAMEROUN :: Eséka : Ville cruelle, ville maudite :: CAMEROON", feed))
                 .isEqualTo("Eséka : Ville cruelle, ville maudite");
     }
 
@@ -30,11 +26,8 @@ public class TitleRegexFilterTest {
         final Feed feed = new Feed();
         feed.setDisplayTitleRegex(".+::(.+)::.+");
 
-        final Article article = createArticle();
-        article.getLink().setFeed(feed);
-
         // When
-        final String result = filter.filter("Eséka : Ville cruelle, ville maudite", article);
+        final String result = filter.filter("Eséka : Ville cruelle, ville maudite", feed);
 
         // Then
         assertThat(result).isEqualTo("Eséka : Ville cruelle, ville maudite");
@@ -42,11 +35,8 @@ public class TitleRegexFilterTest {
 
     @Test
     public void shouldNotFilterOutWhenNoRegexPrefix() throws Exception {
-        // Given
-        final Article article = createArticle();
-
         // When
-        final String result = filter.filter("CAMEROUN :: Eséka : Ville cruelle, ville maudite", article);
+        final String result = filter.filter("CAMEROUN :: Eséka : Ville cruelle, ville maudite", new Feed());
 
         // Then
         assertThat(result).isEqualTo("CAMEROUN :: Eséka : Ville cruelle, ville maudite");

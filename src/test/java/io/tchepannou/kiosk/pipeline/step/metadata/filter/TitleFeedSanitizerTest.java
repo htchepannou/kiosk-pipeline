@@ -1,4 +1,4 @@
-package io.tchepannou.kiosk.pipeline.service.title;
+package io.tchepannou.kiosk.pipeline.step.metadata.filter;
 
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
@@ -32,14 +32,14 @@ public class TitleFeedSanitizerTest {
     public void shouldRemoveNeedNameFromTitle() throws Exception {
         final String title = "This is a sample of title - " + feed.getName();
 
-        assertThat(sanitizer.filter(title, article)).isEqualTo("This is a sample of title - ");
+        assertThat(sanitizer.filter(title, feed)).isEqualTo("This is a sample of title - ");
     }
 
     @Test
     public void shouldRemoveNeedNameFromTitleCaseInsensitive() throws Exception {
         final String title = "This is a sample of title - " + feed.getName().toLowerCase();
 
-        assertThat(sanitizer.filter(title, article)).isEqualTo("This is a sample of title - ");
+        assertThat(sanitizer.filter(title, feed)).isEqualTo("This is a sample of title - ");
     }
 
 
@@ -47,6 +47,6 @@ public class TitleFeedSanitizerTest {
     public void shouldNotChangeTitleWhenFeedNotFound() throws Exception {
         final String title = "This is a sample of title";
 
-        assertThat(sanitizer.filter(title, article)).isEqualTo("This is a sample of title");
+        assertThat(sanitizer.filter(title, feed)).isEqualTo("This is a sample of title");
     }
 }

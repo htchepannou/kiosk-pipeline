@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
+@Deprecated
 public interface VideoRepository extends CrudRepository<Video, Long> {
     List<Video> findByEmbedUrl(String embedUrl);
 }

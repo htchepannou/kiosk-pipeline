@@ -39,7 +39,7 @@ kiosk:
       ContentMessageQueue:
         home: "${kiosk.local.queue.home}/content"
       ValidationMessageQueue:
-        home: "${kiosk.local.queue.home}/content"
+        home: "${kiosk.local.queue.home}/validation"
       ImageMessageQueue:
         home: "${kiosk.local.queue.home}/image"
       ThumbnailMessageQueue:
@@ -56,6 +56,9 @@ kiosk:
     ContentConsumer:
       rawFolder: "html"
       contentFolder: "content"
+    ImageConsumer:
+      rawFolder: "html"
+      imageFolder: "image"
 
   executor:
     poolSize: 200
@@ -129,6 +132,7 @@ kiosk:
       - "http://thehotjem.com/page/*"
       - "http://thehotjem.com/tag/*"
       - "http://cameroon-concord.com/?start=*"             # cameroon-concord
+      - "http://madeinmboa.net/category/*"                 # madeinmboa
 
 
   pipeline:

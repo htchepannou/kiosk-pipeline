@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 @Repository
+@Deprecated
 public interface ArticleRepository extends CrudRepository<Article, Long> {
     Article findByLink(Link link);
     List<Article> findByStatus(int status);

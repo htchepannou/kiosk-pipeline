@@ -1,7 +1,8 @@
-package io.tchepannou.kiosk.pipeline.step.metadata;
+package io.tchepannou.kiosk.pipeline.service.title;
 
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
+import io.tchepannou.kiosk.pipeline.step.metadata.TitleFilter;
 
 import java.util.List;
 

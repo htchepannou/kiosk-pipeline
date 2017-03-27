@@ -9,6 +9,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 @Entity
+@Deprecated
 public class Image {
     public static final int TYPE_ORIGINAL = 0;
     public static final int TYPE_THUMBNAIL = 1;

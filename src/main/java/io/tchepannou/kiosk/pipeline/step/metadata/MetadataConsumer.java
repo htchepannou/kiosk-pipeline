@@ -2,15 +2,14 @@ package io.tchepannou.kiosk.pipeline.step.metadata;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
-import io.tchepannou.kiosk.core.service.FileRepository;
 import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
+import io.tchepannou.kiosk.pipeline.persistence.domain.LinkTypeEnum;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.step.LinkConsumer;
 import io.tchepannou.kiosk.pipeline.support.HtmlHelper;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -22,8 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.transaction.Transactional;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -43,9 +40,6 @@ public class MetadataConsumer extends LinkConsumer {
     @Autowired
     @Qualifier("ContentMessageQueue")
     MessageQueue queue;
-
-    @Autowired
-    FileRepository repository;
 
     @Autowired
     LinkRepository linkRepository;
@@ -147,14 +141,6 @@ public class MetadataConsumer extends LinkConsumer {
         linkRepository.save(link);
     }
 
-    private Document getRawDocument(final Link link) throws IOException {
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        repository.read(link.getS3Key(), out);
-
-        final String html = IOUtils.toString(new ByteArrayInputStream(out.toByteArray()), "utf-8");
-        return Jsoup.parse(html);
-    }
-
     private Date asDate(final String date, final DateFormat fmt) {
         try {
             return fmt.parse(date);
@@ -165,7 +151,12 @@ public class MetadataConsumer extends LinkConsumer {
     }
 
     private String extractType(final Document doc) {
-        return selectMeta(doc, "meta[property=og:type]").toLowerCase();
+        final String type = selectMeta(doc, "meta[property=og:type]");
+        if (Strings.isNullOrEmpty(type)){
+            return LinkTypeEnum.article.name();
+        } else {
+            return type.toLowerCase();
+        }
     }
 
     public int getDefaultPublishDateOffsetDays() {

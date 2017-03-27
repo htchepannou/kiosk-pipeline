@@ -52,6 +52,12 @@ public class AwsConfiguration {
         return new SqsMessageQueue();
     }
 
+    @Bean(name = "ThumbnailMessageQueue")
+    @ConfigurationProperties("kiosk.aws.queue.ThumbnailMessageQueue")
+    MessageQueue thumbnailMessageQueue() {
+        return new SqsMessageQueue();
+    }
+
     @Bean(name = "VideoMessageQueue")
     @ConfigurationProperties("kiosk.aws.queue.VideoMessageQueue")
     MessageQueue videoMessageQueue() {

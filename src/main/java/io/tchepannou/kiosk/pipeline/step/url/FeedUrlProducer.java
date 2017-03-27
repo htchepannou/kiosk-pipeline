@@ -30,6 +30,7 @@ public class FeedUrlProducer {
 
     @Async
     public void produce (final Feed feed) throws IOException {
+        LOGGER.info("Loading URLs from {}", feed.getUrl());
         final Collection<String> urls = urlService.extractUrls(feed);
         LOGGER.info("{} URLs found for {}", urls.size(), feed.getUrl());
 

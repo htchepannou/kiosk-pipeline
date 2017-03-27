@@ -10,7 +10,7 @@ import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
-import io.tchepannou.kiosk.pipeline.step.metadata.TitleSanitizer;
+import io.tchepannou.kiosk.pipeline.service.title.TitleSanitizer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.Jsoup;

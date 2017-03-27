@@ -11,6 +11,7 @@ import javax.persistence.Transient;
 import java.util.Date;
 
 @Entity
+@Deprecated
 public class Article {
     public static final int STATUS_CREATED = 0x00;
     public static final int STATUS_INVALID = 0x01;

@@ -5,6 +5,7 @@ import org.jsoup.nodes.Document;
 
 import static io.tchepannou.kiosk.pipeline.support.JsoupHelper.selectMeta;
 
+@Deprecated
 public class ImageExtractor {
     public String extract(final String html) {
         final Document doc = Jsoup.parse(html);

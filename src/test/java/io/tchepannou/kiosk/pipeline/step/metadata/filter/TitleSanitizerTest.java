@@ -4,7 +4,7 @@ import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.step.metadata.TitleFilter;
-import io.tchepannou.kiosk.pipeline.step.metadata.TitleSanitizer;
+import io.tchepannou.kiosk.pipeline.service.title.TitleSanitizer;
 import org.junit.Test;
 
 import java.util.Arrays;

@@ -59,6 +59,9 @@ public class Link {
     @Column(name="invalid_reason", length = 20)
     private String invalidReason;
 
+    private int width;
+    private int height;
+
     //-- Public
     public static String hash(final String url) {
         return DigestUtils.md5Hex(url);
@@ -183,5 +186,21 @@ public class Link {
 
     public void setInvalidReason(final String invalidReason) {
         this.invalidReason = invalidReason;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(final int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(final int height) {
+        this.height = height;
     }
 }

@@ -1,14 +1,11 @@
 package io.tchepannou.kiosk.pipeline.persistence.repository;
 
-import io.tchepannou.kiosk.pipeline.persistence.domain.Image;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Asset;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
-@Deprecated
-public interface ImageRepository extends CrudRepository<Image, Long> {
-    List<Image> findByLinkAndTypeAndUrl(Link link, int type, String url);
+public interface AssetRepository extends CrudRepository<Asset, Long> {
+    Asset findByLinkAndTargetAndType(Link link, Link target, String type);
 }

@@ -7,7 +7,7 @@ import io.tchepannou.kiosk.core.service.MessageQueueProcessor;
 import io.tchepannou.kiosk.core.service.MessageQueueSet;
 import io.tchepannou.kiosk.core.service.impl.ConstantDelay;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
-import io.tchepannou.kiosk.pipeline.step.url.UrlProducer;
+import io.tchepannou.kiosk.pipeline.service.UrlService;
 import io.tchepannou.kiosk.pipeline.step.content.ContentConsumer;
 import io.tchepannou.kiosk.pipeline.step.content.filter.AnchorFilter;
 import io.tchepannou.kiosk.pipeline.step.content.filter.ContentExtractor;
@@ -17,6 +17,7 @@ import io.tchepannou.kiosk.pipeline.step.content.filter.HtmlEntityFilter;
 import io.tchepannou.kiosk.pipeline.step.content.filter.SanitizeFilter;
 import io.tchepannou.kiosk.pipeline.step.content.filter.TrimFilter;
 import io.tchepannou.kiosk.pipeline.step.download.DownloadConsumer;
+import io.tchepannou.kiosk.pipeline.step.image.ImageConsumer;
 import io.tchepannou.kiosk.pipeline.step.metadata.MetadataConsumer;
 import io.tchepannou.kiosk.pipeline.step.metadata.TitleFilter;
 import io.tchepannou.kiosk.pipeline.step.metadata.TitleFilterSet;
@@ -26,6 +27,7 @@ import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleRegexFilter;
 import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleSuffixFilter;
 import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleVideoFilter;
 import io.tchepannou.kiosk.pipeline.step.url.FeedUrlProducer;
+import io.tchepannou.kiosk.pipeline.step.url.UrlProducer;
 import io.tchepannou.kiosk.pipeline.step.validation.ValidationConsumer;
 import io.tchepannou.kiosk.pipeline.step.validation.Validator;
 import io.tchepannou.kiosk.pipeline.step.validation.rules.ArticleShouldHaveContentRule;
@@ -49,6 +51,9 @@ public class PipelineConfiguration {
     Executor executor;
 
     @Autowired
+    UrlService urlService;
+
+    @Autowired
     @Qualifier("UrlMessageQueue")
     MessageQueue urlMessageQueue;
 
@@ -69,11 +74,14 @@ public class PipelineConfiguration {
     MessageQueue imageMessageQueue;
 
     @Autowired
+    @Qualifier("ThumbnailMessageQueue")
+    MessageQueue thumbnailMessageQueue;
+
+    @Autowired
     @Qualifier("VideoMessageQueue")
     MessageQueue videoMessageQueue;
 
     int workers;
-
 
     @PostConstruct
     public void run() {
@@ -85,34 +93,35 @@ public class PipelineConfiguration {
         execute(metadataMessageQueueProcessor());
         execute(contentMessageQueueProcessor());
         execute(validationMessageQueueProcessor());
+        execute(imageMessageQueueProcessor());
     }
 
-    private void execute(Runnable runnable){
-        for (int i=0 ; i<workers ; i++){
+    private void execute(final Runnable runnable) {
+        for (int i = 0; i < workers; i++) {
             executor.execute(runnable);
         }
     }
 
     //-- Common
     @Bean
-    Delay delay(){
+    Delay delay() {
         return new ConstantDelay(60000);
     }
 
     //-- Url
     @Bean
-    UrlProducer urlProducer(){
+    UrlProducer urlProducer() {
         return new UrlProducer();
     }
 
     @Bean
-    FeedUrlProducer feedUrlProducer(){
+    FeedUrlProducer feedUrlProducer() {
         return new FeedUrlProducer();
     }
 
     //-- Download
     @Bean
-    MessageQueueProcessor downloadMessageQueueProcessor (){
+    MessageQueueProcessor downloadMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 urlMessageQueue,
                 downloadConsumer(),
@@ -122,13 +131,13 @@ public class PipelineConfiguration {
 
     @Bean
     @ConfigurationProperties("kiosk.step.DownloadConsumer")
-    Consumer downloadConsumer(){
+    Consumer downloadConsumer() {
         return new DownloadConsumer();
     }
 
     //-- Metadata
     @Bean
-    MessageQueueProcessor metadataMessageQueueProcessor (){
+    MessageQueueProcessor metadataMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 metadataMessageQueue,
                 metadataConsumer(),
@@ -143,7 +152,7 @@ public class PipelineConfiguration {
     }
 
     @Bean
-    TitleFilter metadataTitleFilter (){
+    TitleFilter metadataTitleFilter() {
         return new TitleFilterSet(Arrays.asList(
                 new TitleRegexFilter(),
                 new TitleCountryFilter(),
@@ -156,7 +165,7 @@ public class PipelineConfiguration {
 
     //-- Content
     @Bean
-    MessageQueueProcessor contentMessageQueueProcessor (){
+    MessageQueueProcessor contentMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 contentMessageQueue,
                 contentConsumer(),
@@ -184,7 +193,7 @@ public class PipelineConfiguration {
 
     //-- Validation
     @Bean
-    MessageQueueProcessor validationMessageQueueProcessor (){
+    MessageQueueProcessor validationMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 validationMessageQueue,
                 validationConsumer(),
@@ -198,7 +207,7 @@ public class PipelineConfiguration {
     }
 
     @Bean("ValidatedTopic")
-    MessageQueue validationTopic (){
+    MessageQueue validationTopic() {
         return new MessageQueueSet(
                 "validated",
                 Arrays.asList(imageMessageQueue)
@@ -212,11 +221,26 @@ public class PipelineConfiguration {
                         new ArticleShouldHaveContentRule(),
                         new ArticleShouldHaveMinContentLengthRule(100),
                         new ArticleShouldHaveTitleRule(),
-                        new ArticleUrlShouldNotBeBlacklistedRule()
+                        new ArticleUrlShouldNotBeBlacklistedRule(urlService)
                 )
         );
     }
 
+    //-- Image
+    @Bean
+    MessageQueueProcessor imageMessageQueueProcessor() {
+        return new MessageQueueProcessor(
+                imageMessageQueue,
+                imageConsumer(),
+                delay()
+        );
+    }
+
+    @Bean
+    @ConfigurationProperties("kiosk.step.ImageConsumer")
+    Consumer imageConsumer() {
+        return new ImageConsumer();
+    }
 
     //-- Getter/Setter
     public int getWorkers() {

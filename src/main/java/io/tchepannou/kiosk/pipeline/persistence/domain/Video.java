@@ -9,6 +9,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 @Entity
+@Deprecated
 public class Video {
     @Id
     @GeneratedValue (strategy = GenerationType.AUTO)

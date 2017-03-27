@@ -33,7 +33,7 @@ public class ValidationConsumer extends LinkConsumer {
             link.setInvalidReason(null);
             push(link, queue);
         } else {
-            LOGGER.info("{} is invalid. reason=", link.getUrl(), validation.getReason());
+            LOGGER.info("{} is invalid. reason={}", link.getUrl(), validation.getReason());
             link.setValid(false);
             link.setInvalidReason(validation.getReason());
         }

@@ -53,6 +53,12 @@ public class LocalConfiguration {
         return new LocalMessageQueue();
     }
 
+    @Bean(name = "ThumbnailMessageQueue")
+    @ConfigurationProperties("kiosk.local.queue.ThumbnailMessageQueue")
+    MessageQueue thumbnailMessageQueue() {
+        return new LocalMessageQueue();
+    }
+
     @Bean(name = "VideoMessageQueue")
     @ConfigurationProperties("kiosk.local.queue.VideoMessageQueue")
     MessageQueue videoMessageQueue() {

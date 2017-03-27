@@ -3,11 +3,13 @@ package io.tchepannou.kiosk.pipeline.step.validation.rules;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.service.UrlService;
 import io.tchepannou.kiosk.pipeline.step.validation.Validation;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class ArticleUrlShouldNotBeBlacklistedRule implements ArticleRule {
-    @Autowired
     UrlService service;
+
+    public ArticleUrlShouldNotBeBlacklistedRule(UrlService service){
+        this.service = service;
+    }
 
     @Override
     public Validation validate(final Link subject) {

@@ -1,25 +1,19 @@
 package io.tchepannou.kiosk.pipeline.step.content;
 
-import io.tchepannou.kiosk.core.service.FileRepository;
 import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.step.LinkConsumer;
 import io.tchepannou.kiosk.pipeline.step.content.filter.ContentExtractor;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.transaction.Transactional;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 @Transactional
 public class ContentConsumer extends LinkConsumer {
-    @Autowired
-    FileRepository repository;
-
     @Autowired
     @Qualifier("ValidationMessageQueue")
     MessageQueue queue;
@@ -48,13 +42,6 @@ public class ContentConsumer extends LinkConsumer {
     }
 
     //-- Private
-    private String getRawHtml(final Link link) throws IOException {
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        repository.read(link.getS3Key(), out);
-
-        return IOUtils.toString(new ByteArrayInputStream(out.toByteArray()), "utf-8");
-    }
-
     private void store (final String key, final String xhtml) throws IOException {
         final byte[] bytes = xhtml.getBytes("utf-8");
         final InputStream in = new ByteArrayInputStream(bytes);

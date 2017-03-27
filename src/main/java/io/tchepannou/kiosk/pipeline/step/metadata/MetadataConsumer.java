@@ -7,11 +7,9 @@ import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.domain.LinkTypeEnum;
-import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.step.LinkConsumer;
 import io.tchepannou.kiosk.pipeline.support.HtmlHelper;
 import org.apache.commons.lang3.time.DateUtils;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -40,9 +38,6 @@ public class MetadataConsumer extends LinkConsumer {
     @Autowired
     @Qualifier("ContentMessageQueue")
     MessageQueue queue;
-
-    @Autowired
-    LinkRepository linkRepository;
 
     @Autowired
     Clock clock;

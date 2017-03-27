@@ -57,6 +57,8 @@ public class ImageConsumer extends LinkConsumer {
             img = download(url, link);
         }
         join(link, img);
+
+        push(img, queue);
     }
 
     private Link download(final String url, final Link link) throws IOException {
@@ -96,7 +98,7 @@ public class ImageConsumer extends LinkConsumer {
     }
 
     private void join(final Link link, final Link img){
-        final String type = AssetTypeEnum.original_image.name();
+        final String type = AssetTypeEnum.original.name();
         Asset asset = assetRepository.findByLinkAndTargetAndType(link, img, type);
         if (asset == null){
             asset = new Asset(link, img, type);

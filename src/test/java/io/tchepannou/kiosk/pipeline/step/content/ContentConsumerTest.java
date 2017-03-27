@@ -1,11 +1,8 @@
 package io.tchepannou.kiosk.pipeline.step.content;
 
-import io.tchepannou.kiosk.core.service.FileRepository;
 import io.tchepannou.kiosk.core.service.MessageQueue;
-import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
-import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
-import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
+import io.tchepannou.kiosk.pipeline.step.LinkConsumerTestSupport;
 import io.tchepannou.kiosk.pipeline.step.content.filter.ContentExtractor;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -29,21 +26,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ContentConsumerTest {
-    @Mock
-    FileRepository repository;
-
+public class ContentConsumerTest extends LinkConsumerTestSupport {
     @Mock
     MessageQueue messageQueue;
 
     @Mock
     ContentExtractor extractor;
-
-    @Mock
-    ArticleRepository articleRepository;
-
-    @Mock
-    LinkRepository linkRepository;
 
     @InjectMocks
     ContentConsumer consumer;
@@ -65,9 +53,6 @@ public class ContentConsumerTest {
 
         when(extractor.extract("hello world")).thenReturn("HELLO WORLD");
 
-        final Article arti = new Article();
-        when(articleRepository.findByLink(link)).thenReturn(arti);
-
         // When
         consumer.consume(link);
 
@@ -88,7 +73,7 @@ public class ContentConsumerTest {
         assertThat(lk.getValue().getContentType()).isEqualTo("text/html");
     }
 
-    private Answer read(final String content) {
+    private Answer read(final String content){
         return (inv) -> {
             final InputStream in = new ByteArrayInputStream(content.getBytes());
             final OutputStream out = (OutputStream) inv.getArguments()[1];

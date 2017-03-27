@@ -1,11 +1,10 @@
 package io.tchepannou.kiosk.pipeline.step.metadata;
 
-import io.tchepannou.kiosk.core.service.FileRepository;
 import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
-import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
+import io.tchepannou.kiosk.pipeline.step.LinkConsumerTestSupport;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.Jsoup;
@@ -33,15 +32,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MetadataConsumerTest {
+public class MetadataConsumerTest extends LinkConsumerTestSupport  {
     @Mock
     MessageQueue queue;
-
-    @Mock
-    FileRepository repository;
-
-    @Mock
-    LinkRepository linkRepository;
 
     @Mock
     Clock clock;

@@ -2,7 +2,7 @@ package io.tchepannou.kiosk.pipeline.step.validation;
 
 import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
-import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
+import io.tchepannou.kiosk.pipeline.step.LinkConsumerTestSupport;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -14,15 +14,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ValidationConsumerTest {
+public class ValidationConsumerTest extends LinkConsumerTestSupport {
     @Mock
     Validator validator;
 
     @Mock
     MessageQueue queue;
-
-    @Mock
-    LinkRepository linkRepository;
 
     @InjectMocks
     ValidationConsumer consumer;

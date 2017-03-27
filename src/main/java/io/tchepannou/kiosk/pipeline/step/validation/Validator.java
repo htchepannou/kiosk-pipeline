@@ -1,4 +1,4 @@
-package io.tchepannou.kiosk.pipeline.service.validation;
+package io.tchepannou.kiosk.pipeline.step.validation;
 
 
 public class Validator<T> {

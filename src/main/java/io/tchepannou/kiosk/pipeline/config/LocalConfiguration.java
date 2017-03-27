@@ -47,6 +47,18 @@ public class LocalConfiguration {
         return new LocalMessageQueue();
     }
 
+    @Bean(name = "ImageMessageQueue")
+    @ConfigurationProperties("kiosk.local.queue.ImageMessageQueue")
+    MessageQueue imageMessageQueue() {
+        return new LocalMessageQueue();
+    }
+
+    @Bean(name = "VideoMessageQueue")
+    @ConfigurationProperties("kiosk.local.queue.VideoMessageQueue")
+    MessageQueue videoMessageQueue() {
+        return new LocalMessageQueue();
+    }
+
     //-- Getter/Setter
     public String getHome() {
         return home;

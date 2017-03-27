@@ -2,8 +2,8 @@ package io.tchepannou.kiosk.pipeline.consumer;
 
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
-import io.tchepannou.kiosk.pipeline.service.validation.Validation;
-import io.tchepannou.kiosk.pipeline.service.validation.Validator;
+import io.tchepannou.kiosk.pipeline.step.validation.Validation;
+import io.tchepannou.kiosk.pipeline.step.validation.Validator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

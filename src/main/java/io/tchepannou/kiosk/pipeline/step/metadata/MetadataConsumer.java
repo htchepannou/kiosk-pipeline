@@ -7,7 +7,6 @@ import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
-import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.step.LinkConsumer;
 import io.tchepannou.kiosk.pipeline.support.HtmlHelper;
@@ -49,9 +48,6 @@ public class MetadataConsumer extends LinkConsumer {
     FileRepository repository;
 
     @Autowired
-    ArticleRepository articleRepository;
-
-    @Autowired
     LinkRepository linkRepository;
 
     @Autowired
@@ -67,9 +63,8 @@ public class MetadataConsumer extends LinkConsumer {
         final Document doc = getRawDocument(link);
 
         updateLink(link, doc);
-        toArticle(link, doc);
 
-        queue.push(String.valueOf(link.getId()));
+        push(link, queue);
     }
 
     @VisibleForTesting
@@ -125,7 +120,6 @@ public class MetadataConsumer extends LinkConsumer {
         }
     }
 
-
     @VisibleForTesting
     protected String extractTitle(final Document doc) {
         String title = selectMeta(doc, "meta[property=og:title]");
@@ -138,20 +132,6 @@ public class MetadataConsumer extends LinkConsumer {
             }
         }
         return title;
-    }
-
-    private void toArticle(final Link link, final Document doc) {
-        final String title = extractTitle(doc);
-        final Feed feed = link.getFeed();
-
-        final Article article = new Article();
-        article.setLink(link);
-        article.setTitle(extractTitle(doc));
-        article.setSummary(extractSummary(doc));
-        article.setPublishedDate(extractPublishedDate(doc, feed));
-        article.setDisplayTitle(titleFilter.filter(title, feed));
-
-        articleRepository.save(article);
     }
 
     private void updateLink(final Link link, final Document doc) {
@@ -174,7 +154,6 @@ public class MetadataConsumer extends LinkConsumer {
         final String html = IOUtils.toString(new ByteArrayInputStream(out.toByteArray()), "utf-8");
         return Jsoup.parse(html);
     }
-
 
     private Date asDate(final String date, final DateFormat fmt) {
         try {

@@ -1,4 +1,4 @@
-package io.tchepannou.kiosk.pipeline.service.validation;
+package io.tchepannou.kiosk.pipeline.step.validation;
 
 public class Validation {
     private static final Validation SUCCESS = new Validation(true, null);

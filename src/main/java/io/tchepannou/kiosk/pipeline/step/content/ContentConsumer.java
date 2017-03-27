@@ -2,14 +2,10 @@ package io.tchepannou.kiosk.pipeline.step.content;
 
 import io.tchepannou.kiosk.core.service.FileRepository;
 import io.tchepannou.kiosk.core.service.MessageQueue;
-import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
-import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
 import io.tchepannou.kiosk.pipeline.step.LinkConsumer;
 import io.tchepannou.kiosk.pipeline.step.content.filter.ContentExtractor;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -21,20 +17,15 @@ import java.io.InputStream;
 
 @Transactional
 public class ContentConsumer extends LinkConsumer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContentConsumer.class);
-
     @Autowired
     FileRepository repository;
 
     @Autowired
-    @Qualifier("ContentMessageQueue")
-    MessageQueue messageQueue;
+    @Qualifier("ValidationMessageQueue")
+    MessageQueue queue;
 
     @Autowired
     ContentExtractor extractor;
-
-    @Autowired
-    ArticleRepository articleRepository;
 
     private String rawFolder;
     private String contentFolder;
@@ -51,10 +42,9 @@ public class ContentConsumer extends LinkConsumer {
 
         // Update DB
         updateLink(link, key, xhtml);
-        updateArticle(link, key, xhtml);
 
         // Next
-        messageQueue.push(String.valueOf(link.getId()));
+        push(link, queue);
     }
 
     //-- Private
@@ -82,15 +72,6 @@ public class ContentConsumer extends LinkConsumer {
         link.setContentLength(html.length());
         link.setContentType("text/html");
         linkRepository.save(link);
-    }
-
-    private void updateArticle(final Link link, final String key, final String html){
-        Article article = articleRepository.findByLink(link);
-        if (article != null) {
-            article.setS3Key(key);
-            article.setContentLength(html.length());
-            articleRepository.save(article);
-        }
     }
 
     //-- Getter/Setter

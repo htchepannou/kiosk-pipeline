@@ -16,6 +16,14 @@ kiosk:
         url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-metadata-queue"
       ContentMessageQueue:
         url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-content-queue"
+      ValidationMessageQueue:
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-validation-queue"
+      ImageMessageQueue:
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-image-queue"
+      ThumbnailMessageQueue:
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-thumbnail-queue"
+      VideoMessageQueue:
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-video-queue"
 
   local:
     home: "${user.home}/kiosk"
@@ -30,6 +38,14 @@ kiosk:
         home: "${kiosk.local.queue.home}/metadata"
       ContentMessageQueue:
         home: "${kiosk.local.queue.home}/content"
+      ValidationMessageQueue:
+        home: "${kiosk.local.queue.home}/content"
+      ImageMessageQueue:
+        home: "${kiosk.local.queue.home}/image"
+      ThumbnailMessageQueue:
+        home: "${kiosk.local.queue.home}/thumbnail"
+      VideoMessageQueue:
+        home: "${kiosk.local.queue.home}/video"
 
   step:
     workers: 1

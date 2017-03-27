@@ -1,6 +1,8 @@
 package io.tchepannou.kiosk.pipeline.step.metadata.filter;
 
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.step.metadata.TitleFilter;
 import io.tchepannou.kiosk.pipeline.step.metadata.TitleSanitizer;
 import org.junit.Test;
@@ -17,7 +19,11 @@ public class TitleSanitizerTest {
     @Test
     public void testFilter() throws Exception {
         // Given
+        final Feed feed = new Feed();
+        final Link link = new Link();
+        link.setFeed(feed);
         final Article article = new Article();
+        article.setLink(link);
         article.setTitle("a");
 
         final TitleFilter f1 = mock(TitleFilter.class);

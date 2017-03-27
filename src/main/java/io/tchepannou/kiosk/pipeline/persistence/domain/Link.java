@@ -54,6 +54,11 @@ public class Link {
     @Column(length = 64)
     private String contentType;
 
+    private boolean valid;
+
+    @Column(name="invalid_reason", length = 20)
+    private String invalidReason;
+
     //-- Public
     public static String hash(final String url) {
         return DigestUtils.md5Hex(url);
@@ -162,5 +167,21 @@ public class Link {
 
     public void setContentType(final String contentType) {
         this.contentType = contentType;
+    }
+
+    public boolean isValid() {
+        return valid;
+    }
+
+    public void setValid(final boolean valid) {
+        this.valid = valid;
+    }
+
+    public String getInvalidReason() {
+        return invalidReason;
+    }
+
+    public void setInvalidReason(final String invalidReason) {
+        this.invalidReason = invalidReason;
     }
 }

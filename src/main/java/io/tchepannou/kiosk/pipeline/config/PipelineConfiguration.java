@@ -4,8 +4,10 @@ import io.tchepannou.kiosk.core.service.Consumer;
 import io.tchepannou.kiosk.core.service.Delay;
 import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.core.service.MessageQueueProcessor;
+import io.tchepannou.kiosk.core.service.MessageQueueSet;
 import io.tchepannou.kiosk.core.service.impl.ConstantDelay;
-import io.tchepannou.kiosk.pipeline.step.UrlProducer;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
+import io.tchepannou.kiosk.pipeline.step.url.UrlProducer;
 import io.tchepannou.kiosk.pipeline.step.content.ContentConsumer;
 import io.tchepannou.kiosk.pipeline.step.content.filter.AnchorFilter;
 import io.tchepannou.kiosk.pipeline.step.content.filter.ContentExtractor;
@@ -24,6 +26,12 @@ import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleRegexFilter;
 import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleSuffixFilter;
 import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleVideoFilter;
 import io.tchepannou.kiosk.pipeline.step.url.FeedUrlProducer;
+import io.tchepannou.kiosk.pipeline.step.validation.ValidationConsumer;
+import io.tchepannou.kiosk.pipeline.step.validation.Validator;
+import io.tchepannou.kiosk.pipeline.step.validation.rules.ArticleShouldHaveContentRule;
+import io.tchepannou.kiosk.pipeline.step.validation.rules.ArticleShouldHaveMinContentLengthRule;
+import io.tchepannou.kiosk.pipeline.step.validation.rules.ArticleShouldHaveTitleRule;
+import io.tchepannou.kiosk.pipeline.step.validation.rules.ArticleUrlShouldNotBeBlacklistedRule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -52,6 +60,18 @@ public class PipelineConfiguration {
     @Qualifier("ContentMessageQueue")
     MessageQueue contentMessageQueue;
 
+    @Autowired
+    @Qualifier("ValidationMessageQueue")
+    MessageQueue validationMessageQueue;
+
+    @Autowired
+    @Qualifier("ImageMessageQueue")
+    MessageQueue imageMessageQueue;
+
+    @Autowired
+    @Qualifier("VideoMessageQueue")
+    MessageQueue videoMessageQueue;
+
     int workers;
 
 
@@ -64,6 +84,7 @@ public class PipelineConfiguration {
         execute(downloadMessageQueueProcessor());
         execute(metadataMessageQueueProcessor());
         execute(contentMessageQueueProcessor());
+        execute(validationMessageQueueProcessor());
     }
 
     private void execute(Runnable runnable){
@@ -159,6 +180,41 @@ public class PipelineConfiguration {
                 new TrimFilter(),
                 new HtmlEntityFilter()
         ));
+    }
+
+    //-- Validation
+    @Bean
+    MessageQueueProcessor validationMessageQueueProcessor (){
+        return new MessageQueueProcessor(
+                validationMessageQueue,
+                validationConsumer(),
+                delay()
+        );
+    }
+
+    @Bean
+    Consumer validationConsumer() {
+        return new ValidationConsumer();
+    }
+
+    @Bean("ValidatedTopic")
+    MessageQueue validationTopic (){
+        return new MessageQueueSet(
+                "validated",
+                Arrays.asList(imageMessageQueue)
+        );
+    }
+
+    @Bean
+    Validator<Link> articleValidator() {
+        return new Validator<>(
+                Arrays.asList(
+                        new ArticleShouldHaveContentRule(),
+                        new ArticleShouldHaveMinContentLengthRule(100),
+                        new ArticleShouldHaveTitleRule(),
+                        new ArticleUrlShouldNotBeBlacklistedRule()
+                )
+        );
     }
 
 

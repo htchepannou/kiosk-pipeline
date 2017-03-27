@@ -6,3 +6,5 @@ ALTER TABLE link ADD COLUMN type            VARCHAR(20);
 ALTER TABLE link ADD COLUMN content_key     TEXT;
 ALTER TABLE link ADD COLUMN content_type    VARCHAR(64);
 ALTER TABLE link ADD COLUMN content_length  INTEGER;
+ALTER TABLE link ADD COLUMN valid           BIT;
+ALTER TABLE link ADD COLUMN invalid_reason  VARCHAR(20);

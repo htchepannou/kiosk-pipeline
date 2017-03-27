@@ -45,4 +45,16 @@ public class AwsConfiguration {
     MessageQueue validationMessageQueue() {
         return new SqsMessageQueue();
     }
+
+    @Bean(name = "ImageMessageQueue")
+    @ConfigurationProperties("kiosk.aws.queue.ImageMessageQueue")
+    MessageQueue imageMessageQueue() {
+        return new SqsMessageQueue();
+    }
+
+    @Bean(name = "VideoMessageQueue")
+    @ConfigurationProperties("kiosk.aws.queue.VideoMessageQueue")
+    MessageQueue videoMessageQueue() {
+        return new SqsMessageQueue();
+    }
 }

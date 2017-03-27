@@ -28,7 +28,6 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-
 @RunWith(MockitoJUnitRunner.class)
 public class ContentConsumerTest {
     @Mock
@@ -58,7 +57,7 @@ public class ContentConsumerTest {
     @Test
     public void shouldConsume() throws Exception {
         // Given
-        final Link link = new Link ();
+        final Link link = new Link();
         link.setId(123);
         link.setS3Key("html/2010/10/11/test.html");
 
@@ -75,37 +74,27 @@ public class ContentConsumerTest {
         // Then
         verify(messageQueue).push("123");
 
-
-        ArgumentCaptor<InputStream> in = ArgumentCaptor.forClass(InputStream.class);
+        final ArgumentCaptor<InputStream> in = ArgumentCaptor.forClass(InputStream.class);
         verify(repository).write(
                 eq("content/2010/10/11/test.html"),
                 in.capture()
         );
         assertThat(IOUtils.toString(in.getValue())).isEqualTo("HELLO WORLD");
 
-
-        ArgumentCaptor<Article> article = ArgumentCaptor.forClass(Article.class);
-        verify(articleRepository).save(article.capture());
-        assertThat(article.getValue().getS3Key()).isEqualTo("content/2010/10/11/test.html");
-        assertThat(article.getValue().getContentLength()).isEqualTo(11);
-
-
-        ArgumentCaptor<Link> lk = ArgumentCaptor.forClass(Link.class);
+        final ArgumentCaptor<Link> lk = ArgumentCaptor.forClass(Link.class);
         verify(linkRepository).save(lk.capture());
         assertThat(lk.getValue().getContentKey()).isEqualTo("content/2010/10/11/test.html");
         assertThat(lk.getValue().getContentLength()).isEqualTo(11);
         assertThat(lk.getValue().getContentType()).isEqualTo("text/html");
     }
 
-
-    private Answer read(final String content){
+    private Answer read(final String content) {
         return (inv) -> {
             final InputStream in = new ByteArrayInputStream(content.getBytes());
-            final OutputStream out = (OutputStream)inv.getArguments()[1];
+            final OutputStream out = (OutputStream) inv.getArguments()[1];
             IOUtils.copy(in, out);
             return null;
         };
     }
-
 
 }

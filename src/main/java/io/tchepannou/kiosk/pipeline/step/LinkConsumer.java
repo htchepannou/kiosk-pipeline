@@ -1,6 +1,7 @@
 package io.tchepannou.kiosk.pipeline.step;
 
 import io.tchepannou.kiosk.core.service.Consumer;
+import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,5 +18,9 @@ public abstract class LinkConsumer implements Consumer {
     public void consume(final String message) throws IOException {
         Link link = linkRepository.findOne(Long.parseLong(message));
         consume(link);
+    }
+
+    protected void push(final Link link, final MessageQueue queue) throws IOException {
+        queue.push(String.valueOf(link.getId()));
     }
 }

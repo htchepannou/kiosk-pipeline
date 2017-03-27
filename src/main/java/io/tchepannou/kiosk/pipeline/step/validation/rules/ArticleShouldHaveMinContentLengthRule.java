@@ -1,7 +1,7 @@
-package io.tchepannou.kiosk.pipeline.service.validation.article;
+package io.tchepannou.kiosk.pipeline.step.validation.rules;
 
-import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
-import io.tchepannou.kiosk.pipeline.service.validation.Validation;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
+import io.tchepannou.kiosk.pipeline.step.validation.Validation;
 
 public class ArticleShouldHaveMinContentLengthRule implements ArticleRule {
     private final int minContentLength;
@@ -11,9 +11,9 @@ public class ArticleShouldHaveMinContentLengthRule implements ArticleRule {
     }
 
     @Override
-    public Validation validate(final Article subject) {
+    public Validation validate(final Link subject) {
         return subject.getContentLength() < minContentLength
-                ? Validation.failure(ArticleRule.CONTENT_TOO_SHORT)
+                ? Validation.failure(CONTENT_TOO_SHORT)
                 : Validation.success();
     }
 }

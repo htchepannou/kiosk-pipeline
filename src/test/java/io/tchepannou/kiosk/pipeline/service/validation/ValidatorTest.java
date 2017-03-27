@@ -1,5 +1,8 @@
 package io.tchepannou.kiosk.pipeline.service.validation;
 
+import io.tchepannou.kiosk.pipeline.step.validation.Rule;
+import io.tchepannou.kiosk.pipeline.step.validation.Validation;
+import io.tchepannou.kiosk.pipeline.step.validation.Validator;
 import org.junit.Test;
 
 import java.util.Arrays;

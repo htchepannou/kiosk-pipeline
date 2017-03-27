@@ -1,8 +1,10 @@
 package io.tchepannou.kiosk.pipeline.service.validation.article;
 
-import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
-import io.tchepannou.kiosk.pipeline.service.validation.Rule;
-import io.tchepannou.kiosk.pipeline.service.validation.Validation;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
+import io.tchepannou.kiosk.pipeline.step.validation.Rule;
+import io.tchepannou.kiosk.pipeline.step.validation.Validation;
+import io.tchepannou.kiosk.pipeline.step.validation.rules.ArticleRule;
+import io.tchepannou.kiosk.pipeline.step.validation.rules.ArticleShouldHaveMinContentLengthRule;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -12,7 +14,7 @@ public class ArticleShouldHaveMinContentLengthRuleTest {
 
     @Test
     public void shouldAcceptArticleWithLargeContent() throws Exception {
-        final Article article = new Article();
+        final Link article = new Link();
         article.setContentLength(300);
 
         final Validation validation = rule.validate(article);
@@ -22,7 +24,7 @@ public class ArticleShouldHaveMinContentLengthRuleTest {
 
     @Test
     public void shouldAcceptArticleWithMinContent() throws Exception {
-        final Article article = new Article();
+        final Link article = new Link();
         article.setContentLength(200);
 
         final Validation validation = rule.validate(article);
@@ -33,7 +35,7 @@ public class ArticleShouldHaveMinContentLengthRuleTest {
 
     @Test
     public void shouldRejectArticleWithLowContent() throws Exception {
-        final Article article = new Article();
+        final Link article = new Link();
         article.setContentLength(100);
 
         final Validation validation = rule.validate(article);

@@ -5,7 +5,6 @@ import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
-import io.tchepannou.kiosk.pipeline.persistence.repository.ArticleRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -42,9 +41,6 @@ public class MetadataConsumerTest {
     FileRepository repository;
 
     @Mock
-    ArticleRepository articleRepository;
-
-    @Mock
     LinkRepository linkRepository;
 
     @Mock
@@ -74,7 +70,6 @@ public class MetadataConsumerTest {
         when(titleFilter.filter(any(), any())).thenReturn("This is the sanitized title");
 
         doAnswer(read("/meta/article.html")).when(repository).read(any(), any());
-        doAnswer(save(567)).when(articleRepository).save(any(Article.class));
         doAnswer(save(890)).when(linkRepository).save(any(Link.class));
 
         // When
@@ -82,19 +77,6 @@ public class MetadataConsumerTest {
 
         // Then
         verify(queue).push("890");
-
-
-        final ArgumentCaptor<Article> article = ArgumentCaptor.forClass(Article.class);
-        verify(articleRepository).save(article.capture());
-        assertThat(article.getValue().getTitle()).isEqualTo("Rigobert Song : « Je suis vraiment revenu de très loin »");
-        assertThat(article.getValue().getDisplayTitle()).isEqualTo("This is the sanitized title");
-        assertThat(article.getValue().getSummary()).isEqualTo(
-                "Et soudain, Rigobert Song apparaît dans l’embrasure de la porte. Quelques kilos en moins, des cheveu...");
-        assertThat(fmt.format(article.getValue().getPublishedDate())).startsWith("2016-12-29");
-        assertThat(article.getValue().getLink()).isEqualTo(link);
-        assertThat(article.getValue().getS3Key()).isNull();
-        assertThat(article.getValue().getStatus()).isEqualTo(Article.STATUS_CREATED);
-
 
 
         final ArgumentCaptor<Link> lk = ArgumentCaptor.forClass(Link.class);

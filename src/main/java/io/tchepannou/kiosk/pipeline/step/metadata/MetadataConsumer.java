@@ -7,7 +7,7 @@ import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.domain.LinkTypeEnum;
-import io.tchepannou.kiosk.pipeline.step.LinkConsumer;
+import io.tchepannou.kiosk.pipeline.step.AbstractLinkConsumer;
 import io.tchepannou.kiosk.pipeline.support.HtmlHelper;
 import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.nodes.Document;
@@ -29,7 +29,7 @@ import static io.tchepannou.kiosk.pipeline.support.JsoupHelper.select;
 import static io.tchepannou.kiosk.pipeline.support.JsoupHelper.selectMeta;
 
 @Transactional
-public class MetadataConsumer extends LinkConsumer {
+public class MetadataConsumer extends AbstractLinkConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(MetadataConsumer.class);
 
     private static final String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssX";

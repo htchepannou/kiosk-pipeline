@@ -34,6 +34,7 @@ import static io.tchepannou.kiosk.pipeline.support.JsoupHelper.select;
 import static io.tchepannou.kiosk.pipeline.support.JsoupHelper.selectMeta;
 
 @Transactional
+@Deprecated
 public class ArticleMetadataConsumer extends SqsSnsConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArticleMetadataConsumer.class);
 

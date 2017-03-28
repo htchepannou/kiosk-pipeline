@@ -18,6 +18,7 @@ import io.tchepannou.kiosk.pipeline.step.content.filter.SanitizeFilter;
 import io.tchepannou.kiosk.pipeline.step.content.filter.TrimFilter;
 import io.tchepannou.kiosk.pipeline.step.download.DownloadConsumer;
 import io.tchepannou.kiosk.pipeline.step.image.ImageConsumer;
+import io.tchepannou.kiosk.pipeline.step.image.ThumbnailConsumer;
 import io.tchepannou.kiosk.pipeline.step.metadata.MetadataConsumer;
 import io.tchepannou.kiosk.pipeline.step.metadata.TitleFilter;
 import io.tchepannou.kiosk.pipeline.step.metadata.TitleFilterSet;
@@ -26,6 +27,7 @@ import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleFeedFilter;
 import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleRegexFilter;
 import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleSuffixFilter;
 import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleVideoFilter;
+import io.tchepannou.kiosk.pipeline.step.publish.PublishConsumer;
 import io.tchepannou.kiosk.pipeline.step.url.FeedUrlProducer;
 import io.tchepannou.kiosk.pipeline.step.url.UrlProducer;
 import io.tchepannou.kiosk.pipeline.step.validation.ValidationConsumer;
@@ -81,6 +83,10 @@ public class PipelineConfiguration {
     @Qualifier("VideoMessageQueue")
     MessageQueue videoMessageQueue;
 
+    @Autowired
+    @Qualifier("PublishMessageQueue")
+    MessageQueue publishMessageQueue;
+
     int workers;
 
     @PostConstruct
@@ -94,6 +100,8 @@ public class PipelineConfiguration {
         execute(contentMessageQueueProcessor());
         execute(validationMessageQueueProcessor());
         execute(imageMessageQueueProcessor());
+        execute(thumbnailMessageQueueProcessor());
+        execute(publishMessageQueueProcessor());
     }
 
     private void execute(final Runnable runnable) {
@@ -240,6 +248,38 @@ public class PipelineConfiguration {
     @ConfigurationProperties("kiosk.step.ImageConsumer")
     Consumer imageConsumer() {
         return new ImageConsumer();
+    }
+
+    //-- Thubmnail
+    @Bean
+    MessageQueueProcessor thumbnailMessageQueueProcessor() {
+        return new MessageQueueProcessor(
+                thumbnailMessageQueue,
+                thumbnailConsumer(),
+                delay()
+        );
+    }
+
+    @Bean
+    @ConfigurationProperties("kiosk.step.ThumbnailConsumer")
+    Consumer thumbnailConsumer() {
+        return new ThumbnailConsumer();
+    }
+
+    //-- Thubmnail
+    @Bean
+    MessageQueueProcessor publishMessageQueueProcessor() {
+        return new MessageQueueProcessor(
+                publishMessageQueue,
+                publishConsumer(),
+                delay()
+        );
+    }
+
+    @Bean
+    @ConfigurationProperties("kiosk.step.PublishConsumer")
+    Consumer publishConsumer() {
+        return new PublishConsumer();
     }
 
     //-- Getter/Setter

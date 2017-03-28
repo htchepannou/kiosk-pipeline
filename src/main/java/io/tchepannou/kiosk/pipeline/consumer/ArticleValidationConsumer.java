@@ -16,6 +16,7 @@ import java.io.IOException;
 
 @Transactional
 @ConfigurationProperties("kiosk.pipeline.ArticleValidationConsumer")
+@Deprecated
 public class ArticleValidationConsumer implements SqsConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArticleValidationConsumer.class);
 

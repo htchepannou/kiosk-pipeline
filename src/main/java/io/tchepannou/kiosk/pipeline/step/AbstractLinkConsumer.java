@@ -14,7 +14,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-public abstract class LinkConsumer implements Consumer {
+public abstract class AbstractLinkConsumer implements Consumer {
     @Autowired
     protected LinkRepository linkRepository;
 
@@ -25,7 +25,7 @@ public abstract class LinkConsumer implements Consumer {
 
     @Override
     public void consume(final String message) throws IOException {
-        Link link = linkRepository.findOne(Long.parseLong(message));
+        final Link link = linkRepository.findOne(Long.parseLong(message));
         consume(link);
     }
 
@@ -44,6 +44,5 @@ public abstract class LinkConsumer implements Consumer {
         final String html = getRawHtml(link);
         return Jsoup.parse(html);
     }
-
 
 }

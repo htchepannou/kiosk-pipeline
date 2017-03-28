@@ -28,6 +28,7 @@ import org.springframework.context.annotation.Scope;
 
 @Configuration
 @Profile("!local")
+@Deprecated
 public class AwsPipelineConfiguration {
     @Autowired
     AmazonSQS sqs;

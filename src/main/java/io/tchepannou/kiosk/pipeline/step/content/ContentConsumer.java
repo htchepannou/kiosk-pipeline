@@ -2,7 +2,7 @@ package io.tchepannou.kiosk.pipeline.step.content;
 
 import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
-import io.tchepannou.kiosk.pipeline.step.LinkConsumer;
+import io.tchepannou.kiosk.pipeline.step.AbstractLinkConsumer;
 import io.tchepannou.kiosk.pipeline.step.content.filter.ContentExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @Transactional
-public class ContentConsumer extends LinkConsumer {
+public class ContentConsumer extends AbstractLinkConsumer {
     @Autowired
     @Qualifier("ValidationMessageQueue")
     MessageQueue queue;

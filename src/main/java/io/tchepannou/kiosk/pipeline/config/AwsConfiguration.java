@@ -63,4 +63,10 @@ public class AwsConfiguration {
     MessageQueue videoMessageQueue() {
         return new SqsMessageQueue();
     }
+
+    @Bean(name = "PublishMessageQueue")
+    @ConfigurationProperties("kiosk.aws.queue.PublishMessageQueue")
+    MessageQueue publishMessageQueue() {
+        return new SqsMessageQueue();
+    }
 }

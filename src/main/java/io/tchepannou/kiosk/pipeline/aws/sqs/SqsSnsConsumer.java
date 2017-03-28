@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.io.IOException;
 import java.util.Map;
 
+@Deprecated
 public abstract class SqsSnsConsumer implements SqsConsumer {
     @Autowired
     ObjectMapper objectMapper;

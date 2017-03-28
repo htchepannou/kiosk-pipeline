@@ -9,6 +9,7 @@ import javax.transaction.Transactional;
 
 @ConfigurationProperties("kiosk.pipeline.ImageThumbnailConsumer")
 @Transactional
+@Deprecated
 public class ImageThumbnailConsumer extends AbstractImageResizerConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageThumbnailConsumer.class);
 

@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Transactional
+@Deprecated
 public class ArticleDedupConsumer extends SqsS3Consumer {
     private final Logger LOGGER = LoggerFactory.getLogger(ArticleDedupConsumer.class);
 

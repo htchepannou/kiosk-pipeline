@@ -20,6 +20,7 @@ import java.util.List;
 
 @ConfigurationProperties("kiosk.pipeline.VideoExtractorConsumer")
 @Transactional
+@Deprecated
 public class VideoExtractorConsumer extends SqsSnsConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(VideoExtractorConsumer.class);
 

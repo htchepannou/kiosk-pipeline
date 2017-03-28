@@ -3,13 +3,10 @@ package io.tchepannou.kiosk.pipeline.step.image;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
 import io.tchepannou.kiosk.core.service.MessageQueue;
-import io.tchepannou.kiosk.pipeline.persistence.domain.Asset;
 import io.tchepannou.kiosk.pipeline.persistence.domain.AssetTypeEnum;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
-import io.tchepannou.kiosk.pipeline.persistence.domain.LinkTypeEnum;
-import io.tchepannou.kiosk.pipeline.persistence.repository.AssetRepository;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
-import io.tchepannou.kiosk.pipeline.step.LinkConsumer;
+import io.tchepannou.kiosk.pipeline.step.AbstractImageConsumer;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,15 +24,12 @@ import java.net.URL;
 import static io.tchepannou.kiosk.pipeline.support.JsoupHelper.selectMeta;
 
 @Transactional
-public class ImageConsumer extends LinkConsumer {
+public class ImageConsumer extends AbstractImageConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageConsumer.class);
 
     @Autowired
     @Qualifier("ThumbnailMessageQueue")
     MessageQueue queue;
-
-    @Autowired
-    AssetRepository assetRepository;
 
     @Autowired
     HttpService http;
@@ -56,9 +50,11 @@ public class ImageConsumer extends LinkConsumer {
         if (img == null) {
             img = download(url, link);
         }
-        join(link, img);
 
-        push(img, queue);
+        if (img != null) {
+            createAsset(link, img, AssetTypeEnum.original);
+            push(img, queue);
+        }
     }
 
     private Link download(final String url, final Link link) throws IOException {
@@ -83,35 +79,23 @@ public class ImageConsumer extends LinkConsumer {
             LOGGER.error("{} is corrupted. Cannot load the image!", url);
             return null;
         }
-        final Link img = new Link();
-        img.setFeed(link.getFeed());
-        img.setUrl(url);
-        img.setUrlHash(Link.hash(url));
-        img.setS3Key(key);
-        img.setContentLength(bytes.length);
-        img.setContentType(contentType);
-        img.setWidth(bimg.getWidth());
-        img.setHeight(bimg.getHeight());
-        img.setType(LinkTypeEnum.image.name());
-        linkRepository.save(img);
-        return img;
-    }
-
-    private void join(final Link link, final Link img){
-        final String type = AssetTypeEnum.original.name();
-        Asset asset = assetRepository.findByLinkAndTargetAndType(link, img, type);
-        if (asset == null){
-            asset = new Asset(link, img, type);
-            assetRepository.save(asset);
-        }
+        return createImage(
+                link.getFeed(),
+                url,
+                key,
+                contentType,
+                bytes.length,
+                bimg.getWidth(),
+                bimg.getHeight()
+        );
     }
 
     private String extract(final Document doc) {
         String url = selectMeta(doc, "meta[property=og:image]");
-        if (url == null){
+        if (url == null) {
             url = selectMeta(doc, "meta[property=twitter:image]");
         }
-        if (url == null){
+        if (url == null) {
             url = selectMeta(doc, "meta[property=shareaholic:image]");
         }
 

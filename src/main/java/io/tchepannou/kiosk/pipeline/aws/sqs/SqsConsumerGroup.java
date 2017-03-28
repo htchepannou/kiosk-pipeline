@@ -7,6 +7,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated
 public class SqsConsumerGroup {
     public static final int ONE_MINUTE = 60 * 1000;
 

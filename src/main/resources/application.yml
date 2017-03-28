@@ -24,6 +24,8 @@ kiosk:
         url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-thumbnail-queue"
       VideoMessageQueue:
         url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-video-queue"
+      PublishMessageQueue:
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-publish-queue"
 
   local:
     home: "${user.home}/kiosk"
@@ -46,6 +48,8 @@ kiosk:
         home: "${kiosk.local.queue.home}/thumbnail"
       VideoMessageQueue:
         home: "${kiosk.local.queue.home}/video"
+      PublishMessageQueue:
+        home: "${kiosk.local.queue.home}/publish"
 
   step:
     workers: 1
@@ -59,6 +63,9 @@ kiosk:
     ImageConsumer:
       rawFolder: "html"
       imageFolder: "image"
+    ThumbnailConsumer:
+      width: 440
+      height:  220
 
   executor:
     poolSize: 200
@@ -133,7 +140,9 @@ kiosk:
       - "http://thehotjem.com/tag/*"
       - "http://cameroon-concord.com/?start=*"             # cameroon-concord
       - "http://madeinmboa.net/category/*"                 # madeinmboa
-
+      - "http://www.ckomentpublishing.com/category/*"      # C'Koment Magazine
+      - "http://www.ticmag.net/category/*"                 # TIC Mag
+      - "http://www.ticmag.net/textes-documents"
 
   pipeline:
     reprocess: none        # none, extract-content

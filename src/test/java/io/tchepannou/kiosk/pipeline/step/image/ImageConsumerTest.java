@@ -53,10 +53,7 @@ public class ImageConsumerTest extends LinkConsumerTestSupport  {
     @Test
     public void shouldExtractImage() throws Exception {
         // Given
-        final String s3Key = "html/2010/10/11/test.html";
-        final Link link = new Link();
-        link.setId(123);
-        link.setS3Key(s3Key);
+        final Link link = createLink(123, "html/2010/10/11/test.html");
 
         doAnswer(read("/image/article.html")).when(repository).read(any(), any());
 
@@ -96,10 +93,7 @@ public class ImageConsumerTest extends LinkConsumerTestSupport  {
     @Test
     public void shouldNeverOverwriteImage() throws Exception {
         // Given
-        final String s3Key = "html/2010/10/11/test.html";
-        final Link link = new Link();
-        link.setId(123);
-        link.setS3Key(s3Key);
+        final Link link = createLink(123, "html/2010/10/11/test.html");
 
         doAnswer(read("/image/article.html")).when(repository).read(any(), any());
 
@@ -113,10 +107,7 @@ public class ImageConsumerTest extends LinkConsumerTestSupport  {
         consumer.consume(link);
 
         // Then
-        verify(repository, never()).write(
-                eq("image/2010/10/11/test.jpg"),
-                any(InputStream.class)
-        );
+        verify(repository, never()).write(any(), any());
 
         verify(linkRepository, never()).save(img);
 
@@ -125,6 +116,34 @@ public class ImageConsumerTest extends LinkConsumerTestSupport  {
         verify(queue).push("567");
     }
 
+    @Test
+    public void shouldNotConsumetNonImage() throws Exception {
+        // Given
+        final Link link = createLink(123, "html/2010/10/11/test.html");
+
+        doAnswer(read("/image/article.html")).when(repository).read(any(), any());
+
+        doAnswer(get("/image/article.html", "text/html")).when(http).get(any(), any());
+
+        // Then
+        consumer.consume(link);
+
+        // Then
+        verify(repository, never()).write(any(), any());
+
+        verify(linkRepository, never()).save(any(Link.class));
+
+        verify(assetRepository, never()).save(any(Asset.class));
+
+        verify(queue, never()).push(anyString());
+    }
+
+    private Link createLink (final long id, final String s3Key){
+        final Link link = new Link();
+        link.setId(id);
+        link.setS3Key(s3Key);
+        return link;
+    }
 
     //-- Private
     private Answer save(final long id) {

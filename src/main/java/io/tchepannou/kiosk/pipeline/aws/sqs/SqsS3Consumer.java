@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 
+@Deprecated
 public abstract class SqsS3Consumer implements SqsConsumer {
     @Autowired
     protected AmazonS3 s3;

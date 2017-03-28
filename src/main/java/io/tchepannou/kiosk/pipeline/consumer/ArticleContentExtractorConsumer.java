@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @Transactional
+@Deprecated
 public class ArticleContentExtractorConsumer implements SqsConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArticleContentExtractorConsumer.class);
 

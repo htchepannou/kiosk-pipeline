@@ -9,6 +9,7 @@ import io.tchepannou.kiosk.pipeline.service.ThreadMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Deprecated
 public class SqsReader implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(SqsReader.class);
     private static int threadCount = 0;

@@ -61,6 +61,7 @@ public class Link {
 
     private int width;
     private int height;
+    private boolean published;
 
     //-- Public
     public static String hash(final String url) {
@@ -202,5 +203,13 @@ public class Link {
 
     public void setHeight(final int height) {
         this.height = height;
+    }
+
+    public boolean isPublished() {
+        return published;
+    }
+
+    public void setPublished(final boolean published) {
+        this.published = published;
     }
 }

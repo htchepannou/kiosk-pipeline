@@ -12,6 +12,7 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 
 @Transactional
+@Deprecated
 public class ArticlePublishConsumer implements SqsConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArticleValidationConsumer.class);
 

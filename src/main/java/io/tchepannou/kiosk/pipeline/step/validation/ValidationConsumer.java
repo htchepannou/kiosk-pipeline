@@ -2,7 +2,7 @@ package io.tchepannou.kiosk.pipeline.step.validation;
 
 import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
-import io.tchepannou.kiosk.pipeline.step.LinkConsumer;
+import io.tchepannou.kiosk.pipeline.step.AbstractLinkConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,7 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 
 @Transactional
-public class ValidationConsumer extends LinkConsumer {
+public class ValidationConsumer extends AbstractLinkConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(ValidationConsumer.class);
 
     @Autowired

@@ -31,6 +31,7 @@ import java.util.List;
 
 @ConfigurationProperties("kiosk.pipeline.ImageExtractorConsumer")
 @Transactional
+@Deprecated
 public class ImageExtractorConsumer extends SqsSnsConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageExtractorConsumer.class);
 

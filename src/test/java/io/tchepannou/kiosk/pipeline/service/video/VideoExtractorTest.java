@@ -1,5 +1,7 @@
 package io.tchepannou.kiosk.pipeline.service.video;
 
+import io.tchepannou.kiosk.pipeline.step.video.VideoProvider;
+import io.tchepannou.kiosk.pipeline.step.video.providers.YouTube;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +18,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class VideoExtractorTest {
     @Mock
-    VideoService videoService;
+    VideoProvider videoService;
 
     @Test
     public void shouldExtractVideoEmbedUrl() throws Exception {
@@ -32,11 +34,11 @@ public class VideoExtractorTest {
                     "</iframe>\n"+
                 "</body></html>";
 
-        final VideoService s1 = mock(VideoService.class);
+        final VideoProvider s1 = mock(VideoProvider.class);
 
         final String url = "http://www.youtube.com/embed/c6YN-X-YvEQ";
-        final VideoService s2 = mock(VideoService.class);
-        when(s2.getVideoId("http://www.youtube.com/embed/c6YN-X-YvEQ?enablejsapi=1&feature=oembed&wmode=opaque&vq=hd720")).thenReturn("c6YN-X-YvEQ");
+        final VideoProvider s2 = mock(VideoProvider.class);
+//        when(s2.getVideoId("http://www.youtube.com/embed/c6YN-X-YvEQ?enablejsapi=1&feature=oembed&wmode=opaque&vq=hd720")).thenReturn("c6YN-X-YvEQ");
         when(s2.getEmbedUrl("c6YN-X-YvEQ")).thenReturn(url);
 
         // When

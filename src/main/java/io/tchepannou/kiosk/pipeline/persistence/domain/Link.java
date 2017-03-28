@@ -63,6 +63,9 @@ public class Link {
     private int width;
     private int height;
 
+    @Column(name="embed_url")
+    private String embedUrl;
+
     //-- Public
     public static String hash(final String url) {
         return DigestUtils.md5Hex(url);
@@ -72,6 +75,11 @@ public class Link {
     @Transient
     public boolean isValid (){
         return LinkStatusEnum.valid.equals(status);
+    }
+
+    @Transient
+    public boolean isPublished (){
+        return LinkStatusEnum.published.equals(status);
     }
 
     public long getId() {

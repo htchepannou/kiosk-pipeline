@@ -4,8 +4,8 @@ import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Asset;
 import io.tchepannou.kiosk.pipeline.persistence.domain.AssetTypeEnum;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
+import io.tchepannou.kiosk.pipeline.persistence.domain.LinkStatusEnum;
 import io.tchepannou.kiosk.pipeline.persistence.domain.LinkTypeEnum;
-import io.tchepannou.kiosk.pipeline.persistence.repository.AssetRepository;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import io.tchepannou.kiosk.pipeline.step.LinkConsumerTestSupport;
 import org.apache.commons.io.IOUtils;
@@ -34,9 +34,6 @@ import static org.mockito.Mockito.when;
 public class ImageConsumerTest extends LinkConsumerTestSupport  {
     @Mock
     MessageQueue queue;
-
-    @Mock
-    AssetRepository assetRepository;
 
     @Mock
     HttpService http;
@@ -80,6 +77,7 @@ public class ImageConsumerTest extends LinkConsumerTestSupport  {
         assertThat(img.getValue().getWidth()).isEqualTo(2400);
         assertThat(img.getValue().getHeight()).isEqualTo(3000);
         assertThat(img.getValue().getUrlHash()).isEqualTo("0c63fbc8bc07385c263a8637793c3a9e");
+        assertThat(img.getValue().getStatus()).isEqualTo(LinkStatusEnum.valid);
 
         final ArgumentCaptor<Asset> asset = ArgumentCaptor.forClass(Asset.class);
         verify(assetRepository).save(asset.capture());

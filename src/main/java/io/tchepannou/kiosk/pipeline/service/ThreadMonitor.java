@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+@Deprecated
 public class ThreadMonitor {
     private final Set<Runnable> threads = Collections.synchronizedSet(new HashSet<>());
 

@@ -20,7 +20,7 @@ import io.tchepannou.kiosk.pipeline.service.similarity.filter.UnaccentTextFilter
 import io.tchepannou.kiosk.pipeline.service.similarity.filter.WhitespaceTextFilter;
 import io.tchepannou.kiosk.pipeline.service.title.TitleSanitizer;
 import io.tchepannou.kiosk.pipeline.service.video.VideoExtractor;
-import io.tchepannou.kiosk.pipeline.service.video.YouTube;
+import io.tchepannou.kiosk.pipeline.step.video.providers.YouTube;
 import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleCountryFilter;
 import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleFeedFilter;
 import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleRegexFilter;

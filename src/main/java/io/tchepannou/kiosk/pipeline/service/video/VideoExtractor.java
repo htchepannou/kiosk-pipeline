@@ -1,6 +1,7 @@
 package io.tchepannou.kiosk.pipeline.service.video;
 
 import io.tchepannou.kiosk.pipeline.step.content.filter.SanitizeFilter;
+import io.tchepannou.kiosk.pipeline.step.video.VideoProvider;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -10,10 +11,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Deprecated
 public class VideoExtractor {
-    private final List<VideoService> services;
+    private final List<VideoProvider> services;
 
-    public VideoExtractor(final List<VideoService> services) {
+    public VideoExtractor(final List<VideoProvider> services) {
         this.services = services;
     }
 
@@ -44,12 +46,13 @@ public class VideoExtractor {
     }
 
     private String getEmbedUrl(final String url) {
-        for (final VideoService service : services) {
-            final String id = service.getVideoId(url);
-            if (id != null) {
-                return service.getEmbedUrl(id);
-            }
-        }
         return null;
+//        for (final VideoService service : services) {
+//            final String id = service.getVideoId(url);
+//            if (id != null) {
+//                return service.getEmbedUrl(id);
+//            }
+//        }
+//        return null;
     }
 }

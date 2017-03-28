@@ -1,24 +1,21 @@
-package io.tchepannou.kiosk.pipeline.service.video;
+package io.tchepannou.kiosk.pipeline.step.video.providers;
+
+import io.tchepannou.kiosk.pipeline.step.video.VideoProvider;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class YouTube implements VideoService {
+public class YouTube implements VideoProvider {
     private static final String URL_REGEX = "^(https?)?(://)?(www.)?(m.)?((youtube.com)|(youtu.be))/";
     private static final String[] VIDEO_ID_REGEX = { "\\?vi?=([^&]*)","watch\\?.*v=([^&]*)", "(?:embed|vi?)/([^/?]*)", "^([A-Za-z0-9\\-]*)"};
     private static final String EMBED_URL_FORMAT = "https://www.youtube.com/embed/%s";
 
     //--  VideoPlatform overrides
 
-    @Override
-    public String getName() {
-        return "youtube";
-    }
-
     /**
      * See https://gist.github.com/jvanderwee/b30fdb496acff43aef8e
      */
-    public String getVideoId(String url) {
+    private String getVideoId(String url) {
         if (url == null) {
             return null;
         }
@@ -26,10 +23,10 @@ public class YouTube implements VideoService {
         return extractVideoIdFromUrl(url);
     }
 
-    public String getEmbedUrl(String videoId) {
-        return String.format(EMBED_URL_FORMAT, videoId);
+    public String getEmbedUrl(String url) {
+        String id = getVideoId(url);
+        return id != null ? String.format(EMBED_URL_FORMAT, id) : null;
     }
-
 
     public String extractVideoIdFromUrl(String url) {
         String youTubeLinkWithoutProtocolAndDomain = youTubeLinkWithoutProtocolAndDomain(url);

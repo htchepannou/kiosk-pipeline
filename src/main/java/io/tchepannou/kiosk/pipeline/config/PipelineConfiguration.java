@@ -38,6 +38,8 @@ import io.tchepannou.kiosk.pipeline.step.validation.rules.ArticleShouldHaveConte
 import io.tchepannou.kiosk.pipeline.step.validation.rules.ArticleShouldHaveMinContentLengthRule;
 import io.tchepannou.kiosk.pipeline.step.validation.rules.ArticleShouldHaveTitleRule;
 import io.tchepannou.kiosk.pipeline.step.validation.rules.ArticleUrlShouldNotBeBlacklistedRule;
+import io.tchepannou.kiosk.pipeline.step.video.VideoConsumer;
+import io.tchepannou.kiosk.pipeline.step.video.providers.YouTube;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,8 +59,8 @@ import java.util.concurrent.TimeUnit;
 public class PipelineConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineConfiguration.class);
 
-    private static int PRE_PUBLISH_STEPS = 7;
-    private static int PUBLISH_STEPS = 7;
+    private static int PRE_PUBLISH_STEPS = 8;
+    private static int PUBLISH_STEPS = 1;
 
     @Autowired
     ThreadPoolTaskExecutor executor;
@@ -115,6 +117,7 @@ public class PipelineConfiguration {
         execute(contentMessageQueueProcessor(prePublishLatch));
         execute(validationMessageQueueProcessor(prePublishLatch));
         execute(imageMessageQueueProcessor(prePublishLatch));
+        execute(videoMessageQueueProcessor(prePublishLatch));
         execute(thumbnailMessageQueueProcessor(prePublishLatch));
         prePublishLatch.await(prePublishMaxDurationSeconds, TimeUnit.SECONDS);
 
@@ -244,7 +247,7 @@ public class PipelineConfiguration {
     MessageQueue validationTopic() {
         return new MessageQueueSet(
                 "validated",
-                Arrays.asList(imageMessageQueue)
+                Arrays.asList(imageMessageQueue, videoMessageQueue)
         );
     }
 
@@ -258,6 +261,24 @@ public class PipelineConfiguration {
                         new ArticleUrlShouldNotBeBlacklistedRule(urlService)
                 )
         );
+    }
+
+    //-- Video
+    @Bean
+    MessageQueueProcessor videoMessageQueueProcessor(final CountDownLatch latch) {
+        return new MessageQueueProcessor(
+                videoMessageQueue,
+                videoConsumer(),
+                delay(),
+                latch
+        );
+    }
+
+    @Bean
+    Consumer videoConsumer() {
+        return new VideoConsumer(Arrays.asList(
+                new YouTube()
+        ));
     }
 
     //-- Image

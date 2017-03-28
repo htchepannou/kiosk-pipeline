@@ -3,7 +3,10 @@ package io.tchepannou.kiosk.pipeline.step;
 import io.tchepannou.kiosk.core.service.Consumer;
 import io.tchepannou.kiosk.core.service.FileRepository;
 import io.tchepannou.kiosk.core.service.MessageQueue;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Asset;
+import io.tchepannou.kiosk.pipeline.persistence.domain.AssetTypeEnum;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
+import io.tchepannou.kiosk.pipeline.persistence.repository.AssetRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
@@ -17,6 +20,9 @@ import java.io.IOException;
 public abstract class AbstractLinkConsumer implements Consumer {
     @Autowired
     protected LinkRepository linkRepository;
+
+    @Autowired
+    protected AssetRepository assetRepository;
 
     @Autowired
     protected FileRepository repository;
@@ -43,6 +49,19 @@ public abstract class AbstractLinkConsumer implements Consumer {
     protected Document getRawDocument(final Link link) throws IOException {
         final String html = getRawHtml(link);
         return Jsoup.parse(html);
+    }
+
+    protected Asset createAsset(
+            final Link link,
+            final Link img,
+            final AssetTypeEnum assetType
+    ) {
+        Asset asset = assetRepository.findByLinkAndTargetAndType(link, img, assetType);
+        if (asset == null) {
+            asset = new Asset(link, img, assetType);
+            assetRepository.save(asset);
+        }
+        return asset;
     }
 
 }

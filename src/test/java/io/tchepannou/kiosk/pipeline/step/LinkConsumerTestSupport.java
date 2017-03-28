@@ -1,6 +1,7 @@
 package io.tchepannou.kiosk.pipeline.step;
 
 import io.tchepannou.kiosk.core.service.FileRepository;
+import io.tchepannou.kiosk.pipeline.persistence.repository.AssetRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import org.mockito.Mock;
 
@@ -10,4 +11,7 @@ public class LinkConsumerTestSupport {
 
     @Mock
     protected LinkRepository linkRepository;
+
+    @Mock
+    protected AssetRepository assetRepository;
 }

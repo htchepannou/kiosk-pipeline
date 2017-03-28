@@ -39,7 +39,7 @@ public class ThumbnailConsumer extends AbstractImageConsumer {
         }
 
         if (thumbnail != null){
-            final List<Asset> assets = assetRepository.findByTargetAndType(img, AssetTypeEnum.original.name());
+            final List<Asset> assets = assetRepository.findByTargetAndType(img, AssetTypeEnum.original);
             for (final Asset asset : assets) {
                 createAsset(asset.getLink(), thumbnail, AssetTypeEnum.thumbnail);
             }

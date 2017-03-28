@@ -85,7 +85,7 @@ public class ImageConsumerTest extends LinkConsumerTestSupport  {
         verify(assetRepository).save(asset.capture());
         assertThat(asset.getValue().getLink()).isEqualTo(link);
         assertThat(asset.getValue().getTarget()).isEqualTo(img.getValue());
-        assertThat(asset.getValue().getType()).isEqualTo(AssetTypeEnum.original.name());
+        assertThat(asset.getValue().getType()).isEqualTo(AssetTypeEnum.original);
 
         verify(queue).push("567");
     }

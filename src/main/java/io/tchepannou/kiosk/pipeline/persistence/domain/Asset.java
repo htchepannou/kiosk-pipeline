@@ -24,12 +24,12 @@ public class Asset {
     private Link target;
 
     @Column(length = 20)
-    private String type;
+    private AssetTypeEnum type;
 
     public Asset() {
     }
 
-    public Asset(final Link link, final Link target, final String type) {
+    public Asset(final Link link, final Link target, final AssetTypeEnum type) {
         this.link = link;
         this.target = target;
         this.type = type;
@@ -59,11 +59,11 @@ public class Asset {
         this.target = target;
     }
 
-    public String getType() {
+    public AssetTypeEnum getType() {
         return type;
     }
 
-    public void setType(final String type) {
+    public void setType(final AssetTypeEnum type) {
         this.type = type;
     }
 }

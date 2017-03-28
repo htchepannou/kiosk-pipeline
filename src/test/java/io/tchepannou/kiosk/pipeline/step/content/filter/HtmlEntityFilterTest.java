@@ -1,4 +1,4 @@
-package io.tchepannou.kiosk.pipeline.service.content;
+package io.tchepannou.kiosk.pipeline.step.content.filter;
 
 import io.tchepannou.kiosk.pipeline.step.content.filter.HtmlEntityFilter;
 import org.junit.Test;

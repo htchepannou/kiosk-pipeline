@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 public class MessageQueueProcessor implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageQueueProcessor.class);
@@ -12,43 +13,50 @@ public class MessageQueueProcessor implements Runnable {
     private MessageQueue queue;
     private Consumer consumer;
     private Delay delay;
+    private CountDownLatch latch;
 
     public MessageQueueProcessor(
             final MessageQueue queue,
             final Consumer consumer,
-            final Delay delay
+            final Delay delay,
+            final CountDownLatch latch
     ) {
         this.queue = queue;
         this.consumer = consumer;
         this.delay = delay;
+        this.latch = latch;
     }
 
     @Override
     public void run() {
-        int count = 0;
-        while (true){
-            try {
+        try {
+            int count = 0;
+            while (true) {
+                try {
 
-                final int processed = process();
-                if (processed == 0) {
-                    delay.sleep();
-                } else {
-                    delay.reset();
-                    count += processed;
+                    final int processed = process();
+                    if (processed == 0) {
+                        delay.sleep();
+                    } else {
+                        delay.reset();
+                        count += processed;
+                    }
+
+                } catch (InterruptedException e) {
+
+                    break;
+
+                } catch (IOException e) {
+
+                    LOGGER.error("Unexpected error", e);
+                    break;
                 }
-
-            } catch(InterruptedException e){
-
-                break;
-
-            } catch (IOException e){
-
-                LOGGER.error("Unexpected error", e);
-                break;
             }
-        }
 
-        LOGGER.info("{} message processed from {}", count, queue.getName());
+            LOGGER.info("{} message processed from {}", count, queue.getName());
+        } finally {
+            latch.countDown();
+        }
     }
 
     public int process () throws IOException {

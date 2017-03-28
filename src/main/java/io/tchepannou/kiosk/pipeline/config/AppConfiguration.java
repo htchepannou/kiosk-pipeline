@@ -18,9 +18,9 @@ import io.tchepannou.kiosk.pipeline.service.similarity.filter.LowecaseTextFilter
 import io.tchepannou.kiosk.pipeline.service.similarity.filter.PunctuationTextFilter;
 import io.tchepannou.kiosk.pipeline.service.similarity.filter.UnaccentTextFilter;
 import io.tchepannou.kiosk.pipeline.service.similarity.filter.WhitespaceTextFilter;
+import io.tchepannou.kiosk.pipeline.service.title.TitleSanitizer;
 import io.tchepannou.kiosk.pipeline.service.video.VideoExtractor;
 import io.tchepannou.kiosk.pipeline.service.video.YouTube;
-import io.tchepannou.kiosk.pipeline.service.title.TitleSanitizer;
 import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleCountryFilter;
 import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleFeedFilter;
 import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleRegexFilter;
@@ -47,7 +47,6 @@ import javax.sql.DataSource;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.TimeZone;
-import java.util.concurrent.Executor;
 
 @Configuration
 public class AppConfiguration implements AsyncConfigurer {
@@ -56,7 +55,7 @@ public class AppConfiguration implements AsyncConfigurer {
 
     @Override
     @Bean(destroyMethod = "shutdown")
-    public Executor getAsyncExecutor() {
+    public ThreadPoolTaskExecutor getAsyncExecutor() {
         final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(poolSize);
         executor.setMaxPoolSize(poolSize);

@@ -4,6 +4,7 @@ import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
+import io.tchepannou.kiosk.pipeline.persistence.domain.LinkTypeEnum;
 import io.tchepannou.kiosk.pipeline.step.LinkConsumerTestSupport;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -79,6 +80,7 @@ public class MetadataConsumerTest extends LinkConsumerTestSupport  {
         assertThat(lk.getValue().getSummary()).isEqualTo(
                 "Et soudain, Rigobert Song apparaît dans l’embrasure de la porte. Quelques kilos en moins, des cheveu...");
         assertThat(fmt.format(lk.getValue().getPublishedDate())).startsWith("2016-12-29");
+        assertThat(fmt.format(lk.getValue().getType())).isEqualTo(LinkTypeEnum.article);
     }
 
 

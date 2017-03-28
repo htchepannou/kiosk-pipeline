@@ -1,6 +1,5 @@
-package io.tchepannou.kiosk.pipeline.service.validation;
+package io.tchepannou.kiosk.pipeline.step.validation;
 
-import io.tchepannou.kiosk.pipeline.step.validation.Validation;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

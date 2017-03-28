@@ -145,12 +145,16 @@ public class MetadataConsumer extends AbstractLinkConsumer {
         }
     }
 
-    private String extractType(final Document doc) {
+    private LinkTypeEnum extractType(final Document doc) {
         final String type = selectMeta(doc, "meta[property=og:type]");
         if (Strings.isNullOrEmpty(type)){
-            return LinkTypeEnum.article.name();
+            return LinkTypeEnum.article;
         } else {
-            return type.toLowerCase();
+            try {
+                return LinkTypeEnum.valueOf(type.toLowerCase());
+            } catch (Exception e){
+                return null;
+            }
         }
     }
 

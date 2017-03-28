@@ -33,7 +33,7 @@ public abstract class AbstractImageConsumer extends AbstractLinkConsumer {
             img.setContentType(contentType);
             img.setWidth(width);
             img.setHeight(height);
-            img.setType(LinkTypeEnum.image.name());
+            img.setType(LinkTypeEnum.image);
 
             linkRepository.save(img);
         }
@@ -44,12 +44,11 @@ public abstract class AbstractImageConsumer extends AbstractLinkConsumer {
     protected Asset createAsset(
             final Link link,
             final Link img,
-            AssetTypeEnum assetType
-    ){
-        final String type = assetType.name();
-        Asset asset = assetRepository.findByLinkAndTargetAndType(link, img, type);
-        if (asset == null){
-            asset = new Asset(link, img, type);
+            final AssetTypeEnum assetType
+    ) {
+        Asset asset = assetRepository.findByLinkAndTargetAndType(link, img, assetType);
+        if (asset == null) {
+            asset = new Asset(link, img, assetType);
             assetRepository.save(asset);
         }
         return asset;

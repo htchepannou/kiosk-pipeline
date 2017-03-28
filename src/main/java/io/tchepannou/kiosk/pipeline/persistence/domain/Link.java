@@ -9,6 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 import java.util.Date;
 
 @Entity
@@ -45,8 +46,8 @@ public class Link {
     @Column(name = "published_date")
     private Date publishedDate;
 
-    @Column(length = 20)
-    private String type;
+    @Column
+    private LinkTypeEnum type;
 
     @Column(name="content_length")
     private int contentLength;
@@ -54,14 +55,13 @@ public class Link {
     @Column(length = 64)
     private String contentType;
 
-    private boolean valid;
+    private LinkStatusEnum status = LinkStatusEnum.created;
 
     @Column(name="invalid_reason", length = 20)
     private String invalidReason;
 
     private int width;
     private int height;
-    private boolean published;
 
     //-- Public
     public static String hash(final String url) {
@@ -69,6 +69,11 @@ public class Link {
     }
 
     //-- Getter/Setter
+    @Transient
+    public boolean isValid (){
+        return LinkStatusEnum.valid.equals(status);
+    }
+
     public long getId() {
         return id;
     }
@@ -141,11 +146,11 @@ public class Link {
         this.publishedDate = publishedDate;
     }
 
-    public String getType() {
+    public LinkTypeEnum getType() {
         return type;
     }
 
-    public void setType(final String type) {
+    public void setType(final LinkTypeEnum type) {
         this.type = type;
     }
 
@@ -173,14 +178,6 @@ public class Link {
         this.contentType = contentType;
     }
 
-    public boolean isValid() {
-        return valid;
-    }
-
-    public void setValid(final boolean valid) {
-        this.valid = valid;
-    }
-
     public String getInvalidReason() {
         return invalidReason;
     }
@@ -205,11 +202,11 @@ public class Link {
         this.height = height;
     }
 
-    public boolean isPublished() {
-        return published;
+    public LinkStatusEnum getStatus() {
+        return status;
     }
 
-    public void setPublished(final boolean published) {
-        this.published = published;
+    public void setStatus(final LinkStatusEnum status) {
+        this.status = status;
     }
 }

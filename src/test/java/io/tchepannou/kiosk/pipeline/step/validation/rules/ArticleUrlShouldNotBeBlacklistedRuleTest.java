@@ -1,4 +1,4 @@
-package io.tchepannou.kiosk.pipeline.service.validation.article;
+package io.tchepannou.kiosk.pipeline.step.validation.rules;
 
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.service.UrlService;

@@ -2,6 +2,7 @@ package io.tchepannou.kiosk.pipeline.step.validation;
 
 import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
+import io.tchepannou.kiosk.pipeline.persistence.domain.LinkStatusEnum;
 import io.tchepannou.kiosk.pipeline.step.LinkConsumerTestSupport;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +36,7 @@ public class ValidationConsumerTest extends LinkConsumerTestSupport {
 
         // Then
         verify(linkRepository).save(link);
-        assertThat(link.isValid()).isTrue();
+        assertThat(link.getStatus()).isEqualTo(LinkStatusEnum.valid);
         assertThat(link.getInvalidReason()).isNull();
     }
 
@@ -50,7 +51,7 @@ public class ValidationConsumerTest extends LinkConsumerTestSupport {
 
         // Then
         verify(linkRepository).save(link);
-        assertThat(link.isValid()).isFalse();
+        assertThat(link.getStatus()).isEqualTo(LinkStatusEnum.invalid);
         assertThat(link.getInvalidReason()).isEqualTo("foo");
     }
 }

@@ -4,6 +4,7 @@ import io.tchepannou.kiosk.core.service.FileRepository;
 import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
+import io.tchepannou.kiosk.pipeline.persistence.domain.LinkStatusEnum;
 import io.tchepannou.kiosk.pipeline.persistence.repository.FeedRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
@@ -104,6 +105,7 @@ public class DownloadConsumerTest {
         assertThat(link.getValue().getUrlHash()).isEqualTo(Link.hash(url));
         assertThat(link.getValue().getS3Key()).isEqualTo("html/2013/04/05/13/" + key + ".html");
         assertThat(link.getValue().getFeed()).isEqualTo(feed1);
+        assertThat(link.getValue().getStatus()).isEqualTo(LinkStatusEnum.created);
 
         verify(queue).push(String.valueOf(link.getValue().getId()));
     }

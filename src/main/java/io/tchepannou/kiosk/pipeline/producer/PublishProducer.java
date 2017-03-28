@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
+@Deprecated
 public class PublishProducer {
     private static final Logger LOGGER = LoggerFactory.getLogger(PublishProducer.class);
 

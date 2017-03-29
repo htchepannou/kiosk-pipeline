@@ -63,9 +63,6 @@ public class Link {
     private int width;
     private int height;
 
-    @Column(name="embed_url")
-    private String embedUrl;
-
     //-- Public
     public static String hash(final String url) {
         return DigestUtils.md5Hex(url);

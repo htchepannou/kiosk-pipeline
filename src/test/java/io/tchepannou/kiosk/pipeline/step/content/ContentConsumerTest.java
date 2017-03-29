@@ -12,11 +12,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -71,15 +68,6 @@ public class ContentConsumerTest extends LinkConsumerTestSupport {
         assertThat(lk.getValue().getContentKey()).isEqualTo("content/2010/10/11/test.html");
         assertThat(lk.getValue().getContentLength()).isEqualTo(11);
         assertThat(lk.getValue().getContentType()).isEqualTo("text/html");
-    }
-
-    private Answer read(final String content){
-        return (inv) -> {
-            final InputStream in = new ByteArrayInputStream(content.getBytes());
-            final OutputStream out = (OutputStream) inv.getArguments()[1];
-            IOUtils.copy(in, out);
-            return null;
-        };
     }
 
 }

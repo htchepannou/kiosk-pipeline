@@ -1,7 +1,6 @@
 package io.tchepannou.kiosk.pipeline.step.metadata;
 
 import io.tchepannou.kiosk.core.service.MessageQueue;
-import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.domain.LinkTypeEnum;
@@ -17,10 +16,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
@@ -155,26 +151,4 @@ public class MetadataConsumerTest extends LinkConsumerTestSupport  {
         link.setS3Key("dev/html/2011/01/01/foo.html");
         return link;
     }
-
-    private Answer read(final String path){
-        return (inv) -> {
-            final InputStream in = getClass().getResourceAsStream(path);
-            final OutputStream out = (OutputStream)inv.getArguments()[1];
-            IOUtils.copy(in, out);
-            return null;
-        };
-    }
-
-    private Answer save(final long id) {
-        return (inv) -> {
-            final Object obj = inv.getArguments()[0];
-            if (obj instanceof Article){
-                ((Article)obj).setId(id);
-            } else if  (obj instanceof Link){
-                ((Link)obj).setId(id);
-            }
-            return null;
-        };
-    }
-
 }

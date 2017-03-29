@@ -70,7 +70,7 @@ public class ImageConsumerTest extends LinkConsumerTestSupport  {
         final ArgumentCaptor<Link> img = ArgumentCaptor.forClass(Link.class);
         verify(linkRepository).save(img.capture());
         assertThat(img.getValue().getS3Key()).isEqualTo("image/2010/10/11/test.jpg");
-        assertThat(img.getValue().getType()).isEqualTo(LinkTypeEnum.image.name());
+        assertThat(img.getValue().getType()).isEqualTo(LinkTypeEnum.image);
         assertThat(img.getValue().getUrl()).isEqualTo("http://camfoot.com/IMG/arton25520.jpg");
         assertThat(img.getValue().getContentType()).isEqualTo("image/jpeg");
         assertThat(img.getValue().getContentLength()).isEqualTo(4490750);
@@ -144,16 +144,6 @@ public class ImageConsumerTest extends LinkConsumerTestSupport  {
     }
 
     //-- Private
-    private Answer save(final long id) {
-        return (inv) -> {
-            final Link img = (Link) inv.getArguments()[0];
-            if (img.getId() == 0) {
-                img.setId(id);
-            }
-            return null;
-        };
-    }
-
     private Answer get(final String path, final String contentType) {
         return (inv) -> {
             final OutputStream out = (OutputStream) inv.getArguments()[1];
@@ -162,14 +152,4 @@ public class ImageConsumerTest extends LinkConsumerTestSupport  {
             return contentType;
         };
     }
-
-    private Answer read(final String path) {
-        return (inv) -> {
-            final InputStream in = getClass().getResourceAsStream(path);
-            final OutputStream out = (OutputStream) inv.getArguments()[1];
-            IOUtils.copy(in, out);
-            return null;
-        };
-    }
-
 }

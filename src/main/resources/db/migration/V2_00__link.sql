@@ -10,7 +10,6 @@ ALTER TABLE link ADD COLUMN invalid_reason VARCHAR(20);
 ALTER TABLE link ADD COLUMN width INT;
 ALTER TABLE link ADD COLUMN height INT;
 ALTER TABLE link ADD COLUMN status INT;
-ALTER TABLE link ADD COLUMN embed_url VARCHAR(255);
 
 
 INSERT INTO feed (id, NAME, url, logo_url, path)

@@ -24,11 +24,7 @@ public class VideoConsumer extends AbstractLinkConsumer {
     @Qualifier("PublishMessageQueue")
     MessageQueue queue;
 
-    private final List<VideoProvider> providers;
-
-    public VideoConsumer(final List<VideoProvider> providers) {
-        this.providers = providers;
-    }
+    private List<VideoProvider> providers = new ArrayList<>();
 
     @Override
     protected void consume(final Link link) throws IOException {
@@ -59,10 +55,30 @@ public class VideoConsumer extends AbstractLinkConsumer {
             video.setType(LinkTypeEnum.video);
             video.setStatus(LinkStatusEnum.valid);
 
+            try {
+                VideoInfo info = getInfo(url);
+                if (info != null) {
+                    video.setTitle(info.getTitle());
+                    video.setSummary(info.getDescription());
+                }
+            } catch (IOException e){
+
+            }
+
             linkRepository.save(video);
         }
 
         return video;
+    }
+
+    private VideoInfo getInfo(final String url) throws IOException {
+        for (final VideoProvider provider : providers){
+            final VideoInfo info = provider.getInfo(url);
+            if (info != null){
+                return info;
+            }
+        }
+        return null;
     }
 
     private List<String> extract(final Document doc) {
@@ -89,4 +105,11 @@ public class VideoConsumer extends AbstractLinkConsumer {
         return null;
     }
 
+    public List<VideoProvider> getProviders() {
+        return providers;
+    }
+
+    public void setProviders(final List<VideoProvider> providers) {
+        this.providers = providers;
+    }
 }

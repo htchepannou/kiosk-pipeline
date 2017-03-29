@@ -276,9 +276,11 @@ public class PipelineConfiguration {
 
     @Bean
     Consumer videoConsumer() {
-        return new VideoConsumer(Arrays.asList(
+        final VideoConsumer consumer = new VideoConsumer();
+        consumer.setProviders(Arrays.asList(
                 new YouTube()
         ));
+        return consumer;
     }
 
     //-- Image

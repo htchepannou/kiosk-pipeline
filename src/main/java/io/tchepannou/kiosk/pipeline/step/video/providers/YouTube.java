@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,19 +27,20 @@ public class YouTube implements VideoProvider {
 
     @Override
     public VideoInfo getInfo(final String url) throws IOException {
-        final String id = getVideoId(url);
-        if (id == null) {
-            return null;
-        }
-
-        final String apiUrl = String.format("https://www.googleapis.com/youtube/v3/videos?id=%s&key=%s&part=snippet", id, apiKey);
-        final Map<String, Object> result = (Map) rest.getForEntity(apiUrl, Object.class);
-        final Map<String, Object> items = (Map)((List<Map<String, Object>>) result.get("items")).get(0).get("snippets");
-
-        final VideoInfo info = new VideoInfo();
-        info.setTitle((String) items.get("title"));
-        info.setDescription((String) items.get("description"));
-        return info;
+        return null;
+//        final String id = getVideoId(url);
+//        if (id == null) {
+//            return null;
+//        }
+//
+//        final String apiUrl = String.format("https://www.googleapis.com/youtube/v3/videos?id=%s&key=%s&part=snippet", id, apiKey);
+//        final Map<String, Object> result = (Map) rest.getForEntity(apiUrl, Object.class);
+//        final Map<String, Object> items = (Map)((List<Map<String, Object>>) result.get("items")).get(0).get("snippets");
+//
+//        final VideoInfo info = new VideoInfo();
+//        info.setTitle((String) items.get("title"));
+//        info.setDescription((String) items.get("description"));
+//        return info;
     }
 
     /**

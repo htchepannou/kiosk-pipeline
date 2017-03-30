@@ -3,7 +3,6 @@ package io.tchepannou.kiosk.pipeline.step.metadata;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import io.tchepannou.kiosk.core.service.MessageQueue;
-import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.domain.LinkTypeEnum;
@@ -58,8 +57,7 @@ public class MetadataConsumer extends AbstractLinkConsumer {
 
     @VisibleForTesting
     protected String extractSummary(final Document doc) {
-        final String summary = selectMeta(doc, "meta[property=og:description]");
-        return summary != null ? Article.normalizeSummary(summary) : null;
+        return selectMeta(doc, "meta[property=og:description]");
     }
 
     @VisibleForTesting
@@ -127,7 +125,7 @@ public class MetadataConsumer extends AbstractLinkConsumer {
         final String title = extractTitle(doc);
         final Feed feed = link.getFeed();
 
-        link.setTitle(extractTitle(doc));
+        link.setTitle(title);
         link.setSummary(extractSummary(doc));
         link.setPublishedDate(extractPublishedDate(doc, link.getFeed()));
         link.setDisplayTitle(titleFilter.filter(title, feed));

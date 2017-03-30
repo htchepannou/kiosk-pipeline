@@ -18,14 +18,14 @@ INSERT INTO feed (id, NAME, url, logo_url, path)
 INSERT INTO feed (id, NAME, url, logo_url, path)
   VALUE (35, 'TIC Mag', 'http://www.ticmag.net', 'feeds/tic-mag.jpeg', NULL);
 
-
+CREATE INDEX idx_link__status_type_published_date ON link (status, type, published_date);
 
 CREATE TABLE asset (
-  id        INT         NOT NULL AUTO_INCREMENT,
-  link_fk   INT         NOT NULL REFERENCES link (id),
-  target_fk INT         NOT NULL REFERENCES link (id),
-  type      VARCHAR(20) NOT NULL,
-  creation_datetime DATETIME DEFAULT NOW(),
+  id                INT         NOT NULL AUTO_INCREMENT,
+  link_fk           INT         NOT NULL REFERENCES link (id),
+  target_fk         INT         NOT NULL REFERENCES link (id),
+  type              VARCHAR(20) NOT NULL,
+  creation_datetime DATETIME             DEFAULT NOW(),
 
   PRIMARY KEY (id),
   UNIQUE (link_fk, target_fk, type)

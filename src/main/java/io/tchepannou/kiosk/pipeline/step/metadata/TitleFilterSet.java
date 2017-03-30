@@ -15,7 +15,10 @@ public class TitleFilterSet implements TitleFilter{
     public String filter(final String title, final Feed feed) {
         String xtitle = title;
         for (final TitleFilter filter : filters){
-            xtitle = filter.filter(title, feed);
+            if (xtitle == null){
+                break;
+            }
+            xtitle = filter.filter(xtitle, feed);
         }
         return xtitle;
     }

@@ -254,6 +254,9 @@ swagger:
   licenceType: ""
   licencePath: "#"
 
+server:
+  port: 8081
+
 endpoints:
   enabled: true
   health:

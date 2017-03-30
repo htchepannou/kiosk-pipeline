@@ -2,8 +2,6 @@ package io.tchepannou.kiosk.pipeline.step.video.providers;
 
 import io.tchepannou.kiosk.pipeline.step.video.VideoInfo;
 import io.tchepannou.kiosk.pipeline.step.video.VideoProvider;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.regex.Matcher;
@@ -13,9 +11,6 @@ public class YouTube implements VideoProvider {
     private static final String URL_REGEX = "^(https?)?(://)?(www.)?(m.)?((youtube.com)|(youtu.be))/";
     private static final String[] VIDEO_ID_REGEX = {"\\?vi?=([^&]*)", "watch\\?.*v=([^&]*)", "(?:embed|vi?)/([^/?]*)", "^([A-Za-z0-9\\-]*)"};
     private static final String EMBED_URL_FORMAT = "https://www.youtube.com/embed/%s";
-
-    @Autowired
-    RestTemplate rest;
 
     String apiKey;
 

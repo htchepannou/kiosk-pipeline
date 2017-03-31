@@ -27,6 +27,16 @@ public class MessageQueueProcessor implements Runnable {
         this.latch = latch;
     }
 
+    public MessageQueueProcessor(
+            final MessageQueue queue,
+            final Consumer consumer,
+            final Delay delay
+    ) {
+        this.queue = queue;
+        this.consumer = consumer;
+        this.delay = delay;
+    }
+
     @Override
     public void run() {
         try {
@@ -55,7 +65,9 @@ public class MessageQueueProcessor implements Runnable {
 
             LOGGER.info("{} message processed from {}", count, queue.getName());
         } finally {
-            latch.countDown();
+            if (latch != null) {
+                latch.countDown();
+            }
         }
     }
 

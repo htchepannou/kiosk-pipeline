@@ -45,7 +45,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -61,10 +60,6 @@ public class PipelineConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineConfiguration.class);
 
     private static final int PRE_PUBLISH_STEPS = 7;
-    private static final int PUBLISH_STEPS = 1;
-
-    @Autowired
-    private ApplicationContext context;
 
     @Autowired
     ThreadPoolTaskExecutor executor;
@@ -146,11 +141,9 @@ public class PipelineConfiguration {
     }
 
     private void publish() {
-        final CountDownLatch publishLatch = new CountDownLatch(PUBLISH_STEPS);
-
         LOGGER.info("Publishing Articles");
         publishProducer().produce();
-        execute(publishMessageQueueProcessor(publishLatch));
+        execute(publishMessageQueueProcessor());
     }
 
     private void execute(final Runnable runnable) {
@@ -347,12 +340,11 @@ public class PipelineConfiguration {
 
     //-- Thubmnail
     @Bean
-    MessageQueueProcessor publishMessageQueueProcessor(final CountDownLatch latch) {
+    MessageQueueProcessor publishMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 publishMessageQueue,
                 publishConsumer(),
-                delay(),
-                latch
+                delay()
         );
     }
 

@@ -1,10 +1,15 @@
 package io.tchepannou.kiosk.pipeline.service.similarity;
 
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ArticleDocumentFactoryTest {
+    @Test
+    public void testNothing(){
+
+    }
 //    @Mock
 //    AmazonS3 s3;
 //

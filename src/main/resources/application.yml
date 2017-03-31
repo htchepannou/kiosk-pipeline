@@ -11,21 +11,21 @@ kiosk:
         bucket: "${kiosk.namespace}.kiosk"
     queue:
       UrlMessageQueue:
-        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-url-queue"
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-${kiosk.environment}-url-queue"
       MetadataMessageQueue:
-        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-metadata-queue"
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-${kiosk.environment}-metadata-queue"
       ContentMessageQueue:
-        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-content-queue"
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-${kiosk.environment}-content-queue"
       ValidationMessageQueue:
-        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-validation-queue"
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-${kiosk.environment}-validation-queue"
       ImageMessageQueue:
-        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-image-queue"
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-${kiosk.environment}-image-queue"
       ThumbnailMessageQueue:
-        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-thumbnail-queue"
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-${kiosk.environment}-thumbnail-queue"
       VideoMessageQueue:
-        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-video-queue"
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-${kiosk.environment}-video-queue"
       PublishMessageQueue:
-        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-publish-queue"
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-${kiosk.environment}-publish-queue"
 
   local:
     home: "${user.home}/kiosk"

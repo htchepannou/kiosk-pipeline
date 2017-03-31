@@ -12,8 +12,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -46,7 +49,7 @@ public class ContentConsumerTest extends LinkConsumerTestSupport {
         link.setId(123);
         link.setS3Key("html/2010/10/11/test.html");
 
-        doAnswer(read("hello world")).when(repository).read(any(), any());
+        doAnswer(readText("hello world")).when(repository).read(any(), any());
 
         when(extractor.extract("hello world")).thenReturn("HELLO WORLD");
 
@@ -68,6 +71,14 @@ public class ContentConsumerTest extends LinkConsumerTestSupport {
         assertThat(lk.getValue().getContentKey()).isEqualTo("content/2010/10/11/test.html");
         assertThat(lk.getValue().getContentLength()).isEqualTo(11);
         assertThat(lk.getValue().getContentType()).isEqualTo("text/html");
+    }
+
+    protected final Answer readText(final String txt) {
+        return (inv) -> {
+            final OutputStream out = (OutputStream) inv.getArguments()[1];
+            IOUtils.copy(new ByteArrayInputStream(txt.getBytes()), out);
+            return null;
+        };
     }
 
 }

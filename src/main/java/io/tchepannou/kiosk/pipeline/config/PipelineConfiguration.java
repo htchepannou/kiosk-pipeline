@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -59,8 +60,11 @@ import java.util.concurrent.TimeUnit;
 public class PipelineConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineConfiguration.class);
 
-    private static int PRE_PUBLISH_STEPS = 7;
-    private static int PUBLISH_STEPS = 1;
+    private static final int PRE_PUBLISH_STEPS = 7;
+    private static final int PUBLISH_STEPS = 1;
+
+    @Autowired
+    private ApplicationContext context;
 
     @Autowired
     ThreadPoolTaskExecutor executor;
@@ -102,17 +106,34 @@ public class PipelineConfiguration {
 
     int workers;
     int prePublishMaxDurationSeconds;
+    int maxDurationSeconds;
 
     @PostConstruct
     public void run() throws InterruptedException {
         LOGGER.info("Starting pipeline");
 
-        // URL processing
+        scheduleShutdown();
+        prePublish();
+        publish();
+    }
+
+    private void scheduleShutdown() {
+        executor.execute(() -> {
+            try {
+                Thread.sleep(maxDurationSeconds * 1000);
+                System.exit(0);
+            } catch (InterruptedException e) {
+
+            }
+        });
+    }
+
+    private void prePublish() throws InterruptedException {
+        LOGGER.info("Processing URL");
+
         final CountDownLatch prePublishLatch = new CountDownLatch(PRE_PUBLISH_STEPS);
 
-        LOGGER.info("Processing URL");
         urlProducer().produce();
-
         execute(downloadMessageQueueProcessor(prePublishLatch));
         execute(metadataMessageQueueProcessor(prePublishLatch));
         execute(contentMessageQueueProcessor(prePublishLatch));
@@ -122,8 +143,9 @@ public class PipelineConfiguration {
         execute(thumbnailMessageQueueProcessor(prePublishLatch));
 
         prePublishLatch.await(prePublishMaxDurationSeconds, TimeUnit.SECONDS);
+    }
 
-        // Publish
+    private void publish() {
         final CountDownLatch publishLatch = new CountDownLatch(PUBLISH_STEPS);
 
         LOGGER.info("Publishing Articles");
@@ -280,9 +302,13 @@ public class PipelineConfiguration {
     Consumer videoConsumer() {
         final VideoConsumer consumer = new VideoConsumer();
         consumer.setProviders(Arrays.asList(
-                new YouTube()
+                youTube()
         ));
         return consumer;
+    }
+
+    YouTube youTube() {
+        return new YouTube();
     }
 
     //-- Image
@@ -348,5 +374,21 @@ public class PipelineConfiguration {
 
     public void setWorkers(final int workers) {
         this.workers = workers;
+    }
+
+    public int getPrePublishMaxDurationSeconds() {
+        return prePublishMaxDurationSeconds;
+    }
+
+    public void setPrePublishMaxDurationSeconds(final int prePublishMaxDurationSeconds) {
+        this.prePublishMaxDurationSeconds = prePublishMaxDurationSeconds;
+    }
+
+    public int getMaxDurationSeconds() {
+        return maxDurationSeconds;
+    }
+
+    public void setMaxDurationSeconds(final int maxDurationSeconds) {
+        this.maxDurationSeconds = maxDurationSeconds;
     }
 }

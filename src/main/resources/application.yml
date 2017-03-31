@@ -11,21 +11,21 @@ kiosk:
         bucket: "${kiosk.namespace}.kiosk"
     queue:
       UrlMessageQueue:
-        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-${kiosk.environment}-url-queue"
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-url-queue"
       MetadataMessageQueue:
-        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-${kiosk.environment}-metadata-queue"
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-metadata-queue"
       ContentMessageQueue:
-        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-${kiosk.environment}-content-queue"
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-content-queue"
       ValidationMessageQueue:
-        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-${kiosk.environment}-validation-queue"
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-validation-queue"
       ImageMessageQueue:
-        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-${kiosk.environment}-image-queue"
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-image-queue"
       ThumbnailMessageQueue:
-        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-${kiosk.environment}-thumbnail-queue"
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-thumbnail-queue"
       VideoMessageQueue:
-        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-${kiosk.environment}-video-queue"
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-video-queue"
       PublishMessageQueue:
-        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-${kiosk.environment}-publish-queue"
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-publish-queue"
 
   local:
     home: "${user.home}/kiosk"
@@ -53,7 +53,8 @@ kiosk:
 
   step:
     workers: 1
-    prePublishMaxDurationSeconds: 600  # 10 mins
+    prePublishMaxDurationSeconds: 600   # 10 mins
+    maxDurationSeconds: 800             # 15 mins
     DownloadConsumer:
       folder: "${kiosk.environment}/html"
     MetadataConsumer:
@@ -149,83 +150,6 @@ kiosk:
       - "http://www.ticmag.net/video2"
       - "http://www.ticmag.net/contact-2"
 
-  pipeline:
-    reprocess: none        # none, extract-content
-    maxThreadWait: 60000
-    workersPerConsumer: 10
-
-    UrlProducer:
-      outputQueue: "kiosk-${kiosk.environment}-url-queue"
-
-#    FeedProducer:
-#      outputQueue: "kiosk-${kiosk.environment}-feed-queue"
-
-    SimilarityMatrixProducer:
-      s3Bucket: "${kiosk.aws.s3.s3Bucket}"
-      s3Key: "${kiosk.environment}/similarity"
-      maxDays: 7
-      threadCount: 10
-
-    PublishProducer:
-      outputQueue: "kiosk-${kiosk.environment}-article-publish-queue"
-
-#    UrlExtractorConsumer:
-#      inputQueue: "kiosk-${kiosk.environment}-feed-queue"
-#      outputQueue: "kiosk-${kiosk.environment}-url-queue"
-
-    HtmlDownloadConsumer:
-      inputQueue: "kiosk-${kiosk.environment}-url-queue"
-      outputTopic: "arn:aws:sns:us-east-1:828725992074:kiosk-${kiosk.environment}-downloaded-topic"
-      s3Bucket: "${kiosk.aws.s3.s3Bucket}"
-      s3Key: "${kiosk.environment}/html"
-
-    ArticleMetadataConsumer:
-      inputQueue: "kiosk-${kiosk.environment}-matadata-extraction-queue"
-      outputQueue: "kiosk-${kiosk.environment}-content-extraction-queue"
-      s3Bucket: "${kiosk.aws.s3.s3Bucket}"
-      defaultPublishDateOffsetDays: -14
-
-    ArticleContentExtractorConsumer:
-      inputQueue: "kiosk-${kiosk.environment}-content-extraction-queue"
-      outputQueue: "kiosk-${kiosk.environment}-validation-queue"
-      s3Bucket: "${kiosk.aws.s3.s3Bucket}"
-      s3Key: "${kiosk.environment}/content"
-      s3KeyHtml: "${kiosk.pipeline.HtmlDownloadConsumer.s3Key}"
-
-    ArticleValidationConsumer:
-      inputQueue: "kiosk-${kiosk.environment}-validation-queue"
-
-    ImageExtractorConsumer:
-      inputQueue: "kiosk-${kiosk.environment}-image-extraction-queue"
-      outputTopic: "arn:aws:sns:us-east-1:828725992074:kiosk-${kiosk.environment}-image-downloaded-topic"
-      s3Bucket: "${kiosk.aws.s3.s3Bucket}"
-      s3Key: "${kiosk.environment}/image"
-      s3KeyHtml: "${kiosk.pipeline.HtmlDownloadConsumer.s3Key}"
-
-#    ImageThumbnailConsumer:
-#      inputQueue: "kiosk-${kiosk.environment}-image-thumbnail-queue"
-#      s3Bucket: "${kiosk.aws.s3.s3Bucket}"
-#      s3Key: "${kiosk.environment}/image"
-#      width: 144
-#      height:  144
-
-    ImageMainConsumer:
-      inputQueue: "kiosk-${kiosk.environment}-image-main-queue"
-      s3Bucket: "${kiosk.aws.s3.s3Bucket}"
-      s3Key: "${kiosk.environment}/image"
-      width: 440
-      height:  220
-
-    VideoExtractorConsumer:
-      inputQueue: "kiosk-${kiosk.environment}-video-extraction-queue"
-      s3Bucket: "${kiosk.aws.s3.s3Bucket}"
-
-    ArticleDedupConsumer:
-      inputQueue: "kiosk-${kiosk.environment}-article-dedup-queue"
-      similarityThreshold: 0.8
-
-    ArticlePublishConsumer:
-      inputQueue: "kiosk-${kiosk.environment}-article-publish-queue"
 
 spring:
   datasource:

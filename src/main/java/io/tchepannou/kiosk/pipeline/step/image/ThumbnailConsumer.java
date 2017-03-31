@@ -1,15 +1,12 @@
 package io.tchepannou.kiosk.pipeline.step.image;
 
 import com.google.common.io.Files;
-import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Asset;
 import io.tchepannou.kiosk.pipeline.persistence.domain.AssetTypeEnum;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.step.AbstractImageConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.imageio.ImageIO;
 import javax.transaction.Transactional;
@@ -25,10 +22,6 @@ import java.util.List;
 @Transactional
 public class ThumbnailConsumer extends AbstractImageConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(ThumbnailConsumer.class);
-
-    @Autowired
-    @Qualifier("PublishMessageQueue")
-    MessageQueue queue;
 
     private int width;
     private int height;
@@ -50,11 +43,6 @@ public class ThumbnailConsumer extends AbstractImageConsumer {
             final List<Asset> assets = assetRepository.findByTargetAndType(img, AssetTypeEnum.original);
             for (final Asset asset : assets) {
                 createAsset(asset.getLink(), thumbnail, AssetTypeEnum.thumbnail);
-            }
-
-            // Publish
-            if (!img.isPublished()) {
-                push(img, queue);
             }
         }
     }

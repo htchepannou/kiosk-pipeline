@@ -5,18 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaxxer.hikari.HikariDataSource;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
-import io.tchepannou.kiosk.pipeline.service.ShutdownService;
 import io.tchepannou.kiosk.pipeline.service.UrlService;
-import io.tchepannou.kiosk.pipeline.service.similarity.ArticleDocumentFactory;
-import io.tchepannou.kiosk.pipeline.service.similarity.ShingleExtractor;
-import io.tchepannou.kiosk.pipeline.service.similarity.SimilarityService;
-import io.tchepannou.kiosk.pipeline.service.similarity.TextSimilaryAlgorithm;
-import io.tchepannou.kiosk.pipeline.service.similarity.algo.JaccardSimilaryAlgorithm;
-import io.tchepannou.kiosk.pipeline.service.similarity.filter.LowecaseTextFilter;
-import io.tchepannou.kiosk.pipeline.service.similarity.filter.PunctuationTextFilter;
-import io.tchepannou.kiosk.pipeline.service.similarity.filter.UnaccentTextFilter;
-import io.tchepannou.kiosk.pipeline.service.similarity.filter.WhitespaceTextFilter;
-import io.tchepannou.kiosk.pipeline.step.video.providers.YouTube;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -36,7 +25,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import javax.net.ssl.SSLContext;
 import javax.sql.DataSource;
 import java.time.Clock;
-import java.util.Arrays;
 import java.util.TimeZone;
 
 @Configuration
@@ -108,46 +96,35 @@ public class AppConfiguration implements AsyncConfigurer {
 
     //-- Services
     @Bean
-    public ShutdownService shutdownService() {
-        return new ShutdownService();
-    }
-
-    @Bean
     public HttpService httpService() {
         return new HttpService();
     }
 
-    @Bean
-    YouTube youTube() {
-        return new YouTube();
-    }
-
-    @Bean
-    TextSimilaryAlgorithm textSimilaryAlgorithm() {
-        return new JaccardSimilaryAlgorithm();
-    }
-
-    @Bean
-    ShingleExtractor shingleExtractor() {
-        return new ShingleExtractor();
-    }
-
-    @Bean
-    @ConfigurationProperties("kiosk.service.ArticleDocumentFactory")
-    ArticleDocumentFactory articleDocumentFactory() {
-        return new ArticleDocumentFactory();
-    }
-
-    @Bean
-    @ConfigurationProperties("kiosk.service.SimilarityService")
-    SimilarityService documentSimilarityService() {
-        return new SimilarityService(Arrays.asList(
-                new LowecaseTextFilter(),
-                new UnaccentTextFilter(),
-                new PunctuationTextFilter(),
-                new WhitespaceTextFilter()
-        ));
-    }
+//    @Bean
+//    TextSimilaryAlgorithm textSimilaryAlgorithm() {
+//        return new JaccardSimilaryAlgorithm();
+//    }
+//
+//    @Bean
+//    ShingleExtractor shingleExtractor() {
+//        return new ShingleExtractor();
+//    }
+//
+//    @Bean
+//    ArticleDocumentFactory articleDocumentFactory() {
+//        return new ArticleDocumentFactory();
+//    }
+//
+//    @Bean
+//    @ConfigurationProperties("kiosk.service.SimilarityService")
+//    SimilarityService documentSimilarityService() {
+//        return new SimilarityService(Arrays.asList(
+//                new LowecaseTextFilter(),
+//                new UnaccentTextFilter(),
+//                new PunctuationTextFilter(),
+//                new WhitespaceTextFilter()
+//        ));
+//    }
 
     @Bean
     @ConfigurationProperties("kiosk.service.UrlService")

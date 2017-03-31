@@ -1,6 +1,5 @@
 package io.tchepannou.kiosk.pipeline.step.video;
 
-import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.pipeline.persistence.domain.AssetTypeEnum;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
@@ -10,8 +9,6 @@ import io.tchepannou.kiosk.pipeline.step.AbstractLinkConsumer;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
@@ -20,10 +17,6 @@ import java.util.List;
 
 @Transactional
 public class VideoConsumer extends AbstractLinkConsumer {
-    @Autowired
-    @Qualifier("PublishMessageQueue")
-    MessageQueue queue;
-
     private List<VideoProvider> providers = new ArrayList<>();
 
     @Override
@@ -34,9 +27,6 @@ public class VideoConsumer extends AbstractLinkConsumer {
             final Link video = createVideo(link.getFeed(), url);
             if (video != null) {
                 createAsset(link, video, AssetTypeEnum.video);
-            }
-            if (!video.isPublished()) {
-                push(video, queue);
             }
         }
     }

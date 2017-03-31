@@ -1,6 +1,5 @@
 package io.tchepannou.kiosk.pipeline.step.video;
 
-import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Asset;
 import io.tchepannou.kiosk.pipeline.persistence.domain.AssetTypeEnum;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
@@ -27,9 +26,6 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VideoConsumerTest extends LinkConsumerTestSupport {
-    @Mock
-    MessageQueue queue;
-
     @Mock
     private List<VideoProvider> providers;
 
@@ -83,8 +79,5 @@ public class VideoConsumerTest extends LinkConsumerTestSupport {
         assertThat(asset.getValue().getLink()).isEqualTo(link);
         assertThat(asset.getValue().getTarget()).isEqualTo(video.getValue());
         assertThat(asset.getValue().getType()).isEqualTo(AssetTypeEnum.video);
-
-        verify(queue).push("567");
-
     }
 }

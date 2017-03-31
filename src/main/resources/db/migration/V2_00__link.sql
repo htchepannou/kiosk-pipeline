@@ -157,11 +157,3 @@ INSERT INTO asset (link_fk, target_fk, type)
   WHERE MD5(v.embed_url) = url_hash
 ON DUPLICATE KEY UPDATE
   type = 2;
-
-
--- #########################
--- Drop unused tables
--- #########################
-DROP TABLE image;
-DROP TABLE video;
-DROP TABLE article;

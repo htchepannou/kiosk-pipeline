@@ -60,6 +60,7 @@ public class PipelineConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineConfiguration.class);
 
     private static final int PRE_PUBLISH_STEPS = 7;
+    private static final int PUBLISH_STEPS = 7;
 
     @Autowired
     ThreadPoolTaskExecutor executor;
@@ -107,15 +108,22 @@ public class PipelineConfiguration {
     public void run() throws InterruptedException {
         LOGGER.info("Starting pipeline");
 
-        scheduleShutdown();
+        shutdown(maxDurationSeconds * 1000);
+
         prePublish();
         publish();
+
+        shutdown(0);
     }
 
-    private void scheduleShutdown() {
+    private void shutdown(int sleepMillis) {
         executor.execute(() -> {
             try {
-                Thread.sleep(maxDurationSeconds * 1000);
+                if (sleepMillis > 0) {
+                    Thread.sleep(sleepMillis);
+                }
+
+                LOGGER.info("Shutting down...");
                 System.exit(0);
             } catch (InterruptedException e) {
 
@@ -126,24 +134,30 @@ public class PipelineConfiguration {
     private void prePublish() throws InterruptedException {
         LOGGER.info("Processing URL");
 
-        final CountDownLatch prePublishLatch = new CountDownLatch(PRE_PUBLISH_STEPS);
+        final CountDownLatch latch = new CountDownLatch(PRE_PUBLISH_STEPS);
 
         urlProducer().produce();
-        execute(downloadMessageQueueProcessor(prePublishLatch));
-        execute(metadataMessageQueueProcessor(prePublishLatch));
-        execute(contentMessageQueueProcessor(prePublishLatch));
-        execute(validationMessageQueueProcessor(prePublishLatch));
-        execute(imageMessageQueueProcessor(prePublishLatch));
-        execute(videoMessageQueueProcessor(prePublishLatch));
-        execute(thumbnailMessageQueueProcessor(prePublishLatch));
+        execute(downloadMessageQueueProcessor(latch));
+        execute(metadataMessageQueueProcessor(latch));
+        execute(contentMessageQueueProcessor(latch));
+        execute(validationMessageQueueProcessor(latch));
+        execute(imageMessageQueueProcessor(latch));
+        execute(videoMessageQueueProcessor(latch));
+        execute(thumbnailMessageQueueProcessor(latch));
 
-        prePublishLatch.await(prePublishMaxDurationSeconds, TimeUnit.SECONDS);
+        latch.await(prePublishMaxDurationSeconds, TimeUnit.SECONDS);
     }
 
-    private void publish() {
+    private void publish() throws InterruptedException {
         LOGGER.info("Publishing Articles");
+
+        final CountDownLatch latch = new CountDownLatch(PUBLISH_STEPS);
+
+
         publishProducer().produce();
-        execute(publishMessageQueueProcessor());
+        execute(publishMessageQueueProcessor(latch));
+
+        latch.await();
     }
 
     private void execute(final Runnable runnable) {
@@ -340,11 +354,12 @@ public class PipelineConfiguration {
 
     //-- Thubmnail
     @Bean
-    MessageQueueProcessor publishMessageQueueProcessor() {
+    MessageQueueProcessor publishMessageQueueProcessor(final CountDownLatch latch) {
         return new MessageQueueProcessor(
                 publishMessageQueue,
                 publishConsumer(),
-                delay()
+                delay(),
+                latch
         );
     }
 

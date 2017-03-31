@@ -7,8 +7,6 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import io.tchepannou.kiosk.pipeline.service.ShutdownService;
 import io.tchepannou.kiosk.pipeline.service.UrlService;
-import io.tchepannou.kiosk.pipeline.service.image.ImageExtractor;
-import io.tchepannou.kiosk.pipeline.service.image.ImageProcessorService;
 import io.tchepannou.kiosk.pipeline.service.similarity.ArticleDocumentFactory;
 import io.tchepannou.kiosk.pipeline.service.similarity.ShingleExtractor;
 import io.tchepannou.kiosk.pipeline.service.similarity.SimilarityService;
@@ -18,14 +16,7 @@ import io.tchepannou.kiosk.pipeline.service.similarity.filter.LowecaseTextFilter
 import io.tchepannou.kiosk.pipeline.service.similarity.filter.PunctuationTextFilter;
 import io.tchepannou.kiosk.pipeline.service.similarity.filter.UnaccentTextFilter;
 import io.tchepannou.kiosk.pipeline.service.similarity.filter.WhitespaceTextFilter;
-import io.tchepannou.kiosk.pipeline.service.title.TitleSanitizer;
-import io.tchepannou.kiosk.pipeline.service.video.VideoExtractor;
 import io.tchepannou.kiosk.pipeline.step.video.providers.YouTube;
-import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleCountryFilter;
-import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleFeedFilter;
-import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleRegexFilter;
-import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleSuffixFilter;
-import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleVideoFilter;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -124,36 +115,6 @@ public class AppConfiguration implements AsyncConfigurer {
     @Bean
     public HttpService httpService() {
         return new HttpService();
-    }
-
-    @Bean
-    public ImageExtractor imageExtractor() {
-        return new ImageExtractor();
-    }
-
-    @Bean
-    public ImageProcessorService imageProcessorService() {
-        return new ImageProcessorService();
-    }
-
-    @Bean
-    @Deprecated
-    TitleSanitizer titleSanitizer() {
-        return new TitleSanitizer(Arrays.asList(
-                new TitleRegexFilter(),
-                new TitleCountryFilter(),
-                new TitleFeedFilter(),
-                new TitleVideoFilter(),
-
-                new TitleSuffixFilter() /* SHOULD BE THE LAST!!! */
-        ));
-    }
-
-    @Bean
-    VideoExtractor videoServiceProvideR() {
-        return new VideoExtractor(Arrays.asList(
-                youTube()
-        ));
     }
 
     @Bean

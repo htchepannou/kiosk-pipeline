@@ -3,7 +3,6 @@ package io.tchepannou.kiosk.pipeline.step.download;
 import io.tchepannou.kiosk.core.service.Consumer;
 import io.tchepannou.kiosk.core.service.FileRepository;
 import io.tchepannou.kiosk.core.service.MessageQueue;
-import io.tchepannou.kiosk.pipeline.consumer.HtmlDownloadConsumer;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.FeedRepository;
@@ -28,7 +27,7 @@ import java.util.Date;
 
 @Transactional
 public class DownloadConsumer implements Consumer {
-    public static final Logger LOGGER = LoggerFactory.getLogger(HtmlDownloadConsumer.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(DownloadConsumer.class);
 
     @Autowired
     HttpService http;

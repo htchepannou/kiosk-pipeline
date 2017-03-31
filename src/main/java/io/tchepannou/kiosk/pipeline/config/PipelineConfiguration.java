@@ -59,7 +59,7 @@ import java.util.concurrent.TimeUnit;
 public class PipelineConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineConfiguration.class);
 
-    private static int PRE_PUBLISH_STEPS = 8;
+    private static int PRE_PUBLISH_STEPS = 7;
     private static int PUBLISH_STEPS = 1;
 
     @Autowired
@@ -112,6 +112,7 @@ public class PipelineConfiguration {
 
         LOGGER.info("Processing URL");
         urlProducer().produce();
+
         execute(downloadMessageQueueProcessor(prePublishLatch));
         execute(metadataMessageQueueProcessor(prePublishLatch));
         execute(contentMessageQueueProcessor(prePublishLatch));
@@ -119,6 +120,7 @@ public class PipelineConfiguration {
         execute(imageMessageQueueProcessor(prePublishLatch));
         execute(videoMessageQueueProcessor(prePublishLatch));
         execute(thumbnailMessageQueueProcessor(prePublishLatch));
+
         prePublishLatch.await(prePublishMaxDurationSeconds, TimeUnit.SECONDS);
 
         // Publish

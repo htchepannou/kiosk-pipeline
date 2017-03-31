@@ -1,6 +1,5 @@
 package io.tchepannou.kiosk.pipeline.step.metadata.filter;
 
-import io.tchepannou.kiosk.pipeline.persistence.domain.Article;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import org.junit.Before;
@@ -12,7 +11,6 @@ public class TitleFeedSanitizerTest {
 
     Feed feed;
     Link link;
-    Article article;
 
     TitleFeedFilter sanitizer = new TitleFeedFilter();
 
@@ -23,9 +21,6 @@ public class TitleFeedSanitizerTest {
 
         link = new Link();
         link.setFeed(feed);
-
-        article = new Article();
-        article.setLink(link);
     }
 
     @Test

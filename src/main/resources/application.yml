@@ -55,15 +55,15 @@ kiosk:
     workers: 1
     prePublishMaxDurationSeconds: 600  # 10 mins
     DownloadConsumer:
-      folder: "html"
+      folder: "${kiosk.environment}/html"
     MetadataConsumer:
       defaultPublishDateOffsetDays: -7
     ContentConsumer:
-      rawFolder: "html"
-      contentFolder: "content"
+      rawFolder: "${kiosk.environment}/html"
+      contentFolder: "${kiosk.environment}/content"
     ImageConsumer:
-      rawFolder: "html"
-      imageFolder: "image"
+      rawFolder: "${kiosk.environment}/html"
+      imageFolder: "${kiosk.environment}/image"
     ThumbnailConsumer:
       width: 440
       height:  220

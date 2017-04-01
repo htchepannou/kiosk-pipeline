@@ -57,6 +57,8 @@ public class ContentFilter implements Filter<String> {
                     }
                 }
 
+                cleanup(elt);
+
                 /* test */
                 final String tagName = elt.tagName();
                 if (TAG_HEADING.contains(tagName)){
@@ -77,6 +79,20 @@ public class ContentFilter implements Filter<String> {
         return blocs;
     }
 
+    private boolean isEmpty(final Element elt) {
+        return !elt.hasText() && elt.children().isEmpty();
+    }
+
+    private void cleanup(final Element node) {
+        final JsoupHelper.Visitor<Element> visitor = elt -> {
+            if (elt.parent() != null && isEmpty(elt)) {
+                elt.remove();
+            }
+        };
+
+        JsoupHelper.visit(node, visitor);
+    }
+
     private boolean isLeaf(final Element elt) {
         final Element xelt = elt.clone();
         for (final Element child : xelt.children()) {
@@ -93,8 +109,8 @@ public class ContentFilter implements Filter<String> {
         for (final Element part : parts) {
             final StringTokenizer tokenizer = new StringTokenizer(part.text(), ".!?", false);
             int value = 0;
-            for (; tokenizer.hasMoreTokens(); tokenizer.nextToken()) {
-                value++;
+            for (; tokenizer.hasMoreTokens(); ) {
+                value += tokenizer.nextToken().length();
             }
             result.put(part, value);
         }

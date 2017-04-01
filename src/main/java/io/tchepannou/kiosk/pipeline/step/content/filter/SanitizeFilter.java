@@ -27,7 +27,15 @@ public class SanitizeFilter implements Filter<String> {
             "footer",
             "#footer",
             "#comments",
-            ".comments"
+            ".comments",
+            ".mashsb-container",     // from www.mashshare.net plugin
+            ".prev-page",
+            ".next-page",
+            "#menu-ay-side-menu-mine",
+            "#top-nav",
+            "#related_posts",
+            ".related_posts",
+            ".share-post"
     };
 
     private final Whitelist whitelist;
@@ -48,7 +56,7 @@ public class SanitizeFilter implements Filter<String> {
 
         /* pre-clean */
         Document doc = Jsoup.parse(html);
-        Set<Element> items = new HashSet<>();
+        final Set<Element> items = new HashSet<>();
         collectTitle(doc.body(), items);
         collectBlaclistCss(doc.body(), items);
         removeAll(items);
@@ -58,10 +66,7 @@ public class SanitizeFilter implements Filter<String> {
 
         /* post-clean */
         doc = Jsoup.parse(xhtml);
-        items = new HashSet<>();
-        collectSocialLinks(doc.body(), items);
-        collectEmpty(doc.body(), items);
-        removeAll(items);
+        cleanup(doc);
 
         return doc.html();
     }
@@ -75,44 +80,48 @@ public class SanitizeFilter implements Filter<String> {
         return wl;
     }
 
-    private void collectSocialLinks(final Element node, final Collection<Element> items) {
-        for (final Element elt : node.select("a")) {
-            if (isSocialLink(elt.attr("href"))) {
-                items.add(elt);
-            }
-        }
-    }
-
     private void collectBlaclistCss(final Element node, final Collection<Element> items) {
         for (final String css : CSS_BLACKLIST) {
             items.addAll(node.select(css));
         }
     }
 
+    private boolean isSocialLink(final Element elt) {
+        return "a".equalsIgnoreCase(elt.tagName()) && isSocialLink(elt.attr("href"));
+    }
+
     private boolean isSocialLink(final String href) {
         if (href == null) {
             return false;
         }
-        return href.startsWith("https://twitter.com/intent/tweet");
+        return href.startsWith("https://twitter.com/intent/tweet") ||
+                href.startsWith("http://www.facebook.com/sharer.php") ||
+                href.startsWith("https://plusone.google.com") ||
+                href.startsWith("http://www.linkedin.com/shareArticle") ||
+                href.startsWith("http://pinterest.com/pin/create/button")
+                ;
     }
 
-    private void collectEmpty(final Element node, final Collection<Element> items) {
-        final JsoupHelper.Predicate<Element> predicate = elt -> elt.children().isEmpty()
-                    && !"iframe".equalsIgnoreCase(elt.tagName())
-                    && node.isBlock()
-                    && !node.hasText()
-                ;
+    private boolean isEmpty(final Element elt) {
+        return !elt.hasText() && elt.children().isEmpty() && !elt.tag().isEmpty();
+    }
 
-        JsoupHelper.collect(node, items, predicate);
+    private void cleanup(final Element node) {
+        final JsoupHelper.Visitor<Element> visitor = elt -> {
+            if (elt.parent() != null && (isSocialLink(elt) || isEmpty(elt))) {
+                elt.remove();
+            }
+        };
+
+        JsoupHelper.visit(node, visitor);
     }
 
     private void collectTitle(final Element node, final Collection<Element> items) {
-        for (String selector : HtmlHelper.TITLE_CSS_SELECTORS){
-            Elements elts = node.select(selector);
+        for (final String selector : HtmlHelper.TITLE_CSS_SELECTORS) {
+            final Elements elts = node.select(selector);
             items.addAll(elts);
         }
     }
-
 
     private void removeAll(final Collection<Element> items) {
         for (final Element item : items) {

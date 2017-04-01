@@ -15,6 +15,7 @@ import io.tchepannou.kiosk.pipeline.step.content.filter.ContentExtractor;
 import io.tchepannou.kiosk.pipeline.step.content.filter.ContentFilter;
 import io.tchepannou.kiosk.pipeline.step.content.filter.HeadingOnlyFilter;
 import io.tchepannou.kiosk.pipeline.step.content.filter.HtmlEntityFilter;
+import io.tchepannou.kiosk.pipeline.step.content.filter.IdFilter;
 import io.tchepannou.kiosk.pipeline.step.content.filter.SanitizeFilter;
 import io.tchepannou.kiosk.pipeline.step.content.filter.TrimFilter;
 import io.tchepannou.kiosk.pipeline.step.download.DownloadConsumer;
@@ -100,12 +101,17 @@ public class PipelineConfiguration {
     @Qualifier("PublishMessageQueue")
     MessageQueue publishMessageQueue;
 
+    boolean autostart;
     int workers;
     int prePublishMaxDurationSeconds;
     int maxDurationSeconds;
 
     @PostConstruct
     public void run() throws InterruptedException {
+        if (!autostart){
+            return;
+        }
+
         LOGGER.info("Starting pipeline");
 
         shutdown(maxDurationSeconds * 1000);
@@ -164,6 +170,11 @@ public class PipelineConfiguration {
         for (int i = 0; i < workers; i++) {
             executor.execute(runnable);
         }
+    }
+
+    @Bean
+    CountDownLatch countDownLatch(){
+        return new CountDownLatch(PRE_PUBLISH_STEPS);
     }
 
     //-- Common
@@ -249,6 +260,7 @@ public class PipelineConfiguration {
     @Bean
     ContentExtractor contentExtractor() {
         return new ContentExtractor(Arrays.asList(
+                new IdFilter(),
                 new SanitizeFilter(),
                 new ContentFilter(100),
                 new AnchorFilter(),
@@ -397,5 +409,13 @@ public class PipelineConfiguration {
 
     public void setMaxDurationSeconds(final int maxDurationSeconds) {
         this.maxDurationSeconds = maxDurationSeconds;
+    }
+
+    public boolean isAutostart() {
+        return autostart;
+    }
+
+    public void setAutostart(final boolean autostart) {
+        this.autostart = autostart;
     }
 }

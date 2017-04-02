@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaxxer.hikari.HikariDataSource;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
+import io.tchepannou.kiosk.pipeline.service.PipelineService;
 import io.tchepannou.kiosk.pipeline.service.UrlService;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -98,6 +99,11 @@ public class AppConfiguration implements AsyncConfigurer {
     @Bean
     public HttpService httpService() {
         return new HttpService();
+    }
+
+    @Bean
+    public PipelineService pipelineService (){
+        return new PipelineService();
     }
 
 //    @Bean

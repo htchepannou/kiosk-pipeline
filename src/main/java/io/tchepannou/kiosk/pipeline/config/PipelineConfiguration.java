@@ -108,18 +108,25 @@ public class PipelineConfiguration {
 
     @PostConstruct
     public void run() throws InterruptedException {
+        LOGGER.info("Starting pipeline");
+
+        // Schedule shutdown
+        shutdown(maxDurationSeconds * 1000);
+
+        // Process async
         if (!autostart){
             return;
         }
+        executor.execute(() -> {
+            try {
+                prePublish();
+                publish();
 
-        LOGGER.info("Starting pipeline");
-
-        shutdown(maxDurationSeconds * 1000);
-
-        prePublish();
-        publish();
-
-        shutdown(0);
+                shutdown(0);
+            } catch (InterruptedException e){
+                LOGGER.warn("Interruped", e);
+            }
+        });
     }
 
     private void shutdown(int sleepMillis) {

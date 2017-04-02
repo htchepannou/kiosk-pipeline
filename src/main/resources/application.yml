@@ -94,6 +94,7 @@ kiosk:
       - "*/rss.php"
       - "*/wp-login*"   # Wordpress login
       - "*#*"           # URL with anchor
+      - "*phpsessid=*"
       - "*/about"
       - "*/about-us"
       - "*/contact"
@@ -124,7 +125,6 @@ kiosk:
       - "http://www.cameroun-online.com/fr/étiquettes/*"
       - "http://www.cameroun-online.com/fr/node?page*"
       - "http://www.cameroun-online.com/node/*"
-      - "http://www.aucunlait.net/?phpsessid=*"            # Aucunlait
       - "http://www.aucunlait.net/feature"
       - "http://www.aucunlait.net/lifestyle"
       - "http://www.aucunlait.net/decouverte"

@@ -66,11 +66,12 @@ public class DownloadConsumer implements Consumer {
             final byte[] bytes = download(url);
 
             // Store
-            final String key = generateKey(url);
+            final Date now = new Date(clock.millis());
+            final String key = generateKey(url, now);
             repository.write(key, new ByteArrayInputStream(bytes));
 
             // Create Link
-            final Link link = createLink(url, key);
+            final Link link = createLink(url, key, now);
 
             // Publish
             queue.push(String.valueOf(link.getId()));
@@ -86,7 +87,6 @@ public class DownloadConsumer implements Consumer {
         }
     }
 
-
     //-- Getter/Setter
     public String getFolder() {
         return folder;
@@ -96,29 +96,28 @@ public class DownloadConsumer implements Consumer {
         this.folder = folder;
     }
 
-
     //-- Private
-    final byte[] download (final String url) throws IOException {
+    final byte[] download(final String url) throws IOException {
         LOGGER.info("Downloading {}", url);
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         http.getHtml(url, out);
         return out.toByteArray();
     }
 
-    private String generateKey(final String url) {
+    private String generateKey(final String url, final Date now) {
         final String id = Link.hash(url);
         final DateFormat fmt = new SimpleDateFormat("yyyy/MM/dd/HH");
-        final Date now = new Date(clock.millis());
         return String.format("%s/%s/%s.html", folder, fmt.format(now), id);
     }
 
-    private Link createLink(final String url, final String key) {
+    private Link createLink(final String url, final String key, final Date now) {
         final Feed feed = findFeed(url);
         final Link link = new Link();
         link.setUrl(url);
         link.setUrlHash(Link.hash(url));
         link.setS3Key(key);
         link.setFeed(feed);
+        link.setCreationDateTime(now);
 
         linkRepository.save(link);
 

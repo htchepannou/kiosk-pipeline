@@ -63,6 +63,9 @@ public class Link {
     private int width;
     private int height;
 
+    @Column(name="creation_datetime")
+    private Date creationDateTime;
+
     //-- Public
     public static String hash(final String url) {
         return DigestUtils.md5Hex(url);
@@ -213,5 +216,13 @@ public class Link {
 
     public void setStatus(final LinkStatusEnum status) {
         this.status = status;
+    }
+
+    public Date getCreationDateTime() {
+        return creationDateTime;
+    }
+
+    public void setCreationDateTime(final Date creationDateTime) {
+        this.creationDateTime = creationDateTime;
     }
 }

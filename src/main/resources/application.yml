@@ -128,8 +128,12 @@ kiosk:
       - "http://www.aucunlait.net/feature"
       - "http://www.aucunlait.net/lifestyle"
       - "http://www.aucunlait.net/decouverte"
-      - "http://www.aucunlait.net/reaction"
+      - "http://www.aucunlait.net/reaction/*"
       - "http://www.aucunlait.net/members/*"
+      - "http://www.aucunlait.net/category/*"
+      - "http://www.aucunlait.net/gossips237"
+      - "http://www.aucunlait.net/password-lost"
+      - "http://www.aucunlait.net/terms"
       - "http://actucameroun.com/category/*"               # Actu Cameroon
       - "https://dailyretrocmr.wordpress.com/tag/*"        # Daily Retro CMR
       - "https://dailyretrocmr.wordpress.com/page/*"

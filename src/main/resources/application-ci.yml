@@ -1,0 +1,4 @@
+kiosk:
+  environment: ci
+  step:
+    autostart: false

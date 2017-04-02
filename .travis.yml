@@ -20,7 +20,7 @@ before_script:
 install: true
 
 script:
-  - mvn clean install -Dspring.profiles.active=dev,ci -Daws.accessKeyId=$AWS_ACCESS_KEY -Daws.secretKey=$AWS_SECRET_KEY
+  - mvn clean install -Dspring.profiles.active=ci,local
 
 after_success:
   - ./deploy_before.sh

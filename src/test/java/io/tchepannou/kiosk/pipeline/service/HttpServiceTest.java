@@ -64,6 +64,15 @@ public class HttpServiceTest {
     }
 
     @Test
+    public void shouldGetMobile() throws IOException {
+        final OutputStream out = new ByteArrayOutputStream();
+        service.get("http://www.cameroononline.org/85-milliards-de-fcfa-du-fonds-de-lopep-pour-le-secteur-de-lelectricite-au-cameroun", out);
+
+//        final String html = out.toString();
+//        System.out.println(html);
+    }
+
+    @Test
     public void shouldGetHtml() throws Exception {
         final OutputStream out = new ByteArrayOutputStream();
         content = "<html><body><b>hello world!</b> This is a HTML file containing multiple data</body></html>";

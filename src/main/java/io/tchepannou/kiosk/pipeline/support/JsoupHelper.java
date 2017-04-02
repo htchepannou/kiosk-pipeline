@@ -10,6 +10,14 @@ public class JsoupHelper {
     private JsoupHelper() {
     }
 
+    public static void visit(final Element root, final Visitor<Element> visitor){
+        final Elements children = root.children();
+        for (final Element child : children) {
+            visit(child, visitor);
+        }
+        visitor.visit(root);
+    }
+
     public static void collect(final Element root, final Collection<Element> result, final Predicate<Element> predicate) {
         if (predicate.test(root)) {
             result.add(root);
@@ -33,5 +41,9 @@ public class JsoupHelper {
 
     public interface Predicate<T> {
         boolean test(T obj);
+    }
+
+    public interface Visitor<T> {
+        void visit(T obj);
     }
 }

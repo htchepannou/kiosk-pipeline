@@ -11,14 +11,20 @@ import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSAsyncClient;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClient;
+import io.tchepannou.kiosk.core.service.FileRepository;
+import io.tchepannou.kiosk.core.service.MessageQueue;
+import io.tchepannou.kiosk.core.service.aws.S3FileRepository;
+import io.tchepannou.kiosk.core.service.aws.SqsMessageQueue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 
 @Configuration
 @ConfigurationProperties("kiosk.aws")
+@Profile("!local")
 public class AwsConfiguration {
     @Autowired
     Environment env;
@@ -26,7 +32,64 @@ public class AwsConfiguration {
     private int connectionTimeout;
     private int maxErrorRetries;
 
-    //-- Beans
+    //-- Service Beans
+    @Bean
+    @ConfigurationProperties("kiosk.aws.service.FileRepository")
+    FileRepository fileRepository(){
+        return new S3FileRepository();
+    }
+
+
+    //-- Queues
+    @Bean(name = "UrlMessageQueue")
+    @ConfigurationProperties("kiosk.aws.queue.UrlMessageQueue")
+    MessageQueue urlMessageQueue() {
+        return new SqsMessageQueue();
+    }
+
+    @Bean(name = "MetadataMessageQueue")
+    @ConfigurationProperties("kiosk.aws.queue.MetadataMessageQueue")
+    MessageQueue metadataMessageQueue() {
+        return new SqsMessageQueue();
+    }
+
+    @Bean(name = "ContentMessageQueue")
+    @ConfigurationProperties("kiosk.aws.queue.ContentMessageQueue")
+    MessageQueue contentMessageQueue() {
+        return new SqsMessageQueue();
+    }
+
+    @Bean(name = "ValidationMessageQueue")
+    @ConfigurationProperties("kiosk.aws.queue.ValidationMessageQueue")
+    MessageQueue validationMessageQueue() {
+        return new SqsMessageQueue();
+    }
+
+    @Bean(name = "ImageMessageQueue")
+    @ConfigurationProperties("kiosk.aws.queue.ImageMessageQueue")
+    MessageQueue imageMessageQueue() {
+        return new SqsMessageQueue();
+    }
+
+    @Bean(name = "ThumbnailMessageQueue")
+    @ConfigurationProperties("kiosk.aws.queue.ThumbnailMessageQueue")
+    MessageQueue thumbnailMessageQueue() {
+        return new SqsMessageQueue();
+    }
+
+    @Bean(name = "VideoMessageQueue")
+    @ConfigurationProperties("kiosk.aws.queue.VideoMessageQueue")
+    MessageQueue videoMessageQueue() {
+        return new SqsMessageQueue();
+    }
+
+    @Bean(name = "PublishMessageQueue")
+    @ConfigurationProperties("kiosk.aws.queue.PublishMessageQueue")
+    MessageQueue publishMessageQueue() {
+        return new SqsMessageQueue();
+    }
+
+    //-- AWS Bean
     @Bean
     AmazonS3 amazonS3() {
         return new AmazonS3Client(awsCredentialsProvider(), awsClientConfiguration());
@@ -63,6 +126,7 @@ public class AwsConfiguration {
                 ;
     }
 
+    //-- Getter/Setter
     public int getConnectionTimeout() {
         return connectionTimeout;
     }

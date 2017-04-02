@@ -13,8 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,10 +44,8 @@ public class LocalMessageQueue implements MessageQueue {
         final List<String> messages = new ArrayList<>();
         final File[] files = new File(home).listFiles();
         if (files != null) {
-            final List<File> lst = Arrays.asList(files);
-            Collections.sort(lst, (f1, f2) -> (int)(f1.lastModified() - f2.lastModified()));
 
-            for (final File file : lst) {
+            for (final File file : files) {
                 try (InputStream in = new FileInputStream(file)) {
                     final String msg = IOUtils.toString(in);
                     messages.add(msg);

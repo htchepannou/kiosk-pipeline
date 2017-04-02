@@ -63,7 +63,7 @@ public class Link {
     private int width;
     private int height;
 
-    @Column(name="creation_datetime", length = 20)
+    @Column(name="creation_datetime")
     private Date creationDateTime;
 
     //-- Public

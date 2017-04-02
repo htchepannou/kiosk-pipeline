@@ -21,7 +21,6 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.Clock;
 import java.util.Date;
 
 import static io.tchepannou.kiosk.pipeline.support.JsoupHelper.select;
@@ -37,9 +36,6 @@ public class MetadataConsumer extends AbstractLinkConsumer {
     @Autowired
     @Qualifier("ContentMessageQueue")
     MessageQueue queue;
-
-    @Autowired
-    Clock clock;
 
     @Autowired
     TitleFilter titleFilter;
@@ -61,9 +57,12 @@ public class MetadataConsumer extends AbstractLinkConsumer {
     }
 
     @VisibleForTesting
-    protected Date extractPublishedDate(final Document doc, final Feed feed) {
+    protected Date extractPublishedDate(final Document doc, final Link link) {
+        final Feed feed = link.getFeed();
         final DateFormat fmt = new SimpleDateFormat(DATETIME_FORMAT);
         Date result = null;
+
+        /* extract from meta */
         for (final String property : HtmlHelper.META_PUBLISHED_DATE_CSS_SELECTORS) {
 
             final String date = property.startsWith("shareaholic")
@@ -77,6 +76,7 @@ public class MetadataConsumer extends AbstractLinkConsumer {
             }
         }
 
+        /* extract from content */
         if (result == null) {
             for (final String property : HtmlHelper.TIME_PUBLISHED_DATE_CSS_SELECTORS) {
                 final Elements elts = doc.select(property);
@@ -94,17 +94,18 @@ public class MetadataConsumer extends AbstractLinkConsumer {
             }
         }
 
-        if (result != null) {
-            return result;
-        } else {
-            final Date now = new Date(clock.millis());
+        /* Default */
+        if (result == null) {
+            final Date now = link.getCreationDateTime();
             final Date onboardDate = feed.getOnboardDate();
-            final DateFormat fmt2 = new SimpleDateFormat(DATE_FORMAT);
-            if (fmt2.format(now).equals(fmt2.format(onboardDate))) {
+            final DateFormat onboardFormat = new SimpleDateFormat(DATE_FORMAT);
+            if (onboardFormat.format(now).equals(onboardFormat.format(onboardDate))) {
                 return DateUtils.addDays(now, defaultPublishDateOffsetDays);
             }
             return now;
         }
+
+        return result;
     }
 
     @VisibleForTesting
@@ -127,7 +128,7 @@ public class MetadataConsumer extends AbstractLinkConsumer {
 
         link.setTitle(title);
         link.setSummary(extractSummary(doc));
-        link.setPublishedDate(extractPublishedDate(doc, link.getFeed()));
+        link.setPublishedDate(extractPublishedDate(doc, link));
         link.setDisplayTitle(titleFilter.filter(title, feed));
         link.setType(extractType(doc));
 

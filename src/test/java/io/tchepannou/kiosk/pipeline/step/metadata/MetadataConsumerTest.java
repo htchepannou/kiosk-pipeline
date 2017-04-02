@@ -19,7 +19,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.Clock;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,13 +33,13 @@ public class MetadataConsumerTest extends LinkConsumerTestSupport  {
     MessageQueue queue;
 
     @Mock
-    Clock clock;
-
-    @Mock
     TitleFilter titleFilter;
 
     @Mock
     Feed feed;
+
+    @Mock
+    Link link;
 
     @InjectMocks
     MetadataConsumer consumer;
@@ -50,6 +49,8 @@ public class MetadataConsumerTest extends LinkConsumerTestSupport  {
     @Before
     public void setUp() {
         consumer.setDefaultPublishDateOffsetDays(-2);
+
+        when(link.getFeed()).thenReturn(feed);
     }
 
     @Test
@@ -90,7 +91,7 @@ public class MetadataConsumerTest extends LinkConsumerTestSupport  {
     public void shouldExtractPublishedDateFromSparkCameroon() throws Exception {
         final Document doc = loadDocument("/meta/sparkcameroon.html");
         final DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
-        assertThat(fmt.format(consumer.extractPublishedDate(doc, feed))).isEqualTo("2016-12-04");
+        assertThat(fmt.format(consumer.extractPublishedDate(doc, link))).isEqualTo("2016-12-04");
     }
 
     @Test
@@ -98,11 +99,10 @@ public class MetadataConsumerTest extends LinkConsumerTestSupport  {
         final Date now = DateUtils.addDays(new Date(), -10);
 
         when(feed.getOnboardDate()).thenReturn(now);
-
-        when(clock.millis()).thenReturn(now.getTime());
+        when(link.getCreationDateTime()).thenReturn(now);
 
         final Document doc = loadDocument("/meta/no_published_date.html");
-        assertThat(consumer.extractPublishedDate(doc, feed)).isEqualTo(
+        assertThat(consumer.extractPublishedDate(doc, link)).isEqualTo(
                 DateUtils.addDays(now, consumer.getDefaultPublishDateOffsetDays())
         );
     }
@@ -112,32 +112,31 @@ public class MetadataConsumerTest extends LinkConsumerTestSupport  {
         final Date now = new Date();
 
         when(feed.getOnboardDate()).thenReturn(DateUtils.addDays(now, -10));
-
-        when(clock.millis()).thenReturn(now.getTime());
+        when(link.getCreationDateTime()).thenReturn(now);
 
         final Document doc = loadDocument("/meta/no_published_date.html");
-        assertThat(consumer.extractPublishedDate(doc, feed)).isEqualTo(now);
+        assertThat(consumer.extractPublishedDate(doc, link)).isEqualTo(now);
     }
 
     @Test
     public void shouldExtractPublishedDateFromMamafika() throws Exception {
         final Document doc = loadDocument("/meta/mamafrika.html");
         final DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
-        assertThat(fmt.format(consumer.extractPublishedDate(doc, feed))).isEqualTo("2017-01-07");
+        assertThat(fmt.format(consumer.extractPublishedDate(doc, link))).isEqualTo("2017-01-07");
     }
 
     @Test
     public void shouldExtractPublishedDateFromLFCamerounais() throws Exception {
         final Document doc = loadDocument("/meta/lefilmcamerounais.html");
         final DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
-        assertThat(fmt.format(consumer.extractPublishedDate(doc, feed))).isEqualTo("2017-01-06");
+        assertThat(fmt.format(consumer.extractPublishedDate(doc, link))).isEqualTo("2017-01-06");
     }
 
     @Test
     public void shouldExtractPublishedDateFromEtoudiBlog() throws Exception {
         final Document doc = loadDocument("/meta/etoudiblog.html");
         final DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
-        assertThat(fmt.format(consumer.extractPublishedDate(doc, feed))).isEqualTo("2016-09-19");
+        assertThat(fmt.format(consumer.extractPublishedDate(doc, link))).isEqualTo("2016-09-19");
     }
 
     //-- Private

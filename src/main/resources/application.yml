@@ -53,8 +53,8 @@ kiosk:
 
   step:
     workers: 1
-    prePublishMaxDurationSeconds: 600   # 10 mins
-    maxDurationSeconds: 900             # 15 mins
+    prePublishMaxDurationSeconds: 1800  # 30 mins
+    maxDurationSeconds: 2100            # 35 mins
     autostart: true
     DownloadConsumer:
       folder: "${kiosk.environment}/html"
@@ -158,6 +158,8 @@ kiosk:
       - "http://www.ticmag.net/feed"
       - "http://www.ticmag.net/video2"
       - "http://www.ticmag.net/contact-2"
+      - "http://www.dailynewscameroon.com/category/*"       # Daily News Cameroon
+      - "http://journalducameroun.com/category/*"           # Journal du Cameroun
 
 
 spring:

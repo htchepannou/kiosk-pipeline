@@ -66,6 +66,10 @@ kiosk:
     ImageConsumer:
       rawFolder: "${kiosk.environment}/html"
       imageFolder: "${kiosk.environment}/image"
+    VideoConsumer:
+      providers:
+        youtube:
+          apiKey: "AIzaSyCzoYC2SE4b8IRKlsfR9H5fKZLv8v8mwZU"
     ThumbnailConsumer:
       width: 440
       height:  220

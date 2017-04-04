@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.web.client.RestTemplate;
 
 import javax.net.ssl.SSLContext;
 import javax.sql.DataSource;
@@ -106,6 +107,10 @@ public class AppConfiguration implements AsyncConfigurer {
         return new PipelineService();
     }
 
+    @Bean
+    public RestTemplate restTemplate (){
+        return new RestTemplate();
+    }
 //    @Bean
 //    TextSimilaryAlgorithm textSimilaryAlgorithm() {
 //        return new JaccardSimilaryAlgorithm();

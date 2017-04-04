@@ -60,9 +60,6 @@ import java.util.concurrent.TimeUnit;
 public class PipelineConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineConfiguration.class);
 
-    private static final int PRE_PUBLISH_STEPS = 7;
-    private static final int PUBLISH_STEPS = 7;
-
     @Autowired
     ThreadPoolTaskExecutor executor;
 
@@ -114,7 +111,7 @@ public class PipelineConfiguration {
         shutdown(maxDurationSeconds * 1000);
 
         // Process async
-        if (!autostart){
+        if (!autostart) {
             return;
         }
         executor.execute(() -> {
@@ -123,13 +120,13 @@ public class PipelineConfiguration {
                 publish();
 
                 shutdown(0);
-            } catch (InterruptedException e){
+            } catch (InterruptedException e) {
                 LOGGER.warn("Interruped", e);
             }
         });
     }
 
-    private void shutdown(int sleepMillis) {
+    private void shutdown(final int sleepMillis) {
         executor.execute(() -> {
             try {
                 if (sleepMillis > 0) {
@@ -138,7 +135,7 @@ public class PipelineConfiguration {
 
                 LOGGER.info("Shutting down...");
                 System.exit(0);
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
 
             }
         });
@@ -147,7 +144,7 @@ public class PipelineConfiguration {
     private void prePublish() throws InterruptedException {
         LOGGER.info("Processing URL");
 
-        final CountDownLatch latch = new CountDownLatch(PRE_PUBLISH_STEPS);
+        final CountDownLatch latch = new CountDownLatch(7);
 
         urlProducer().produce();
         execute(downloadMessageQueueProcessor(latch));
@@ -164,8 +161,7 @@ public class PipelineConfiguration {
     private void publish() throws InterruptedException {
         LOGGER.info("Publishing Articles");
 
-        final CountDownLatch latch = new CountDownLatch(PUBLISH_STEPS);
-
+        final CountDownLatch latch = new CountDownLatch(1);
 
         publishProducer().produce();
         execute(publishMessageQueueProcessor(latch));
@@ -180,8 +176,8 @@ public class PipelineConfiguration {
     }
 
     @Bean
-    CountDownLatch countDownLatch(){
-        return new CountDownLatch(PRE_PUBLISH_STEPS);
+    CountDownLatch countDownLatch() {
+        return new CountDownLatch(7);
     }
 
     //-- Common
@@ -333,6 +329,8 @@ public class PipelineConfiguration {
         return consumer;
     }
 
+    @Bean
+    @ConfigurationProperties("kiosk.step.VideoConsumer.providers.youtube")
     YouTube youTube() {
         return new YouTube();
     }

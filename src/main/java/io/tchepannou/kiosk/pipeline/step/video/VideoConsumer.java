@@ -9,6 +9,8 @@ import io.tchepannou.kiosk.pipeline.step.AbstractLinkConsumer;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
@@ -17,6 +19,7 @@ import java.util.List;
 
 @Transactional
 public class VideoConsumer extends AbstractLinkConsumer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(VideoConsumer.class);
     private List<VideoProvider> providers = new ArrayList<>();
 
     @Override
@@ -52,7 +55,7 @@ public class VideoConsumer extends AbstractLinkConsumer {
                     video.setSummary(info.getDescription());
                 }
             } catch (IOException e){
-
+                LOGGER.warn("Unable to extract video information from {}", url, e);
             }
 
             linkRepository.save(video);

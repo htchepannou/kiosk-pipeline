@@ -1,9 +1,14 @@
 package io.tchepannou.kiosk.pipeline.step.video.providers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.tchepannou.kiosk.pipeline.step.video.VideoInfo;
 import io.tchepannou.kiosk.pipeline.step.video.VideoProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,7 +17,13 @@ public class YouTube implements VideoProvider {
     private static final String[] VIDEO_ID_REGEX = {"\\?vi?=([^&]*)", "watch\\?.*v=([^&]*)", "(?:embed|vi?)/([^/?]*)", "^([A-Za-z0-9\\-]*)"};
     private static final String EMBED_URL_FORMAT = "https://www.youtube.com/embed/%s";
 
-    String apiKey;
+    String apiKey = "AIzaSyCzoYC2SE4b8IRKlsfR9H5fKZLv8v8mwZU";
+
+    @Autowired
+    RestTemplate rest;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     @Override
     public String getEmbedUrl(final String url) {
@@ -22,20 +33,22 @@ public class YouTube implements VideoProvider {
 
     @Override
     public VideoInfo getInfo(final String url) throws IOException {
-        return null;
-//        final String id = getVideoId(url);
-//        if (id == null) {
-//            return null;
-//        }
-//
-//        final String apiUrl = String.format("https://www.googleapis.com/youtube/v3/videos?id=%s&key=%s&part=snippet", id, apiKey);
-//        final Map<String, Object> result = (Map) rest.getForEntity(apiUrl, Object.class);
-//        final Map<String, Object> items = (Map)((List<Map<String, Object>>) result.get("items")).get(0).get("snippets");
-//
-//        final VideoInfo info = new VideoInfo();
-//        info.setTitle((String) items.get("title"));
-//        info.setDescription((String) items.get("description"));
-//        return info;
+        final String id = getVideoId(url);
+        if (id == null) {
+            return null;
+        }
+
+        final String apiUrl = String.format("https://www.googleapis.com/youtube/v3/videos?id=%s&key=%s&part=snippet", id, apiKey);
+        final String body = rest.getForEntity(apiUrl, String.class).getBody();
+
+        final Map<String, Object> result = (Map)objectMapper.readValue(body, Object.class);
+        final Map<String, Object> items = (Map) ((List<Map<String, Object>>) result.get("items")).get(0).get("snippet");
+
+        final VideoInfo info = new VideoInfo();
+        info.setId(id);
+        info.setTitle((String) items.get("title"));
+        info.setDescription((String) items.get("description"));
+        return info;
     }
 
     /**

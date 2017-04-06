@@ -3,21 +3,27 @@ package io.tchepannou.kiosk.pipeline.step.video.providers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.tchepannou.kiosk.pipeline.step.video.VideoInfo;
 import io.tchepannou.kiosk.pipeline.step.video.VideoProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class YouTube implements VideoProvider {
+    private static final Logger LOGGER = LoggerFactory.getLogger(YouTube.class);
+
     private static final String URL_REGEX = "^(https?)?(://)?(www.)?(m.)?((youtube.com)|(youtu.be))/";
     private static final String[] VIDEO_ID_REGEX = {"\\?vi?=([^&]*)", "watch\\?.*v=([^&]*)", "(?:embed|vi?)/([^/?]*)", "^([A-Za-z0-9\\-]*)"};
     private static final String EMBED_URL_FORMAT = "https://www.youtube.com/embed/%s";
+    private static final String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
 
-    String apiKey = "AIzaSyCzoYC2SE4b8IRKlsfR9H5fKZLv8v8mwZU";
+    String apiKey;
 
     @Autowired
     RestTemplate rest;
@@ -41,13 +47,20 @@ public class YouTube implements VideoProvider {
         final String apiUrl = String.format("https://www.googleapis.com/youtube/v3/videos?id=%s&key=%s&part=snippet", id, apiKey);
         final String body = rest.getForEntity(apiUrl, String.class).getBody();
 
-        final Map<String, Object> result = (Map)objectMapper.readValue(body, Object.class);
+        final Map<String, Object> result = (Map) objectMapper.readValue(body, Object.class);
         final Map<String, Object> items = (Map) ((List<Map<String, Object>>) result.get("items")).get(0).get("snippet");
 
         final VideoInfo info = new VideoInfo();
+        final SimpleDateFormat fmt = new SimpleDateFormat(DATETIME_FORMAT);
+        final String publishedDate = (String) items.get("publishedAt");
         info.setId(id);
         info.setTitle((String) items.get("title"));
         info.setDescription((String) items.get("description"));
+        try {
+            info.setPublishedDate(fmt.parse(publishedDate));
+        } catch (final Exception e) {
+            LOGGER.error("Invalid published date: {}", publishedDate, e);
+        }
         return info;
     }
 

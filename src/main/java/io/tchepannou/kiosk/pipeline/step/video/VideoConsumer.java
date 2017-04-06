@@ -53,6 +53,9 @@ public class VideoConsumer extends AbstractLinkConsumer {
                 if (info != null) {
                     video.setTitle(info.getTitle());
                     video.setSummary(info.getDescription());
+                    if (info.getPublishedDate() != null){
+                        video.setPublishedDate(info.getPublishedDate());
+                    }
                 }
             } catch (IOException e){
                 LOGGER.warn("Unable to extract video information from {}", url, e);

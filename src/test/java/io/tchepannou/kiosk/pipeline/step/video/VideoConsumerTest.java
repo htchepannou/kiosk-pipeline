@@ -6,6 +6,7 @@ import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.domain.LinkStatusEnum;
 import io.tchepannou.kiosk.pipeline.persistence.domain.LinkTypeEnum;
 import io.tchepannou.kiosk.pipeline.step.LinkConsumerTestSupport;
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,9 +56,11 @@ public class VideoConsumerTest extends LinkConsumerTestSupport {
 
         when(youtube.getEmbedUrl(anyString())).thenReturn("http://you.be/4309430");
 
+        final Date publishedDate = DateUtils.addDays(new Date(), -10);
         final VideoInfo info = new VideoInfo();
         info.setTitle("This is the title");
         info.setDescription("This is the long description of video");
+        info.setPublishedDate(publishedDate);
         when(youtube.getInfo(anyString())).thenReturn(info);
 
         // Then
@@ -73,6 +77,7 @@ public class VideoConsumerTest extends LinkConsumerTestSupport {
         assertThat(video.getValue().getStatus()).isEqualTo(LinkStatusEnum.valid);
         assertThat(video.getValue().getTitle()).isEqualTo("This is the title");
         assertThat(video.getValue().getSummary()).isEqualTo("This is the long description of video");
+        assertThat(video.getValue().getPublishedDate()).isEqualTo(publishedDate);
 
         final ArgumentCaptor<Asset> asset = ArgumentCaptor.forClass(Asset.class);
         verify(assetRepository).save(asset.capture());

@@ -53,7 +53,6 @@ kiosk:
 
   step:
     workers: 1
-    prePublishMaxDurationSeconds: 1800  # 30 mins
     maxDurationSeconds: 2100            # 35 mins
     autostart: true
     DownloadConsumer:

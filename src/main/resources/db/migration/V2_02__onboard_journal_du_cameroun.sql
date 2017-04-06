@@ -1,1 +1,1 @@
-UPDATE feed SET name = "Journal du Cameroon" WHERE id = 37;
+UPDATE feed SET name = "Journal du Cameroun" WHERE id = 37;

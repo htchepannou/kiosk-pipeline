@@ -53,7 +53,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import javax.annotation.PostConstruct;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 @Configuration
 @ConfigurationProperties("kiosk.step")
@@ -100,7 +99,6 @@ public class PipelineConfiguration {
 
     boolean autostart;
     int workers;
-    int prePublishMaxDurationSeconds;
     int maxDurationSeconds;
 
     @PostConstruct
@@ -155,7 +153,7 @@ public class PipelineConfiguration {
         execute(videoMessageQueueProcessor(latch));
         execute(thumbnailMessageQueueProcessor(latch));
 
-        latch.await(prePublishMaxDurationSeconds, TimeUnit.SECONDS);
+        latch.await();
     }
 
     private void publish() throws InterruptedException {
@@ -398,14 +396,6 @@ public class PipelineConfiguration {
 
     public void setWorkers(final int workers) {
         this.workers = workers;
-    }
-
-    public int getPrePublishMaxDurationSeconds() {
-        return prePublishMaxDurationSeconds;
-    }
-
-    public void setPrePublishMaxDurationSeconds(final int prePublishMaxDurationSeconds) {
-        this.prePublishMaxDurationSeconds = prePublishMaxDurationSeconds;
     }
 
     public int getMaxDurationSeconds() {

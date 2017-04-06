@@ -1,4 +1,7 @@
-package io.tchepannou.kiosk.core.nlp.tokenizer;
+package io.tchepannou.kiosk.core.nlp.tokenizer.impl;
+
+import io.tchepannou.kiosk.core.nlp.tokenizer.Delimiters;
+import io.tchepannou.kiosk.core.nlp.tokenizer.Tokenizer;
 
 import static io.tchepannou.kiosk.core.nlp.tokenizer.Delimiters.isPunctuation;
 
@@ -28,7 +31,7 @@ public class SentenceTokenizer implements Tokenizer {
         }
 
         // Following tokens
-        while (true){
+        while (true) {
             token = delegate.nextToken();
             if (token == null || isPunctuation(token)) {
                 break;

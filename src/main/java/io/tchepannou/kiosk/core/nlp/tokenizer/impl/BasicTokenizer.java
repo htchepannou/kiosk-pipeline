@@ -1,13 +1,17 @@
-package io.tchepannou.kiosk.core.nlp.tokenizer;
+package io.tchepannou.kiosk.core.nlp.tokenizer.impl;
 
+import io.tchepannou.kiosk.core.nlp.tokenizer.Tokenizer;
+
+import static io.tchepannou.kiosk.core.nlp.tokenizer.Delimiters.isAlphabetic;
 import static io.tchepannou.kiosk.core.nlp.tokenizer.Delimiters.isDelimiter;
+import static io.tchepannou.kiosk.core.nlp.tokenizer.Delimiters.isHyphen;
 
-public class WordTokenizer implements Tokenizer {
+public class BasicTokenizer implements Tokenizer {
     private final char[] ch;
     private int pos;
     private final int len;
 
-    public WordTokenizer(final String str) {
+    public BasicTokenizer(final String str) {
         ch = str.toCharArray();
         pos = 0;
         len = str.length();
@@ -21,7 +25,9 @@ public class WordTokenizer implements Tokenizer {
             final char cur = ch[pos];
 
             if (isDelimiter(cur)) {
-                if (pos > offset) { // End of word
+                if (isHyphen(cur) && (pos - 1 >= 0 && isAlphabetic(ch[pos - 1])) && (pos + 1 < len && isAlphabetic(ch[pos + 1]))) {
+                    pos++;
+                } else if (pos > offset) { // End of word
                     stop = true;
                 } else {
                     pos++;

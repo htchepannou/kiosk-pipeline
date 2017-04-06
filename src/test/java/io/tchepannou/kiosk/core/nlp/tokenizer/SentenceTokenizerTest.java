@@ -1,5 +1,7 @@
 package io.tchepannou.kiosk.core.nlp.tokenizer;
 
+import io.tchepannou.kiosk.core.nlp.tokenizer.impl.SentenceTokenizer;
+import io.tchepannou.kiosk.core.nlp.tokenizer.impl.BasicTokenizer;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -13,7 +15,7 @@ public class SentenceTokenizerTest {
                 "1) Ils aiment la sappe." +
                 "2) Ils aiment les filles.";
 
-        Tokenizer tokenizer = new SentenceTokenizer(new WordTokenizer(str));
+        Tokenizer tokenizer = new SentenceTokenizer(new BasicTokenizer(str));
 
         assertEquals("C’est une histoire morbide", tokenizer.nextToken());
         assertEquals("Jean-Paul et Boko Haram on 2 points en commun", tokenizer.nextToken());

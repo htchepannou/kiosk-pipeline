@@ -1,5 +1,6 @@
 package io.tchepannou.kiosk.core.nlp.tokenizer;
 
+import io.tchepannou.kiosk.core.nlp.tokenizer.impl.NGramTokenizer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;

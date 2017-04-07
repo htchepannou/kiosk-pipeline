@@ -2,6 +2,7 @@ kiosk:
   environment: prod
   step:
     workers: 10
+    autostart: true
 
 spring:
   datasource:

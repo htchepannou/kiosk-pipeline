@@ -31,6 +31,7 @@ import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleSuffixFilter;
 import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleVideoFilter;
 import io.tchepannou.kiosk.pipeline.step.publish.PublishConsumer;
 import io.tchepannou.kiosk.pipeline.step.publish.PublishProducer;
+import io.tchepannou.kiosk.pipeline.step.shingle.ShingleConsumer;
 import io.tchepannou.kiosk.pipeline.step.url.FeedUrlProducer;
 import io.tchepannou.kiosk.pipeline.step.url.UrlProducer;
 import io.tchepannou.kiosk.pipeline.step.validation.ValidationConsumer;
@@ -84,6 +85,10 @@ public class PipelineConfiguration {
     @Autowired
     @Qualifier("ImageMessageQueue")
     MessageQueue imageMessageQueue;
+
+    @Autowired
+    @Qualifier("ShingleMessageQueue")
+    MessageQueue shingleMessageQueue;
 
     @Autowired
     @Qualifier("ThumbnailMessageQueue")
@@ -142,13 +147,14 @@ public class PipelineConfiguration {
     private void prePublish() throws InterruptedException {
         LOGGER.info("Processing URL");
 
-        final CountDownLatch latch = new CountDownLatch(7);
+        final CountDownLatch latch = new CountDownLatch(8);
 
         urlProducer().produce();
         execute(downloadMessageQueueProcessor(latch));
         execute(metadataMessageQueueProcessor(latch));
         execute(contentMessageQueueProcessor(latch));
         execute(validationMessageQueueProcessor(latch));
+        execute(shingleMessageQueueProcessor(latch));
         execute(imageMessageQueueProcessor(latch));
         execute(videoMessageQueueProcessor(latch));
         execute(thumbnailMessageQueueProcessor(latch));
@@ -291,7 +297,7 @@ public class PipelineConfiguration {
     MessageQueue validationTopic() {
         return new MessageQueueSet(
                 "validated",
-                Arrays.asList(imageMessageQueue, videoMessageQueue)
+                Arrays.asList(imageMessageQueue, videoMessageQueue, shingleMessageQueue)
         );
     }
 
@@ -331,6 +337,23 @@ public class PipelineConfiguration {
     @ConfigurationProperties("kiosk.step.VideoConsumer.providers.youtube")
     YouTube youTube() {
         return new YouTube();
+    }
+
+    //-- Shingle
+    @Bean
+    MessageQueueProcessor shingleMessageQueueProcessor(final CountDownLatch latch) {
+        return new MessageQueueProcessor(
+                shingleMessageQueue,
+                shingleConsumer(),
+                delay(),
+                latch
+        );
+    }
+
+    @Bean
+    @ConfigurationProperties("kiosk.step.ShingleConsumer")
+    Consumer shingleConsumer() {
+        return new ShingleConsumer();
     }
 
     //-- Image

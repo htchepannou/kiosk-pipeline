@@ -5,6 +5,8 @@ import io.tchepannou.kiosk.core.nlp.tokenizer.Tokenizer;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.tchepannou.kiosk.core.nlp.tokenizer.Delimiters.isWhitespace;
+
 public class NGramTokenizer implements Tokenizer {
     private final int min;
     private final int max;
@@ -34,7 +36,9 @@ public class NGramTokenizer implements Tokenizer {
         String token;
         final List<String> stream = new ArrayList<>();
         while ((token = delegate.nextToken()) != null) {
-            stream.add(token);
+            if (!isWhitespace(token)) {
+                stream.add(token);
+            }
         }
 
         // Extrapolate
@@ -45,6 +49,10 @@ public class NGramTokenizer implements Tokenizer {
                 final int cur = i + j;
                 if (cur >= stream.size()) {
                     break;
+                }
+
+                if (sb.length() > 0){
+                    sb.append(' ');
                 }
                 sb.append(stream.get(cur));
 

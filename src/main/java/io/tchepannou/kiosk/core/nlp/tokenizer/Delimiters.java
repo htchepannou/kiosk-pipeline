@@ -1,11 +1,19 @@
 package io.tchepannou.kiosk.core.nlp.tokenizer;
 
 public class Delimiters {
-    private static final String PUNCTUATION = ".,?!;:";
     private static final String WHITESPACE = " \n\r\t";
-    private static final String DELIM = PUNCTUATION + WHITESPACE + "'\"’-+/*«»“”()[]";
+    private static final char UNICODE_DOT = 8230;
+    private static final char UNICODE_HYPHEN = 8211;
+    private static final String FRAGMENT_DELIM = "\"«»“”.,?!;:()[]-" + UNICODE_HYPHEN + UNICODE_DOT;
 
-    public static boolean isDelimiter(final String ch){
+    private static final String PUNCTUATION = ".,?!;:";
+    private static final String DELIM = PUNCTUATION + WHITESPACE + FRAGMENT_DELIM;
+
+    public static boolean isFragmentDelimiter(final String ch) {
+        return ch != null && ch.length() == 1 && FRAGMENT_DELIM.contains(ch);
+    }
+
+    public static boolean isDelimiter(final String ch) {
         return ch != null && ch.length() == 1 && isDelimiter(ch.charAt(0));
     }
 

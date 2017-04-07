@@ -1,5 +1,6 @@
-package io.tchepannou.kiosk.core.nlp.tokenizer;
+package io.tchepannou.kiosk.core.nlp.tokenizer.impl;
 
+import io.tchepannou.kiosk.core.nlp.tokenizer.Tokenizer;
 import io.tchepannou.kiosk.core.nlp.tokenizer.impl.SentenceTokenizer;
 import io.tchepannou.kiosk.core.nlp.tokenizer.impl.BasicTokenizer;
 import org.junit.Test;

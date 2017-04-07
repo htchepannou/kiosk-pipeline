@@ -7,6 +7,8 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import io.tchepannou.kiosk.pipeline.service.PipelineService;
 import io.tchepannou.kiosk.pipeline.service.UrlService;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -85,6 +87,13 @@ public class AppConfiguration implements AsyncConfigurer {
         return Clock.systemUTC();
     }
 
+    @Bean
+    RequestConfig requestConfig() {
+        return RequestConfig.custom()
+                .setCookieSpec(CookieSpecs.DEFAULT)
+                .build();
+    }
+
     @Bean(destroyMethod = "close")
     CloseableHttpClient closeableHttpClient() throws Exception {
         final SSLContext sslContext = new SSLContextBuilder()
@@ -93,6 +102,7 @@ public class AppConfiguration implements AsyncConfigurer {
         return HttpClients.custom()
                 .setSSLContext(sslContext)
                 .setSSLHostnameVerifier(new NoopHostnameVerifier())
+                .setDefaultRequestConfig(requestConfig())
                 .build();
     }
 
@@ -103,12 +113,12 @@ public class AppConfiguration implements AsyncConfigurer {
     }
 
     @Bean
-    public PipelineService pipelineService (){
+    public PipelineService pipelineService() {
         return new PipelineService();
     }
 
     @Bean
-    public RestTemplate restTemplate (){
+    public RestTemplate restTemplate() {
         return new RestTemplate();
     }
 //    @Bean

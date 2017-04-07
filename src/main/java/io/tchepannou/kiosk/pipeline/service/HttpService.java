@@ -2,6 +2,8 @@ package io.tchepannou.kiosk.pipeline.service;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -22,6 +24,9 @@ public class HttpService {
     static {
         System.setProperty("http.agent", USER_AGENT);
     }
+
+    @Autowired
+    RequestConfig httpConfig;
 
     @Autowired
     CloseableHttpClient client;
@@ -79,9 +84,14 @@ public class HttpService {
     }
 
     private HttpGet createHttpGet(final String url) {
+        final RequestConfig config = RequestConfig.copy(httpConfig)
+                .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
+                .build();
+
         final HttpGet method = new HttpGet(url);
         method.setHeader("Connection", "keep-alive");
         method.setHeader("User-Agent", USER_AGENT);
+        method.setConfig(config);
         return method;
     }
 

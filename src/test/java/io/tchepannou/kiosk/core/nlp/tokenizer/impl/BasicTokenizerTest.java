@@ -1,7 +1,11 @@
-package io.tchepannou.kiosk.core.nlp.tokenizer;
+package io.tchepannou.kiosk.core.nlp.tokenizer.impl;
 
-import io.tchepannou.kiosk.core.nlp.tokenizer.impl.BasicTokenizer;
+import io.tchepannou.kiosk.core.nlp.tokenizer.TokenFilter;
+import io.tchepannou.kiosk.core.nlp.tokenizer.Tokenizer;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -30,6 +34,40 @@ public class BasicTokenizerTest {
         assertEquals("Jean-Paul", tokenizer.nextToken());
         assertEquals(" ", tokenizer.nextToken());
         assertEquals("et", tokenizer.nextToken());
+        assertEquals(" ", tokenizer.nextToken());
+        assertEquals("Boko", tokenizer.nextToken());
+        assertEquals(" ", tokenizer.nextToken());
+        assertEquals("Haram", tokenizer.nextToken());
+        assertEquals(".", tokenizer.nextToken());
+        assertNull(tokenizer.nextToken());
+    }
+
+
+    @Test
+    public void testFilter() throws Exception {
+        String str = "C’est une histoire morbide!!! Jean-Paul et Boko Haram.";
+
+        final List<String> stopwords = Arrays.asList("c", "est", "une", "et");
+        final TokenFilter filter = new TokenFilter() {
+            @Override
+            public boolean accept(final String text) {
+                return !stopwords.contains(text.toLowerCase());
+            }
+        };
+        Tokenizer tokenizer = new BasicTokenizer(str, filter);
+
+        assertEquals("’", tokenizer.nextToken());
+        assertEquals(" ", tokenizer.nextToken());
+        assertEquals(" ", tokenizer.nextToken());
+        assertEquals("histoire", tokenizer.nextToken());
+        assertEquals(" ", tokenizer.nextToken());
+        assertEquals("morbide", tokenizer.nextToken());
+        assertEquals("!", tokenizer.nextToken());
+        assertEquals("!", tokenizer.nextToken());
+        assertEquals("!", tokenizer.nextToken());
+        assertEquals(" ", tokenizer.nextToken());
+        assertEquals("Jean-Paul", tokenizer.nextToken());
+        assertEquals(" ", tokenizer.nextToken());
         assertEquals(" ", tokenizer.nextToken());
         assertEquals("Boko", tokenizer.nextToken());
         assertEquals(" ", tokenizer.nextToken());

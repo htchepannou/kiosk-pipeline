@@ -5,13 +5,11 @@ import io.tchepannou.kiosk.core.nlp.tokenizer.impl.BasicTokenizer;
 import io.tchepannou.kiosk.core.nlp.tokenizer.impl.FragmentTokenizer;
 import io.tchepannou.kiosk.core.nlp.tokenizer.impl.NGramTokenizer;
 import io.tchepannou.kiosk.core.service.FileRepository;
-import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.step.AbstractLinkConsumer;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.transaction.Transactional;
 import java.io.ByteArrayInputStream;
@@ -21,10 +19,6 @@ import java.util.List;
 
 @Transactional
 public class ShingleConsumer extends AbstractLinkConsumer {
-
-    @Autowired
-    @Qualifier("ShingleMessageQueue")
-    MessageQueue queue;
 
     @Autowired
     FileRepository repository;

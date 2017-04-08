@@ -2,8 +2,7 @@ kiosk:
   environment: prod
   step:
     workers: 10
-    prePublishMaxDurationSeconds: 1800  # 30 mins
-    maxDurationSeconds: 2100            # 35 mins
+    autostart: true
 
 spring:
   datasource:

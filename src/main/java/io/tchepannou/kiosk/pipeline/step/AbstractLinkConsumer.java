@@ -31,7 +31,7 @@ public abstract class AbstractLinkConsumer implements Consumer {
 
     @Override
     public void consume(final String message) throws IOException {
-        final Link link = linkRepository.findOne(Long.parseLong(message));
+        final Link link = linkRepository.findOne(Long.parseLong(message.trim()));
         consume(link);
     }
 

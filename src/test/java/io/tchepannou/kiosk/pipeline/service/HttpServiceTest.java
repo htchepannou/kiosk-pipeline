@@ -1,5 +1,6 @@
 package io.tchepannou.kiosk.pipeline.service;
 
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.eclipse.jetty.server.Handler;
@@ -24,6 +25,7 @@ public class HttpServiceTest {
 
     private Server server;
     private CloseableHttpClient client;
+    private RequestConfig config;
     private HttpService service;
     private String content;
     private String contentType;
@@ -31,7 +33,9 @@ public class HttpServiceTest {
     @Before
     public void setUp() throws Exception {
         client = HttpClients.createDefault();
-        service = new HttpService(client);
+        config = RequestConfig.custom().build();
+
+        service = new HttpService(client, config);
 
         server = new Server(PORT);
         server.setHandler(createHandler());

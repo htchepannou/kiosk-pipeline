@@ -1,6 +1,4 @@
-package io.tchepannou.kiosk.pipeline.service.similarity.filter;
-
-import io.tchepannou.kiosk.pipeline.service.similarity.TextFilter;
+package io.tchepannou.kiosk.core.nlp.filter;
 
 public class LowecaseTextFilter implements TextFilter {
     @Override

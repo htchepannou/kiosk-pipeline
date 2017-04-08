@@ -1,5 +1,7 @@
 package io.tchepannou.kiosk.core.nlp.tokenizer;
 
+import io.tchepannou.kiosk.core.nlp.tokenizer.NGramTokenizer;
+import io.tchepannou.kiosk.core.nlp.tokenizer.Tokenizer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -30,19 +32,16 @@ public class NGramTokenizerTest {
 
         // Then
         assertThat(tokenizer.nextToken()).isEqualTo("A");
-        assertThat(tokenizer.nextToken()).isEqualTo("AB");
-        assertThat(tokenizer.nextToken()).isEqualTo("ABC");
+        assertThat(tokenizer.nextToken()).isEqualTo("A B");
+        assertThat(tokenizer.nextToken()).isEqualTo("A B C");
         assertThat(tokenizer.nextToken()).isEqualTo("B");
-        assertThat(tokenizer.nextToken()).isEqualTo("BC");
-        assertThat(tokenizer.nextToken()).isEqualTo("BCD");
+        assertThat(tokenizer.nextToken()).isEqualTo("B C");
+        assertThat(tokenizer.nextToken()).isEqualTo("B C D");
         assertThat(tokenizer.nextToken()).isEqualTo("C");
-        assertThat(tokenizer.nextToken()).isEqualTo("CD");
-        assertThat(tokenizer.nextToken()).isEqualTo("CD ");
+        assertThat(tokenizer.nextToken()).isEqualTo("C D");
+        assertThat(tokenizer.nextToken()).isEqualTo("C D E");
         assertThat(tokenizer.nextToken()).isEqualTo("D");
-        assertThat(tokenizer.nextToken()).isEqualTo("D ");
         assertThat(tokenizer.nextToken()).isEqualTo("D E");
-        assertThat(tokenizer.nextToken()).isEqualTo(" ");
-        assertThat(tokenizer.nextToken()).isEqualTo(" E");
         assertThat(tokenizer.nextToken()).isEqualTo("E");
         assertThat(tokenizer.nextToken()).isNull();
     }
@@ -63,10 +62,9 @@ public class NGramTokenizerTest {
         NGramTokenizer tokenizer = new NGramTokenizer(3, 3, delegate);
 
         // Then
-        assertThat(tokenizer.nextToken()).isEqualTo("ABC");
-        assertThat(tokenizer.nextToken()).isEqualTo("BCD");
-        assertThat(tokenizer.nextToken()).isEqualTo("CD ");
-        assertThat(tokenizer.nextToken()).isEqualTo("D E");
+        assertThat(tokenizer.nextToken()).isEqualTo("A B C");
+        assertThat(tokenizer.nextToken()).isEqualTo("B C D");
+        assertThat(tokenizer.nextToken()).isEqualTo("C D E");
         assertThat(tokenizer.nextToken()).isNull();
     }
 }

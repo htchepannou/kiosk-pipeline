@@ -1,2 +1,5 @@
 kiosk:
   environment: dev
+  step:
+    maxDurationSeconds: 3600    # 1 hr
+    autostart: true

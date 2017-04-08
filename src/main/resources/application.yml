@@ -18,6 +18,8 @@ kiosk:
         url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-content-queue"
       ValidationMessageQueue:
         url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-validation-queue"
+      ShingleMessageQueue:
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-shingle-queue"
       ImageMessageQueue:
         url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-image-queue"
       ThumbnailMessageQueue:
@@ -44,6 +46,8 @@ kiosk:
         home: "${kiosk.local.queue.home}/validation"
       ImageMessageQueue:
         home: "${kiosk.local.queue.home}/image"
+      ShingleMessageQueue:
+        home: "${kiosk.local.queue.home}/shingle"
       ThumbnailMessageQueue:
         home: "${kiosk.local.queue.home}/thumbnail"
       VideoMessageQueue:
@@ -53,9 +57,8 @@ kiosk:
 
   step:
     workers: 1
-    prePublishMaxDurationSeconds: 1800  # 30 mins
     maxDurationSeconds: 2100            # 35 mins
-    autostart: true
+    autostart: false
     DownloadConsumer:
       folder: "${kiosk.environment}/html"
     MetadataConsumer:
@@ -63,6 +66,11 @@ kiosk:
     ContentConsumer:
       rawFolder: "${kiosk.environment}/html"
       contentFolder: "${kiosk.environment}/content"
+    ShingleConsumer:
+      shingleSize: 3      # Number of words per shingle
+      maxShingles: 200    # Max shingle to use for computing similarity
+      contentFolder: "${kiosk.environment}/content"
+      shingleFolder: "${kiosk.environment}/shingle"
     ImageConsumer:
       rawFolder: "${kiosk.environment}/html"
       imageFolder: "${kiosk.environment}/image"
@@ -94,6 +102,7 @@ kiosk:
       blacklist:
       - "*.pdf"         # PDF
       - "*.rss"         # RSS feeds
+      - "*/feed"
       - "*/feed/rss*"
       - "*/rss.php"
       - "*/wp-login*"   # Wordpress login
@@ -155,7 +164,6 @@ kiosk:
       - "http://www.ticmag.net/category/*"                 # TIC Mag
       - "http://www.ticmag.net/page/*"
       - "http://www.ticmag.net/textes-documents"
-      - "http://www.ticmag.net/feed"
       - "http://www.ticmag.net/video2"
       - "http://www.ticmag.net/contact-2"
       - "http://www.dailynewscameroon.com/category/*"       # Daily News Cameroon

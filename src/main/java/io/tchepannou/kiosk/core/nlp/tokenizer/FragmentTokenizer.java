@@ -1,11 +1,14 @@
 package io.tchepannou.kiosk.core.nlp.tokenizer;
 
-import static io.tchepannou.kiosk.core.nlp.tokenizer.Delimiters.isPunctuation;
+import io.tchepannou.kiosk.core.nlp.tokenizer.Tokenizer;
 
-public class SentenceTokenizer implements Tokenizer {
+import static io.tchepannou.kiosk.core.nlp.tokenizer.Delimiters.isFragmentDelimiter;
+import static io.tchepannou.kiosk.core.nlp.tokenizer.Delimiters.isWhitespace;
+
+public class FragmentTokenizer implements Tokenizer {
     private final Tokenizer delegate;
 
-    public SentenceTokenizer(final Tokenizer delegate) {
+    public FragmentTokenizer(final Tokenizer delegate) {
         this.delegate = delegate;
     }
 
@@ -19,7 +22,7 @@ public class SentenceTokenizer implements Tokenizer {
             token = delegate.nextToken();
             if (token == null) {
                 return null;
-            } else if (Delimiters.isPunctuation(token)) {
+            } else if (isFragmentDelimiter(token) || isWhitespace(token)) {
                 continue;
             } else {
                 sb.append(token);
@@ -28,9 +31,9 @@ public class SentenceTokenizer implements Tokenizer {
         }
 
         // Following tokens
-        while (true){
+        while (true) {
             token = delegate.nextToken();
-            if (token == null || isPunctuation(token)) {
+            if (token == null || isFragmentDelimiter(token)) {
                 break;
             } else {
                 sb.append(token);

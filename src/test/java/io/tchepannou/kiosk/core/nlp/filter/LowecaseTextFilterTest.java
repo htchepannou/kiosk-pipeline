@@ -1,6 +1,5 @@
-package io.tchepannou.kiosk.pipeline.service.similarity.filter;
+package io.tchepannou.kiosk.core.nlp.filter;
 
-import io.tchepannou.kiosk.pipeline.service.similarity.TextFilter;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -1,15 +1,14 @@
-package io.tchepannou.kiosk.pipeline.service.similarity.algo;
+package io.tchepannou.kiosk.core.nlp.similarity;
 
 import com.google.common.collect.Sets;
-import io.tchepannou.kiosk.pipeline.service.similarity.TextSimilaryAlgorithm;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public class JaccardSimilaryAlgorithm implements TextSimilaryAlgorithm {
+public class JaccardSimilaryCalculator implements TextSimilaryCalculator {
     public float compute(final Collection<String> words1, final Collection<String> words2) {
-        if (words1.isEmpty() && words2.isEmpty()){
+        if (words1.isEmpty() && words2.isEmpty()) {
             return 1;
         }
 

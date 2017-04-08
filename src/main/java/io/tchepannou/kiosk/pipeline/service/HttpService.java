@@ -34,8 +34,9 @@ public class HttpService {
     public HttpService() {
     }
 
-    protected HttpService(final CloseableHttpClient client) {
+    protected HttpService(final CloseableHttpClient client, RequestConfig config) {
         this.client = client;
+        this.httpConfig = config;
     }
 
     /**
@@ -138,4 +139,5 @@ public class HttpService {
         final Header contentType = response.getFirstHeader("Content-Type");
         return contentType != null && contentType.getValue().startsWith("text/");
     }
+
 }

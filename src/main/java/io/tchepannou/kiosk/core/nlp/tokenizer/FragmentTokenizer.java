@@ -1,4 +1,4 @@
-package io.tchepannou.kiosk.core.nlp.tokenizer.impl;
+package io.tchepannou.kiosk.core.nlp.tokenizer;
 
 import io.tchepannou.kiosk.core.nlp.tokenizer.Tokenizer;
 

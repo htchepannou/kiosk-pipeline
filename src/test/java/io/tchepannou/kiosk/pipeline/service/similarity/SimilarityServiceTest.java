@@ -1,5 +1,7 @@
 package io.tchepannou.kiosk.pipeline.service.similarity;
 
+import io.tchepannou.kiosk.core.nlp.filter.TextFilter;
+import io.tchepannou.kiosk.core.nlp.similarity.TextSimilaryCalculator;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +24,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class SimilarityServiceTest {
     @Mock
-    TextSimilaryAlgorithm similaryAlgorithm;
+    TextSimilaryCalculator similaryAlgorithm;
 
     @Mock
     ShingleExtractor shingleExtractor;

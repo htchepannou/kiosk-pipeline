@@ -1,7 +1,7 @@
 package io.tchepannou.kiosk.pipeline.step.metadata.filter;
 
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
-import io.tchepannou.kiosk.pipeline.service.similarity.filter.UnaccentTextFilter;
+import io.tchepannou.kiosk.core.nlp.filter.UnaccentTextFilter;
 import io.tchepannou.kiosk.pipeline.step.metadata.TitleFilter;
 
 public class TitleVideoFilter implements TitleFilter {

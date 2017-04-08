@@ -1,5 +1,6 @@
 package io.tchepannou.kiosk.pipeline.step.shingle;
 
+import io.tchepannou.kiosk.core.nlp.filter.TextFilter;
 import io.tchepannou.kiosk.core.service.FileRepository;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
@@ -22,6 +23,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ShingleConsumerTest {
@@ -30,6 +32,9 @@ public class ShingleConsumerTest {
 
     @Mock
     LinkRepository linkRepository;
+
+    @Mock
+    TextFilter filter;
 
     @InjectMocks
     ShingleConsumer consumer;
@@ -49,6 +54,8 @@ public class ShingleConsumerTest {
 
         final Link link = new Link();
         link.setContentKey("content/1/2/3/foo.html");
+
+        when(filter.filter(any())).thenAnswer((inv) -> inv.getArguments()[0]);
 
         // When
         consumer.consume(link);

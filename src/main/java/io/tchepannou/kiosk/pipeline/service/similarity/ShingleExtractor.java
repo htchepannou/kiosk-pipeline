@@ -3,6 +3,7 @@ package io.tchepannou.kiosk.pipeline.service.similarity;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class ShingleExtractor {
     public List<String> extract(final String text, final int len) {
         String[] parts = text.split("\\s");

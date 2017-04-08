@@ -1,5 +1,9 @@
 package io.tchepannou.kiosk.pipeline.config;
 
+import io.tchepannou.kiosk.core.nlp.filter.LowecaseTextFilter;
+import io.tchepannou.kiosk.core.nlp.filter.TextFilter;
+import io.tchepannou.kiosk.core.nlp.filter.TextFilterSet;
+import io.tchepannou.kiosk.core.nlp.filter.UnaccentTextFilter;
 import io.tchepannou.kiosk.core.service.Consumer;
 import io.tchepannou.kiosk.core.service.Delay;
 import io.tchepannou.kiosk.core.service.MessageQueue;
@@ -354,6 +358,14 @@ public class PipelineConfiguration {
     @ConfigurationProperties("kiosk.step.ShingleConsumer")
     Consumer shingleConsumer() {
         return new ShingleConsumer();
+    }
+
+    @Bean
+    TextFilter textFilter(){
+        return new TextFilterSet(Arrays.asList(
+                new LowecaseTextFilter(),
+                new UnaccentTextFilter()
+        ));
     }
 
     //-- Image

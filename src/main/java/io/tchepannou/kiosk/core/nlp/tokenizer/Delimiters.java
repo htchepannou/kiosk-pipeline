@@ -7,7 +7,7 @@ public class Delimiters {
     private static final String FRAGMENT_DELIM = "\"«»“”.,?!;:()[]-" + UNICODE_HYPHEN + UNICODE_DOT;
 
     private static final String PUNCTUATION = ".,?!;:";
-    private static final String DELIM = PUNCTUATION + WHITESPACE + FRAGMENT_DELIM;
+    private static final String DELIM = PUNCTUATION + WHITESPACE + FRAGMENT_DELIM + "’";
 
     public static boolean isFragmentDelimiter(final String ch) {
         return ch != null && ch.length() == 1 && FRAGMENT_DELIM.contains(ch);

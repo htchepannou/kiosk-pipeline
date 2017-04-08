@@ -1,9 +1,10 @@
 package io.tchepannou.kiosk.pipeline.step.shingle;
 
 import com.google.common.io.Files;
-import io.tchepannou.kiosk.core.nlp.tokenizer.impl.BasicTokenizer;
-import io.tchepannou.kiosk.core.nlp.tokenizer.impl.FragmentTokenizer;
-import io.tchepannou.kiosk.core.nlp.tokenizer.impl.NGramTokenizer;
+import io.tchepannou.kiosk.core.nlp.filter.TextFilter;
+import io.tchepannou.kiosk.core.nlp.tokenizer.BasicTokenizer;
+import io.tchepannou.kiosk.core.nlp.tokenizer.FragmentTokenizer;
+import io.tchepannou.kiosk.core.nlp.tokenizer.NGramTokenizer;
 import io.tchepannou.kiosk.core.service.FileRepository;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
@@ -25,6 +26,9 @@ public class ShingleConsumer extends AbstractLinkConsumer {
 
     @Autowired
     LinkRepository linkRepository;
+
+    @Autowired
+    TextFilter filter;
 
     private int maxShingles;
     private int shingleSize;
@@ -64,7 +68,7 @@ public class ShingleConsumer extends AbstractLinkConsumer {
             if (shingle == null){
                 break;
             }
-            shingles.add(shingle);
+            shingles.add(filter.filter(shingle));
         }
 
         return shingles;

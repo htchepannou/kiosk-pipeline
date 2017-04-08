@@ -1,7 +1,7 @@
-package io.tchepannou.kiosk.pipeline.service.similarity;
+package io.tchepannou.kiosk.core.nlp.similarity;
 
 import java.util.Collection;
 
-public interface TextSimilaryAlgorithm {
+public interface TextSimilaryCalculator {
     float compute(final Collection<String> words1, final Collection<String> words2);
 }

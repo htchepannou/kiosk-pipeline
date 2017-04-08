@@ -1,5 +1,6 @@
 package io.tchepannou.kiosk.pipeline.service.similarity;
 
+@Deprecated
 public class ArticleDocumentFactory {
 //    private static final Logger LOGGER = LoggerFactory.getLogger(ArticleDocumentFactory.class);
 //

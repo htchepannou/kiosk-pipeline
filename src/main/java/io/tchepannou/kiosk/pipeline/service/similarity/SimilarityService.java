@@ -1,6 +1,8 @@
 package io.tchepannou.kiosk.pipeline.service.similarity;
 
 import com.google.common.annotations.VisibleForTesting;
+import io.tchepannou.kiosk.core.nlp.filter.TextFilter;
+import io.tchepannou.kiosk.core.nlp.similarity.TextSimilaryCalculator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +22,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+@Deprecated
 public class SimilarityService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SimilarityService.class);
     @Autowired
-    TextSimilaryAlgorithm similaryAlgorithm;
+    TextSimilaryCalculator similaryAlgorithm;
 
     @Autowired
     ShingleExtractor shingleExtractor;

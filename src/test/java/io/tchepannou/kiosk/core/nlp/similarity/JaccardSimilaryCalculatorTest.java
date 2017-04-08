@@ -1,4 +1,4 @@
-package io.tchepannou.kiosk.pipeline.service.similarity.algo;
+package io.tchepannou.kiosk.core.nlp.similarity;
 
 import org.junit.Test;
 
@@ -7,8 +7,8 @@ import java.util.HashSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class JaccardSimilaryAlgorithmTest {
-    JaccardSimilaryAlgorithm service = new JaccardSimilaryAlgorithm();
+public class JaccardSimilaryCalculatorTest {
+    JaccardSimilaryCalculator service = new JaccardSimilaryCalculator();
 
     @Test
     public void testCompute() throws Exception {

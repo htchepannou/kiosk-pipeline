@@ -1,9 +1,5 @@
 package io.tchepannou.kiosk.pipeline.config;
 
-import io.tchepannou.kiosk.core.nlp.filter.LowecaseTextFilter;
-import io.tchepannou.kiosk.core.nlp.filter.TextFilter;
-import io.tchepannou.kiosk.core.nlp.filter.TextFilterSet;
-import io.tchepannou.kiosk.core.nlp.filter.UnaccentTextFilter;
 import io.tchepannou.kiosk.core.service.Consumer;
 import io.tchepannou.kiosk.core.service.Delay;
 import io.tchepannou.kiosk.core.service.MessageQueue;
@@ -35,7 +31,6 @@ import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleSuffixFilter;
 import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleVideoFilter;
 import io.tchepannou.kiosk.pipeline.step.publish.PublishConsumer;
 import io.tchepannou.kiosk.pipeline.step.publish.PublishProducer;
-import io.tchepannou.kiosk.pipeline.step.shingle.ShingleConsumer;
 import io.tchepannou.kiosk.pipeline.step.url.FeedUrlProducer;
 import io.tchepannou.kiosk.pipeline.step.url.UrlProducer;
 import io.tchepannou.kiosk.pipeline.step.validation.ValidationConsumer;
@@ -89,10 +84,6 @@ public class PipelineConfiguration {
     @Autowired
     @Qualifier("ImageMessageQueue")
     MessageQueue imageMessageQueue;
-
-    @Autowired
-    @Qualifier("ShingleMessageQueue")
-    MessageQueue shingleMessageQueue;
 
     @Autowired
     @Qualifier("ThumbnailMessageQueue")
@@ -151,14 +142,13 @@ public class PipelineConfiguration {
     private void prePublish() throws InterruptedException {
         LOGGER.info("Processing URL");
 
-        final CountDownLatch latch = new CountDownLatch(8);
+        final CountDownLatch latch = new CountDownLatch(7);
 
         urlProducer().produce();
         execute(downloadMessageQueueProcessor(latch));
         execute(metadataMessageQueueProcessor(latch));
         execute(contentMessageQueueProcessor(latch));
         execute(validationMessageQueueProcessor(latch));
-        execute(shingleMessageQueueProcessor(latch));
         execute(imageMessageQueueProcessor(latch));
         execute(videoMessageQueueProcessor(latch));
         execute(thumbnailMessageQueueProcessor(latch));
@@ -301,7 +291,7 @@ public class PipelineConfiguration {
     MessageQueue validationTopic() {
         return new MessageQueueSet(
                 "validated",
-                Arrays.asList(imageMessageQueue, videoMessageQueue, shingleMessageQueue)
+                Arrays.asList(imageMessageQueue, videoMessageQueue)
         );
     }
 
@@ -341,31 +331,6 @@ public class PipelineConfiguration {
     @ConfigurationProperties("kiosk.step.VideoConsumer.providers.youtube")
     YouTube youTube() {
         return new YouTube();
-    }
-
-    //-- Shingle
-    @Bean
-    MessageQueueProcessor shingleMessageQueueProcessor(final CountDownLatch latch) {
-        return new MessageQueueProcessor(
-                shingleMessageQueue,
-                shingleConsumer(),
-                delay(),
-                latch
-        );
-    }
-
-    @Bean
-    @ConfigurationProperties("kiosk.step.ShingleConsumer")
-    Consumer shingleConsumer() {
-        return new ShingleConsumer();
-    }
-
-    @Bean
-    TextFilter textFilter(){
-        return new TextFilterSet(Arrays.asList(
-                new LowecaseTextFilter(),
-                new UnaccentTextFilter()
-        ));
     }
 
     //-- Image

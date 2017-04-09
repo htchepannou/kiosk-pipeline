@@ -65,12 +65,6 @@ public class AwsConfiguration {
         return new SqsMessageQueue();
     }
 
-    @Bean(name = "ShingleMessageQueue")
-    @ConfigurationProperties("kiosk.aws.queue.ShingleMessageQueue")
-    MessageQueue shingleMessageQueue() {
-        return new SqsMessageQueue();
-    }
-
     @Bean(name = "ImageMessageQueue")
     @ConfigurationProperties("kiosk.aws.queue.ImageMessageQueue")
     MessageQueue imageMessageQueue() {

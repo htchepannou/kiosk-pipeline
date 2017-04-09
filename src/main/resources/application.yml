@@ -18,8 +18,6 @@ kiosk:
         url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-content-queue"
       ValidationMessageQueue:
         url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-validation-queue"
-      ShingleMessageQueue:
-        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-shingle-queue"
       ImageMessageQueue:
         url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-image-queue"
       ThumbnailMessageQueue:
@@ -46,8 +44,6 @@ kiosk:
         home: "${kiosk.local.queue.home}/validation"
       ImageMessageQueue:
         home: "${kiosk.local.queue.home}/image"
-      ShingleMessageQueue:
-        home: "${kiosk.local.queue.home}/shingle"
       ThumbnailMessageQueue:
         home: "${kiosk.local.queue.home}/thumbnail"
       VideoMessageQueue:
@@ -66,11 +62,6 @@ kiosk:
     ContentConsumer:
       rawFolder: "${kiosk.environment}/html"
       contentFolder: "${kiosk.environment}/content"
-    ShingleConsumer:
-      shingleSize: 3      # Number of words per shingle
-      maxShingles: 200    # Max shingle to use for computing similarity
-      contentFolder: "${kiosk.environment}/content"
-      shingleFolder: "${kiosk.environment}/shingle"
     ImageConsumer:
       rawFolder: "${kiosk.environment}/html"
       imageFolder: "${kiosk.environment}/image"

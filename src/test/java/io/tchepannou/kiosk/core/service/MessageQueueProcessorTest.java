@@ -9,7 +9,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.concurrent.CountDownLatch;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doNothing;
@@ -30,7 +29,7 @@ public class MessageQueueProcessorTest {
     private Delay delay;
 
     @Mock
-    private CountDownLatch latch;
+    private ThreadCountDown latch;
 
     @InjectMocks
     MessageQueueProcessor processor;
@@ -94,6 +93,7 @@ public class MessageQueueProcessorTest {
 
         verify(delay, times(3)).sleep();
 
+        verify(latch).countUp();
         verify(latch).countDown();
     }
 }

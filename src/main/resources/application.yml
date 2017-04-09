@@ -150,6 +150,7 @@ kiosk:
       - "http://thehotjem.com/page/*"
       - "http://thehotjem.com/tag/*"
       - "http://cameroon-concord.com/?start=*"             # cameroon-concord
+      - "http://cameroon-concord.com/?format=feed"
       - "http://madeinmboa.net/category/*"                 # madeinmboa
       - "http://www.ckomentpublishing.com/category/*"      # C'Koment Magazine
       - "http://www.ticmag.net/category/*"                 # TIC Mag
@@ -172,7 +173,7 @@ spring:
     #password:
     connectionTimeout: 30000
     connectionTestQuery: SELECT 1
-    maximumPoolSize: 10
+    maximumPoolSize: 100
     idleTimeout: 15000
     maxLifetime: 60000
     leakDetectionThreshold: 30000

@@ -5,21 +5,20 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 public class MessageQueueProcessor implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageQueueProcessor.class);
 
-    private MessageQueue queue;
-    private Consumer consumer;
-    private Delay delay;
-    private CountDownLatch latch;
+    private final MessageQueue queue;
+    private final Consumer consumer;
+    private final Delay delay;
+    private final ThreadCountDown latch;
 
     public MessageQueueProcessor(
             final MessageQueue queue,
             final Consumer consumer,
             final Delay delay,
-            final CountDownLatch latch
+            final ThreadCountDown latch
     ) {
         this.queue = queue;
         this.consumer = consumer;
@@ -27,9 +26,9 @@ public class MessageQueueProcessor implements Runnable {
         this.latch = latch;
     }
 
-
     @Override
     public void run() {
+        latch.countUp();
         try {
             int count = 0;
             while (true) {
@@ -37,17 +36,20 @@ public class MessageQueueProcessor implements Runnable {
 
                     final int processed = process();
                     if (processed == 0) {
-                        delay.sleep();
+                        if (!delay.sleep()){
+                            LOGGER.info("Too much wait on <{}>... stopping", queue.getName());
+                            break;
+                        }
                     } else {
                         delay.reset();
                         count += processed;
                     }
 
-                } catch (InterruptedException e) {
+                } catch (final InterruptedException e) {
 
                     break;
 
-                } catch (IOException e) {
+                } catch (final IOException e) {
 
                     LOGGER.error("Unexpected error", e);
                     break;
@@ -60,16 +62,16 @@ public class MessageQueueProcessor implements Runnable {
         }
     }
 
-    public int process () throws IOException {
+    public int process() throws IOException {
         final List<String> messages = queue.poll();
         int count = 0;
 
-        for (String message : messages){
+        for (final String message : messages) {
             try {
                 consumer.consume(message);
                 count++;
-            } catch (Exception e){
-                LOGGER.error("Unable to consume {}", message, e);
+            } catch (final Exception e) {
+                LOGGER.error("Unable to consume <{}>", message, e);
             }
         }
 

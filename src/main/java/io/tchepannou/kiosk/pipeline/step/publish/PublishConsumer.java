@@ -18,6 +18,8 @@ public class PublishConsumer extends AbstractLinkConsumer {
         if (link.isValid()) {
             LOGGER.info("Publishing <{}>", link.getId());
             link.setStatus(LinkStatusEnum.published);
+        } else {
+            LOGGER.info("Can't publishing invalid link <{}>. Reason=<{}>", link.getId(), link.getInvalidReason());
         }
         linkRepository.save(link);
     }

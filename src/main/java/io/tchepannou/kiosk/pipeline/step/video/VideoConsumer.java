@@ -29,6 +29,7 @@ public class VideoConsumer extends AbstractLinkConsumer {
         for (final String url : urls) {
             final Link video = createVideo(link.getFeed(), url);
             if (video != null) {
+                LOGGER.info("New video. <{}> <{}>", link.getId(), url);
                 createAsset(link, video, AssetTypeEnum.video);
             }
         }
@@ -49,15 +50,15 @@ public class VideoConsumer extends AbstractLinkConsumer {
             video.setStatus(LinkStatusEnum.valid);
 
             try {
-                VideoInfo info = getInfo(url);
+                final VideoInfo info = getInfo(url);
                 if (info != null) {
                     video.setTitle(info.getTitle());
                     video.setSummary(info.getDescription());
-                    if (info.getPublishedDate() != null){
+                    if (info.getPublishedDate() != null) {
                         video.setPublishedDate(info.getPublishedDate());
                     }
                 }
-            } catch (IOException e){
+            } catch (final IOException e) {
                 LOGGER.warn("Unable to extract video information from {}", url, e);
             }
 
@@ -68,9 +69,9 @@ public class VideoConsumer extends AbstractLinkConsumer {
     }
 
     private VideoInfo getInfo(final String url) throws IOException {
-        for (final VideoProvider provider : providers){
+        for (final VideoProvider provider : providers) {
             final VideoInfo info = provider.getInfo(url);
-            if (info != null){
+            if (info != null) {
                 return info;
             }
         }

@@ -6,9 +6,11 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.util.IOUtils;
 import io.tchepannou.kiosk.core.service.FileRepository;
+import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.activation.MimetypesFileTypeMap;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,19 +32,23 @@ public class S3FileRepository implements FileRepository {
 
     @Override
     public void write(final String path, final InputStream in) throws IOException {
-        try {
-            final ObjectMetadata meta = createObjectMetadata(path);
-            s3.putObject(bucket, path, in, meta);
+        try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            IOUtils.copy(in, out);
+            final byte[] bytes = out.toByteArray();
+
+            final ObjectMetadata meta = createObjectMetadata(path, bytes.length);
+            s3.putObject(bucket, path, new ByteArrayInputStream(bytes), meta);
         } catch (final AmazonClientException e) {
             throw new IOException(String.format("Unable to write to s3://%s/%s", bucket, path), e);
         }
     }
 
-    private ObjectMetadata createObjectMetadata(final String path) {
+    private ObjectMetadata createObjectMetadata(final String path, final int len) {
         final ObjectMetadata meta = new ObjectMetadata();
 
         final String contentType = MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(path);
-        if (contentType != null){
+        meta.setContentLength(len);
+        if (contentType != null) {
             meta.setContentType(contentType);
         }
 

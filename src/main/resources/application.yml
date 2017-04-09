@@ -159,6 +159,8 @@ kiosk:
       - "http://www.ticmag.net/contact-2"
       - "http://www.dailynewscameroon.com/category/*"       # Daily News Cameroon
       - "http://journalducameroun.com/category/*"           # Journal du Cameroun
+      - "http://www.sparkcameroun.com/?p=*"                 # sparkcameroun
+      - "http://www.sparkcameroun.com/category/*"           # sparkcameroun
 
 
 spring:
@@ -210,5 +212,5 @@ logging:
     springfix: WARN
 
   pattern:
-    console: "%d Type=%level Thread=%thread Message='%m'%n"
-    file: "%d Type=%level Thread=%thread Message='%m'%n"
+    console: "%d Type=%level Logger=%c Thread=%thread Message='%m'%n"
+    file: "%d Type=%level Logger=%c Thread=%thread Message='%m'%n"

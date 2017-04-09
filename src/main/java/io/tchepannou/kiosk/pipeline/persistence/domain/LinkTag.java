@@ -23,6 +23,14 @@ public class LinkTag {
     @JoinColumn(name = "tag_fk")
     private Tag tag;
 
+    public LinkTag() {
+    }
+
+    public LinkTag(final Link link, final Tag tag) {
+        this.link = link;
+        this.tag = tag;
+    }
+
     public long getId() {
         return id;
     }

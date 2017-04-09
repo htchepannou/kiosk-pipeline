@@ -3,7 +3,8 @@ CREATE TABLE tag (
   name     VARCHAR(64),
   creation_datetime DATETIME DEFAULT NOW(),
 
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  UNIQUE(name)
 ) ENGINE = InnoDB;
 
 CREATE TABLE link_tag (

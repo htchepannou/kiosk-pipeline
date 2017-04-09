@@ -22,6 +22,7 @@ import io.tchepannou.kiosk.pipeline.step.content.filter.TrimFilter;
 import io.tchepannou.kiosk.pipeline.step.download.DownloadConsumer;
 import io.tchepannou.kiosk.pipeline.step.image.ImageConsumer;
 import io.tchepannou.kiosk.pipeline.step.image.ThumbnailConsumer;
+import io.tchepannou.kiosk.pipeline.step.metadata.HtmlTagExtractor;
 import io.tchepannou.kiosk.pipeline.step.metadata.MetadataConsumer;
 import io.tchepannou.kiosk.pipeline.step.metadata.TitleFilter;
 import io.tchepannou.kiosk.pipeline.step.metadata.TitleFilterSet;
@@ -149,8 +150,8 @@ public class PipelineConfiguration {
         execute(contentMessageQueueProcessor());
         execute(validationMessageQueueProcessor());
         execute(imageMessageQueueProcessor());
-        execute(videoMessageQueueProcessor());
         execute(thumbnailMessageQueueProcessor());
+        execute(videoMessageQueueProcessor());
 
         threadCountDown().await();
     }
@@ -184,6 +185,8 @@ public class PipelineConfiguration {
     ThreadCountDown threadCountDown() {
         return new ThreadCountDown();
     }
+
+
 
     //-- Url
     @Bean
@@ -241,6 +244,12 @@ public class PipelineConfiguration {
                 new TitleSuffixFilter() /* SHOULD BE THE LAST!!! */
         ));
     }
+
+    @Bean
+    HtmlTagExtractor htmlTagExtractor(){
+        return new HtmlTagExtractor();
+    }
+
 
     //-- Content
     @Bean

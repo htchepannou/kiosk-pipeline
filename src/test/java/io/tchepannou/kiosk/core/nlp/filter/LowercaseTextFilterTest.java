@@ -4,8 +4,8 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class LowecaseTextFilterTest {
-    TextFilter filter = new LowecaseTextFilter();
+public class LowercaseTextFilterTest {
+    TextFilter filter = new LowercaseTextFilter();
 
     @Test
     public void shouldConvertToLowerCase() throws Exception {

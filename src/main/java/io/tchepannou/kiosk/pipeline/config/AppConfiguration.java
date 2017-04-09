@@ -4,8 +4,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaxxer.hikari.HikariDataSource;
+import io.tchepannou.kiosk.core.nlp.filter.LowercaseTextFilter;
+import io.tchepannou.kiosk.core.nlp.filter.TextFilterSet;
+import io.tchepannou.kiosk.core.nlp.filter.UnaccentTextFilter;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import io.tchepannou.kiosk.pipeline.service.PipelineService;
+import io.tchepannou.kiosk.pipeline.service.TagService;
 import io.tchepannou.kiosk.pipeline.service.UrlService;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
@@ -29,6 +33,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.net.ssl.SSLContext;
 import javax.sql.DataSource;
 import java.time.Clock;
+import java.util.Arrays;
 import java.util.TimeZone;
 
 @Configuration
@@ -121,31 +126,14 @@ public class AppConfiguration implements AsyncConfigurer {
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }
-//    @Bean
-//    TextSimilaryAlgorithm textSimilaryAlgorithm() {
-//        return new JaccardSimilaryAlgorithm();
-//    }
-//
-//    @Bean
-//    ShingleExtractor shingleExtractor() {
-//        return new ShingleExtractor();
-//    }
-//
-//    @Bean
-//    ArticleDocumentFactory articleDocumentFactory() {
-//        return new ArticleDocumentFactory();
-//    }
-//
-//    @Bean
-//    @ConfigurationProperties("kiosk.service.SimilarityService")
-//    SimilarityService documentSimilarityService() {
-//        return new SimilarityService(Arrays.asList(
-//                new LowecaseTextFilter(),
-//                new UnaccentTextFilter(),
-//                new PunctuationTextFilter(),
-//                new WhitespaceTextFilter()
-//        ));
-//    }
+
+    @Bean
+    public TagService tagService(){
+        return new TagService(new TextFilterSet(Arrays.asList(
+                new UnaccentTextFilter(),
+                new LowercaseTextFilter()
+        )));
+    }
 
     @Bean
     @ConfigurationProperties("kiosk.service.UrlService")

@@ -15,6 +15,13 @@ public class Tag {
     @Column(length = 255)
     private String name;
 
+    public Tag() {
+    }
+
+    public Tag(final String name) {
+        this.name = name;
+    }
+
     public long getId() {
         return id;
     }
@@ -29,5 +36,23 @@ public class Tag {
 
     public void setName(final String name) {
         this.name = name;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof Tag))
+            return false;
+
+        final Tag tag = (Tag) o;
+
+        return getId() == tag.getId();
+
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (getId() ^ (getId() >>> 32));
     }
 }

@@ -47,12 +47,6 @@ public class LocalConfiguration {
         return new LocalMessageQueue();
     }
 
-    @Bean(name = "ShingleMessageQueue")
-    @ConfigurationProperties("kiosk.local.queue.ShingleMessageQueue")
-    MessageQueue shingleMessageQueue() {
-        return new LocalMessageQueue();
-    }
-
     @Bean(name = "ImageMessageQueue")
     @ConfigurationProperties("kiosk.local.queue.ImageMessageQueue")
     MessageQueue imageMessageQueue() {

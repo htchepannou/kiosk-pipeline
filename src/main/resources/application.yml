@@ -184,7 +184,7 @@ spring:
     #password:
     connectionTimeout: 30000
     connectionTestQuery: SELECT 1
-    maximumPoolSize: 100
+    maximumPoolSize: 20
     idleTimeout: 15000
     maxLifetime: 60000
     leakDetectionThreshold: 30000

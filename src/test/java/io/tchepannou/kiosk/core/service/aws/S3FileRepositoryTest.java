@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import io.tchepannou.kiosk.pipeline.Fixtures;
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,6 +17,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -73,7 +75,10 @@ public class S3FileRepositoryTest {
 
         // Then
         ArgumentCaptor<ObjectMetadata> meta = ArgumentCaptor.forClass(ObjectMetadata.class);
-        verify(s3).putObject(eq("bucket"), eq("testWrite/01.txt"), eq(in), meta.capture());
+        ArgumentCaptor<InputStream> xin = ArgumentCaptor.forClass(InputStream.class);
+        verify(s3).putObject(eq("bucket"), eq("testWrite/01.txt"), xin.capture(), meta.capture());
+
+        assertThat(IOUtils.toString(xin.getValue())).isEqualTo("toto");
     }
 
     @Test(expected = IOException.class)

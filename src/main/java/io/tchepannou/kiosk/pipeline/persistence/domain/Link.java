@@ -31,9 +31,6 @@ public class Link {
     @Column(name = "content_key", columnDefinition = "TEXT")
     private String contentKey;
 
-    @Column(name = "shingle_key", columnDefinition = "TEXT")
-    private String shingleKey;
-
 
     @Column(name="url_hash", columnDefinition = "char(32)")
     private String urlHash;
@@ -228,13 +225,5 @@ public class Link {
 
     public void setCreationDateTime(final Date creationDateTime) {
         this.creationDateTime = creationDateTime;
-    }
-
-    public String getShingleKey() {
-        return shingleKey;
-    }
-
-    public void setShingleKey(final String shingleKey) {
-        this.shingleKey = shingleKey;
     }
 }

@@ -32,6 +32,8 @@ public class Feed {
     @Column(name="onboard_date")
     private Date onboardDate;
 
+    private boolean active;
+
     //-- Public
     public boolean urlMatches(String uri) {
         uri = uri.toLowerCase();
@@ -109,5 +111,13 @@ public class Feed {
 
     public void setOnboardDate(final Date onboardDate) {
         this.onboardDate = onboardDate;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(final boolean active) {
+        this.active = active;
     }
 }

@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -79,7 +78,7 @@ public class MessageQueueProcessorTest {
                 .thenThrow(IOException.class)
         ;
 
-        doNothing().when(delay).sleep();
+        when(delay.sleep()).thenReturn(true);
 
         // When
         processor.run();

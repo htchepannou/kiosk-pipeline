@@ -30,6 +30,11 @@ public class FeedUrlProducer {
 
     @Async
     public void produce (final Feed feed) throws IOException {
+        if (!feed.isActive()){
+            LOGGER.info("{} is not active. Ignoring it", feed.getUrl());
+            return;
+        }
+
         LOGGER.info("Loading URLs from {}", feed.getUrl());
         final Collection<String> urls = urlService.extractUrls(feed);
         LOGGER.info("{} URLs found for {}", urls.size(), feed.getUrl());

@@ -6,6 +6,7 @@ import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.core.service.MessageQueueProcessor;
 import io.tchepannou.kiosk.core.service.MessageQueueSet;
 import io.tchepannou.kiosk.core.service.Producer;
+import io.tchepannou.kiosk.core.service.ThreadCountDown;
 import io.tchepannou.kiosk.core.service.impl.ConstantDelay;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.service.UrlService;
@@ -142,29 +143,24 @@ public class PipelineConfiguration {
     private void prePublish() throws InterruptedException {
         LOGGER.info("Processing URL");
 
-        final CountDownLatch latch = new CountDownLatch(7);
-
         urlProducer().produce();
-        execute(downloadMessageQueueProcessor(latch));
-        execute(metadataMessageQueueProcessor(latch));
-        execute(contentMessageQueueProcessor(latch));
-        execute(validationMessageQueueProcessor(latch));
-        execute(imageMessageQueueProcessor(latch));
-        execute(videoMessageQueueProcessor(latch));
-        execute(thumbnailMessageQueueProcessor(latch));
+        execute(downloadMessageQueueProcessor());
+        execute(metadataMessageQueueProcessor());
+        execute(contentMessageQueueProcessor());
+        execute(validationMessageQueueProcessor());
+        execute(imageMessageQueueProcessor());
+        execute(videoMessageQueueProcessor());
+        execute(thumbnailMessageQueueProcessor());
 
-        latch.await();
+        threadCountDown().await();
     }
 
     private void publish() throws InterruptedException {
         LOGGER.info("Publishing Articles");
 
-        final CountDownLatch latch = new CountDownLatch(1);
-
         publishProducer().produce();
-        execute(publishMessageQueueProcessor(latch));
-
-        latch.await();
+        execute(publishMessageQueueProcessor());
+        threadCountDown().await();
     }
 
     private void execute(final Runnable runnable) {
@@ -181,7 +177,12 @@ public class PipelineConfiguration {
     //-- Common
     @Bean
     Delay delay() {
-        return new ConstantDelay(60000);
+        return new ConstantDelay(60 * 1000, 10 * 60 * 1000);
+    }
+
+    @Bean
+    ThreadCountDown threadCountDown() {
+        return new ThreadCountDown();
     }
 
     //-- Url
@@ -197,12 +198,12 @@ public class PipelineConfiguration {
 
     //-- Download
     @Bean
-    MessageQueueProcessor downloadMessageQueueProcessor(final CountDownLatch latch) {
+    MessageQueueProcessor downloadMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 urlMessageQueue,
                 downloadConsumer(),
                 delay(),
-                latch
+                threadCountDown()
         );
     }
 
@@ -214,12 +215,12 @@ public class PipelineConfiguration {
 
     //-- Metadata
     @Bean
-    MessageQueueProcessor metadataMessageQueueProcessor(final CountDownLatch latch) {
+    MessageQueueProcessor metadataMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 metadataMessageQueue,
                 metadataConsumer(),
                 delay(),
-                latch
+                threadCountDown()
         );
     }
 
@@ -243,12 +244,12 @@ public class PipelineConfiguration {
 
     //-- Content
     @Bean
-    MessageQueueProcessor contentMessageQueueProcessor(final CountDownLatch latch) {
+    MessageQueueProcessor contentMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 contentMessageQueue,
                 contentConsumer(),
                 delay(),
-                latch
+                threadCountDown()
         );
     }
 
@@ -273,12 +274,12 @@ public class PipelineConfiguration {
 
     //-- Validation
     @Bean
-    MessageQueueProcessor validationMessageQueueProcessor(final CountDownLatch latch) {
+    MessageQueueProcessor validationMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 validationMessageQueue,
                 validationConsumer(),
                 delay(),
-                latch
+                threadCountDown()
         );
     }
 
@@ -309,12 +310,12 @@ public class PipelineConfiguration {
 
     //-- Video
     @Bean
-    MessageQueueProcessor videoMessageQueueProcessor(final CountDownLatch latch) {
+    MessageQueueProcessor videoMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 videoMessageQueue,
                 videoConsumer(),
                 delay(),
-                latch
+                threadCountDown()
         );
     }
 
@@ -335,12 +336,12 @@ public class PipelineConfiguration {
 
     //-- Image
     @Bean
-    MessageQueueProcessor imageMessageQueueProcessor(final CountDownLatch latch) {
+    MessageQueueProcessor imageMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 imageMessageQueue,
                 imageConsumer(),
                 delay(),
-                latch
+                threadCountDown()
         );
     }
 
@@ -352,12 +353,12 @@ public class PipelineConfiguration {
 
     //-- Thubmnail
     @Bean
-    MessageQueueProcessor thumbnailMessageQueueProcessor(final CountDownLatch latch) {
+    MessageQueueProcessor thumbnailMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 thumbnailMessageQueue,
                 thumbnailConsumer(),
                 delay(),
-                latch
+                threadCountDown()
         );
     }
 
@@ -369,12 +370,12 @@ public class PipelineConfiguration {
 
     //-- Thubmnail
     @Bean
-    MessageQueueProcessor publishMessageQueueProcessor(final CountDownLatch latch) {
+    MessageQueueProcessor publishMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 publishMessageQueue,
                 publishConsumer(),
                 delay(),
-                latch
+                threadCountDown()
         );
     }
 

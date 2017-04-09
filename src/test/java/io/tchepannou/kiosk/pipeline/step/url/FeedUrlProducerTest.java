@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,6 +42,7 @@ public class FeedUrlProducerTest {
     @Before
     public void setUp () throws Exception {
         when(urlService.extractUrls(any())).thenReturn(URLS);
+        when(feed.isActive()).thenReturn(true);
     }
 
     @Test
@@ -51,6 +53,18 @@ public class FeedUrlProducerTest {
         // Then
         verify(output).push(URLS.get(0));
         verify(output).push(URLS.get(1));
+    }
+
+    @Test
+    public void shouldNeverProduceUrlForInactiveFeeds() throws Exception {
+        // Given
+        when(feed.isActive()).thenReturn(false);
+
+        // When
+        producer.produce(feed);
+
+        // Then
+        verify(output, never()).push(anyString());
     }
 
     @Test

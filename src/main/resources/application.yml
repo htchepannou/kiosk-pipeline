@@ -162,6 +162,17 @@ kiosk:
       - "http://journalducameroun.com/category/*"           # Journal du Cameroun
       - "http://www.sparkcameroun.com/?p=*"                 # sparkcameroun
       - "http://www.sparkcameroun.com/category/*"           # sparkcameroun
+      - "http://www.thara.tv/category/*"                    # thara.tv
+      - "http://www.thara.tv/tag/*"
+      - "http://www.thara.tv/page/*"
+      - "http://www.thara.tv/notre-vision"
+      - "http://www.thara.tv/le-concept"
+      - "http://www.thara.tv/promoteur"
+      - "http://www.thara.tv/acceuil"
+      - "http://www.thara.tv/galerie"
+      - "http://www.thara.tv/authors"
+      - "http://www.thara.tv/les-programmes"
+      - "http://www.thara.tv/partenaires"
 
 
 spring:

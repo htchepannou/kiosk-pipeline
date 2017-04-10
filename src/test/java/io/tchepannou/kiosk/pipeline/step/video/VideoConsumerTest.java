@@ -5,6 +5,7 @@ import io.tchepannou.kiosk.pipeline.persistence.domain.AssetTypeEnum;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.domain.LinkStatusEnum;
 import io.tchepannou.kiosk.pipeline.persistence.domain.LinkTypeEnum;
+import io.tchepannou.kiosk.pipeline.service.TagService;
 import io.tchepannou.kiosk.pipeline.step.LinkConsumerTestSupport;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Before;
@@ -30,6 +31,9 @@ import static org.mockito.Mockito.when;
 public class VideoConsumerTest extends LinkConsumerTestSupport {
     @Mock
     private List<VideoProvider> providers;
+
+    @Mock
+    private TagService tagService;
 
     @Mock
     private VideoProvider youtube;
@@ -61,6 +65,7 @@ public class VideoConsumerTest extends LinkConsumerTestSupport {
         info.setTitle("This is the title");
         info.setDescription("This is the long description of video");
         info.setPublishedDate(publishedDate);
+        info.setTags(Arrays.asList("tag1", "tag2", "tag3"));
         when(youtube.getInfo(anyString())).thenReturn(info);
 
         // Then
@@ -84,5 +89,48 @@ public class VideoConsumerTest extends LinkConsumerTestSupport {
         assertThat(asset.getValue().getLink()).isEqualTo(link);
         assertThat(asset.getValue().getTarget()).isEqualTo(video.getValue());
         assertThat(asset.getValue().getType()).isEqualTo(AssetTypeEnum.video);
+
+        verify(tagService).tag(video.getValue(), Arrays.asList("tag1", "tag2", "tag3"));
+    }
+
+    @Test
+    public void shouldUpdateVideo() throws Exception {
+        // Given
+        final Link link = new Link();
+
+        when(linkRepository.findByUrlHash(anyString())).thenReturn(link);
+
+        doAnswer(read("/video/mbokotv.html")).when(repository).read(anyString(), any());
+
+        doAnswer(save(567)).when(linkRepository).save(any(Link.class));
+
+        when(youtube.getEmbedUrl(anyString())).thenReturn("http://you.be/4309430");
+
+        final Date publishedDate = DateUtils.addDays(new Date(), -10);
+        final VideoInfo info = new VideoInfo();
+        info.setTitle("This is the title");
+        info.setDescription("This is the long description of video");
+        info.setPublishedDate(publishedDate);
+        info.setTags(Arrays.asList("tag1", "tag2", "tag3"));
+        when(youtube.getInfo(anyString())).thenReturn(info);
+
+        // Then
+        consumer.consume(link);
+
+        // Then
+        final ArgumentCaptor<Link> video = ArgumentCaptor.forClass(Link.class);
+        verify(linkRepository).save(video.capture());
+
+        assertThat(video.getValue().getTitle()).isEqualTo("This is the title");
+        assertThat(video.getValue().getSummary()).isEqualTo("This is the long description of video");
+        assertThat(video.getValue().getPublishedDate()).isEqualTo(publishedDate);
+
+        final ArgumentCaptor<Asset> asset = ArgumentCaptor.forClass(Asset.class);
+        verify(assetRepository).save(asset.capture());
+        assertThat(asset.getValue().getLink()).isEqualTo(link);
+        assertThat(asset.getValue().getTarget()).isEqualTo(video.getValue());
+        assertThat(asset.getValue().getType()).isEqualTo(AssetTypeEnum.video);
+
+        verify(tagService).tag(video.getValue(), Arrays.asList("tag1", "tag2", "tag3"));
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -53,9 +54,13 @@ public class YouTube implements VideoProvider {
         final VideoInfo info = new VideoInfo();
         final SimpleDateFormat fmt = new SimpleDateFormat(DATETIME_FORMAT);
         final String publishedDate = (String) items.get("publishedAt");
+        final List<String> tags = (List) items.get("tags");
+
         info.setId(id);
         info.setTitle((String) items.get("title"));
         info.setDescription((String) items.get("description"));
+        info.setTags(tags != null ? tags : Collections.emptyList());
+
         try {
             info.setPublishedDate(fmt.parse(publishedDate));
         } catch (final Exception e) {

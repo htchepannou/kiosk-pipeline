@@ -5,12 +5,14 @@ import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.domain.LinkStatusEnum;
 import io.tchepannou.kiosk.pipeline.persistence.domain.LinkTypeEnum;
+import io.tchepannou.kiosk.pipeline.service.TagService;
 import io.tchepannou.kiosk.pipeline.step.AbstractLinkConsumer;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
@@ -20,7 +22,15 @@ import java.util.List;
 @Transactional
 public class VideoConsumer extends AbstractLinkConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(VideoConsumer.class);
+
     private List<VideoProvider> providers = new ArrayList<>();
+
+    @Autowired
+    private TagService tagService;
+
+    public VideoConsumer(final List<VideoProvider> providers) {
+        this.providers = providers;
+    }
 
     @Override
     protected void consume(final Link link) throws IOException {
@@ -39,6 +49,8 @@ public class VideoConsumer extends AbstractLinkConsumer {
             final Feed feed,
             final String url
     ) {
+        /* create video */
+        VideoInfo info = null;
         final String urlHash = Link.hash(url);
         Link video = linkRepository.findByUrlHash(urlHash);
         if (video == null) {
@@ -48,21 +60,27 @@ public class VideoConsumer extends AbstractLinkConsumer {
             video.setUrlHash(urlHash);
             video.setType(LinkTypeEnum.video);
             video.setStatus(LinkStatusEnum.valid);
+        }
 
-            try {
-                final VideoInfo info = getInfo(url);
-                if (info != null) {
-                    video.setTitle(info.getTitle());
-                    video.setSummary(info.getDescription());
-                    if (info.getPublishedDate() != null) {
-                        video.setPublishedDate(info.getPublishedDate());
-                    }
+        try {
+            info = getInfo(url);
+            if (info != null) {
+                video.setTitle(info.getTitle());
+                video.setSummary(info.getDescription());
+                if (info.getPublishedDate() != null) {
+                    video.setPublishedDate(info.getPublishedDate());
                 }
-            } catch (final IOException e) {
-                LOGGER.warn("Unable to extract video information from {}", url, e);
             }
 
-            linkRepository.save(video);
+        } catch (final IOException e) {
+            LOGGER.warn("Unable to extract video information from {}", url, e);
+        }
+
+        linkRepository.save(video);
+
+        /* tag video */
+        if (info != null){
+            tagService.tag(video, info.getTags());
         }
 
         return video;

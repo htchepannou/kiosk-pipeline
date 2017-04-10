@@ -1,6 +1,7 @@
 package io.tchepannou.kiosk.pipeline.step.video;
 
 import java.util.Date;
+import java.util.List;
 
 public class VideoInfo {
     private String id;
@@ -8,6 +9,7 @@ public class VideoInfo {
     private String description;
     private String thumbnailUrl;
     private Date publishedDate;
+    private List<String> tags;
 
     public String getId() {
         return id;
@@ -47,5 +49,13 @@ public class VideoInfo {
 
     public void setPublishedDate(final Date publishedDate) {
         this.publishedDate = publishedDate;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(final List<String> tags) {
+        this.tags = tags;
     }
 }

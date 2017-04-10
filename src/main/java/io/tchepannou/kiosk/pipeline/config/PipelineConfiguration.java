@@ -331,11 +331,9 @@ public class PipelineConfiguration {
 
     @Bean
     Consumer videoConsumer() {
-        final VideoConsumer consumer = new VideoConsumer();
-        consumer.setProviders(Arrays.asList(
+        return new VideoConsumer(Arrays.asList(
                 youTube()
         ));
-        return consumer;
     }
 
     @Bean

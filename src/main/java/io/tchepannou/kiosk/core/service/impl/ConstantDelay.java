@@ -7,37 +7,49 @@ import org.slf4j.LoggerFactory;
 public class ConstantDelay implements Delay {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConstantDelay.class);
 
-    private long maxWaitMillis;
-    private long durationMillis;
-    private long durationTotalMillis;
+    private long maxSleepMillis;
+    private long sleepMillis;
+    private long totalSleepMillis;
 
     public ConstantDelay() {
     }
 
-    public ConstantDelay(final long durationMillis, final long maxWaitMillis) {
-        this.durationMillis = durationMillis;
-        this.maxWaitMillis = maxWaitMillis;
+    public ConstantDelay(final long sleepMillis, final long maxSleepMillis) {
+        this.sleepMillis = sleepMillis;
+        this.maxSleepMillis = maxSleepMillis;
     }
 
     @Override
     public boolean sleep() throws InterruptedException {
-        durationTotalMillis += durationMillis;
-        LOGGER.info("Sleeping for {}. total wait={}", durationMillis, durationTotalMillis);
+        totalSleepMillis += sleepMillis;
+        LOGGER.info("Sleeping for {}. total wait={}", sleepMillis, totalSleepMillis);
 
-        Thread.sleep(durationMillis);
-        return durationTotalMillis <= maxWaitMillis;
+        Thread.sleep(sleepMillis);
+        return totalSleepMillis <= maxSleepMillis;
     }
 
     @Override
     public void reset() {
-        durationTotalMillis = 0;
+        totalSleepMillis = 0;
     }
 
-    public long getDurationMillis() {
-        return durationMillis;
+    public long getMaxSleepMillis() {
+        return maxSleepMillis;
     }
 
-    public void setDurationMillis(final long durationMillis) {
-        this.durationMillis = durationMillis;
+    public void setMaxSleepMillis(final long maxSleepMillis) {
+        this.maxSleepMillis = maxSleepMillis;
+    }
+
+    public long getSleepMillis() {
+        return sleepMillis;
+    }
+
+    public void setSleepMillis(final long sleepMillis) {
+        this.sleepMillis = sleepMillis;
+    }
+
+    public long getTotalSleepMillis() {
+        return totalSleepMillis;
     }
 }

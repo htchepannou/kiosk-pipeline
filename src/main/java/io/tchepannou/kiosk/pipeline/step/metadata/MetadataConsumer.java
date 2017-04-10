@@ -6,6 +6,7 @@ import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.domain.LinkTypeEnum;
+import io.tchepannou.kiosk.pipeline.service.TagService;
 import io.tchepannou.kiosk.pipeline.step.AbstractLinkConsumer;
 import io.tchepannou.kiosk.pipeline.support.HtmlHelper;
 import org.apache.commons.lang3.time.DateUtils;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import static io.tchepannou.kiosk.pipeline.support.JsoupHelper.select;
 import static io.tchepannou.kiosk.pipeline.support.JsoupHelper.selectMeta;
@@ -40,6 +42,12 @@ public class MetadataConsumer extends AbstractLinkConsumer {
     @Autowired
     TitleFilter titleFilter;
 
+    @Autowired
+    HtmlTagExtractor tagExtractor;
+
+    @Autowired
+    TagService tagService;
+
     private int defaultPublishDateOffsetDays = -7;
 
     @Override
@@ -47,8 +55,28 @@ public class MetadataConsumer extends AbstractLinkConsumer {
         final Document doc = getRawDocument(link);
 
         updateLink(link, doc);
+        tag(link, doc);
 
         push(link, queue);
+    }
+
+
+    private void updateLink(final Link link, final Document doc) {
+        final String title = extractTitle(doc);
+        final Feed feed = link.getFeed();
+
+        link.setTitle(title);
+        link.setSummary(extractSummary(doc));
+        link.setPublishedDate(extractPublishedDate(doc, link));
+        link.setDisplayTitle(titleFilter.filter(title, feed));
+        link.setType(extractType(doc));
+
+        linkRepository.save(link);
+    }
+
+    private void tag(final Link link, final Document doc){
+        final List<String> tagNames = tagExtractor.extract(doc);
+        tagService.tag(link, tagNames);
     }
 
     @VisibleForTesting
@@ -120,19 +148,6 @@ public class MetadataConsumer extends AbstractLinkConsumer {
             }
         }
         return title;
-    }
-
-    private void updateLink(final Link link, final Document doc) {
-        final String title = extractTitle(doc);
-        final Feed feed = link.getFeed();
-
-        link.setTitle(title);
-        link.setSummary(extractSummary(doc));
-        link.setPublishedDate(extractPublishedDate(doc, link));
-        link.setDisplayTitle(titleFilter.filter(title, feed));
-        link.setType(extractType(doc));
-
-        linkRepository.save(link);
     }
 
     private Date asDate(final String date, final DateFormat fmt) {

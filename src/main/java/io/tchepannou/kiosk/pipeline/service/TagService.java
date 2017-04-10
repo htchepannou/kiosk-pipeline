@@ -82,7 +82,7 @@ public class TagService {
         final List<LinkTag> toAdd = new ArrayList<>();
         for (final Tag tag : tags) {
             if (!linkTagMap.containsKey(tag)) {
-                LOGGER.info("...Tagging <{}> with: {}", link.getId(), tag.getName());
+                LOGGER.info("...Tagging <{}> - <{}>", link.getId(), tag.getName());
                 toAdd.add(new LinkTag(link, tag));
             }
         }
@@ -92,7 +92,7 @@ public class TagService {
         final List<LinkTag> toDelete = new ArrayList<>();
         for (final LinkTag linkTag : linkTags) {
             if (!tags.contains(linkTag.getTag())) {
-                LOGGER.info("...Untagging <{}> with: {}", link.getId(), linkTag.getTag().getName());
+                LOGGER.info("...Untagging <{}> - <{}>", link.getId(), linkTag.getTag().getName());
                 toDelete.add(linkTag);
             }
         }

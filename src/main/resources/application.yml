@@ -4,8 +4,6 @@ kiosk:
   aws:
     connectionTimeout: 30000
     maxErrorRetries: 5
-    s3:
-      s3Bucket: "${kiosk.namespace}.kiosk"
     service:
       FileRepository:
         bucket: "${kiosk.namespace}.kiosk"
@@ -55,6 +53,11 @@ kiosk:
     workers: 1
     maxDurationSeconds: 2100            # 35 mins
     autostart: false
+
+    Delay:
+      sleepMillis:    60000   # 1 min
+      maxSleepMillis: 600000  # 10 mins
+
     DownloadConsumer:
       folder: "${kiosk.environment}/html"
     MetadataConsumer:
@@ -80,15 +83,6 @@ kiosk:
     minContentLength: 100
 
   service:
-    ArticleDocumentFactory:
-      s3Bucket: "${kiosk.aws.s3.s3Bucket}"
-
-    SimilarityService:
-      shingleSize: 5      # Number of words per shingle
-      maxShingles: 200    # Max shingle to use for computing similarity
-      maxDays: 7          # Search for similary for articles for the last n days
-      threadCount: 10     # Number of thread that fetch document content
-
     UrlService:
       blacklist:
       - "*.pdf"         # PDF
@@ -173,6 +167,7 @@ kiosk:
       - "http://www.thara.tv/authors"
       - "http://www.thara.tv/les-programmes"
       - "http://www.thara.tv/partenaires"
+      - "http://www.jewanda-magazine.com/theme/*"         # Jewanda - Magazine
 
 
 spring:

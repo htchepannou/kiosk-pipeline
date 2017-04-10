@@ -177,8 +177,9 @@ public class PipelineConfiguration {
 
     //-- Common
     @Bean
+    @ConfigurationProperties("kiosk.step.Delay")
     Delay delay() {
-        return new ConstantDelay(60 * 1000, 10 * 60 * 1000);
+        return new ConstantDelay();
     }
 
     @Bean

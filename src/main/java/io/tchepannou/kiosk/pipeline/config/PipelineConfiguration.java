@@ -5,10 +5,10 @@ import io.tchepannou.kiosk.core.service.Delay;
 import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.core.service.MessageQueueProcessor;
 import io.tchepannou.kiosk.core.service.MessageQueueSet;
-import io.tchepannou.kiosk.core.service.Producer;
 import io.tchepannou.kiosk.core.service.ThreadCountDown;
 import io.tchepannou.kiosk.core.service.impl.ConstantDelay;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
+import io.tchepannou.kiosk.pipeline.service.PipelineService;
 import io.tchepannou.kiosk.pipeline.service.UrlService;
 import io.tchepannou.kiosk.pipeline.step.content.ContentConsumer;
 import io.tchepannou.kiosk.pipeline.step.content.filter.AnchorFilter;
@@ -43,8 +43,6 @@ import io.tchepannou.kiosk.pipeline.step.validation.rules.ArticleShouldHaveTitle
 import io.tchepannou.kiosk.pipeline.step.validation.rules.ArticleUrlShouldNotBeBlacklistedRule;
 import io.tchepannou.kiosk.pipeline.step.video.VideoConsumer;
 import io.tchepannou.kiosk.pipeline.step.video.providers.YouTube;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -54,13 +52,10 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.annotation.PostConstruct;
 import java.util.Arrays;
-import java.util.concurrent.CountDownLatch;
 
 @Configuration
 @ConfigurationProperties("kiosk.step")
 public class PipelineConfiguration {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PipelineConfiguration.class);
-
     @Autowired
     ThreadPoolTaskExecutor executor;
 
@@ -99,85 +94,22 @@ public class PipelineConfiguration {
     @Qualifier("PublishMessageQueue")
     MessageQueue publishMessageQueue;
 
-    boolean autostart;
-    int workers;
-    int maxDurationSeconds;
 
     @PostConstruct
     public void run() throws InterruptedException {
-        LOGGER.info("Starting pipeline");
-
-        // Schedule shutdown
-        shutdown(maxDurationSeconds * 1000);
-
-        // Process async
-        if (!autostart) {
-            return;
-        }
-        executor.execute(() -> {
-            try {
-                prePublish();
-                publish();
-
-                shutdown(0);
-            } catch (InterruptedException e) {
-                LOGGER.warn("Interruped", e);
-            }
-        });
+        pipelineService().run();
     }
 
-    private void shutdown(final int sleepMillis) {
-        executor.execute(() -> {
-            try {
-                if (sleepMillis > 0) {
-                    Thread.sleep(sleepMillis);
-                }
 
-                LOGGER.info("Shutting down...");
-                System.exit(0);
-            } catch (final InterruptedException e) {
-
-            }
-        });
-    }
-
-    private void prePublish() throws InterruptedException {
-        LOGGER.info("Processing URL");
-
-        urlProducer().produce();
-        execute(downloadMessageQueueProcessor());
-        execute(metadataMessageQueueProcessor());
-        execute(contentMessageQueueProcessor());
-        execute(validationMessageQueueProcessor());
-        execute(imageMessageQueueProcessor());
-        execute(thumbnailMessageQueueProcessor());
-        execute(videoMessageQueueProcessor());
-
-        threadCountDown().await();
-    }
-
-    private void publish() throws InterruptedException {
-        LOGGER.info("Publishing Articles");
-
-        publishProducer().produce();
-        execute(publishMessageQueueProcessor());
-        threadCountDown().await();
-    }
-
-    private void execute(final Runnable runnable) {
-        for (int i = 0; i < workers; i++) {
-            executor.execute(runnable);
-        }
+    //-- Commons
+    @Bean
+    @ConfigurationProperties("kiosk.service.PipelineService")
+    PipelineService pipelineService() {
+        return new PipelineService();
     }
 
     @Bean
-    CountDownLatch countDownLatch() {
-        return new CountDownLatch(7);
-    }
-
-    //-- Common
-    @Bean
-    @ConfigurationProperties("kiosk.step.Delay")
+    @ConfigurationProperties("kiosk.service.Delay")
     Delay delay() {
         return new ConstantDelay();
     }
@@ -201,7 +133,7 @@ public class PipelineConfiguration {
     }
 
     //-- Download
-    @Bean
+    @Bean(name = "DownloadMessageQueueProcessor")
     MessageQueueProcessor downloadMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 urlMessageQueue,
@@ -218,7 +150,7 @@ public class PipelineConfiguration {
     }
 
     //-- Metadata
-    @Bean
+    @Bean(name="MetadataMessageQueueProcessor")
     MessageQueueProcessor metadataMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 metadataMessageQueue,
@@ -253,7 +185,7 @@ public class PipelineConfiguration {
 
 
     //-- Content
-    @Bean
+    @Bean(name="ContentMessageQueueProcessor")
     MessageQueueProcessor contentMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 contentMessageQueue,
@@ -283,7 +215,7 @@ public class PipelineConfiguration {
     }
 
     //-- Validation
-    @Bean
+    @Bean(name="ValidationMessageQueueProcessor")
     MessageQueueProcessor validationMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 validationMessageQueue,
@@ -319,7 +251,7 @@ public class PipelineConfiguration {
     }
 
     //-- Video
-    @Bean
+    @Bean(name="VideoMessageQueueProcessor")
     MessageQueueProcessor videoMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 videoMessageQueue,
@@ -343,7 +275,7 @@ public class PipelineConfiguration {
     }
 
     //-- Image
-    @Bean
+    @Bean(name="ImageMessageQueueProcessor")
     MessageQueueProcessor imageMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 imageMessageQueue,
@@ -360,7 +292,7 @@ public class PipelineConfiguration {
     }
 
     //-- Thubmnail
-    @Bean
+    @Bean(name="ThumbnailMessageQueueProcessor")
     MessageQueueProcessor thumbnailMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 thumbnailMessageQueue,
@@ -377,7 +309,7 @@ public class PipelineConfiguration {
     }
 
     //-- Thubmnail
-    @Bean
+    @Bean(name="PublishMessageQueueProcessor")
     MessageQueueProcessor publishMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 publishMessageQueue,
@@ -394,32 +326,7 @@ public class PipelineConfiguration {
     }
 
     @Bean
-    Producer publishProducer() {
+    PublishProducer publishProducer() {
         return new PublishProducer();
-    }
-
-    //-- Getter/Setter
-    public int getWorkers() {
-        return workers;
-    }
-
-    public void setWorkers(final int workers) {
-        this.workers = workers;
-    }
-
-    public int getMaxDurationSeconds() {
-        return maxDurationSeconds;
-    }
-
-    public void setMaxDurationSeconds(final int maxDurationSeconds) {
-        this.maxDurationSeconds = maxDurationSeconds;
-    }
-
-    public boolean isAutostart() {
-        return autostart;
-    }
-
-    public void setAutostart(final boolean autostart) {
-        this.autostart = autostart;
     }
 }

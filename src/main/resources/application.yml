@@ -50,14 +50,6 @@ kiosk:
         home: "${kiosk.local.queue.home}/publish"
 
   step:
-    workers: 1
-    maxDurationSeconds: 2100            # 35 mins
-    autostart: false
-
-    Delay:
-      sleepMillis:    60000   # 1 min
-      maxSleepMillis: 600000  # 10 mins
-
     DownloadConsumer:
       folder: "${kiosk.environment}/html"
     MetadataConsumer:
@@ -83,6 +75,15 @@ kiosk:
     minContentLength: 100
 
   service:
+    PipelineService:
+      workers: 1
+      maxDurationSeconds: 2100            # 35 mins
+      autostart: false
+
+    Delay:
+      sleepMillis:    60000   # 1 min
+      maxSleepMillis: 600000  # 10 mins
+
     UrlService:
       blacklist:
       - "*.pdf"         # PDF

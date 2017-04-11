@@ -8,7 +8,6 @@ import io.tchepannou.kiosk.core.nlp.filter.LowercaseTextFilter;
 import io.tchepannou.kiosk.core.nlp.filter.TextFilterSet;
 import io.tchepannou.kiosk.core.nlp.filter.UnaccentTextFilter;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
-import io.tchepannou.kiosk.pipeline.service.PipelineService;
 import io.tchepannou.kiosk.pipeline.service.TagService;
 import io.tchepannou.kiosk.pipeline.service.UrlService;
 import org.apache.http.client.config.CookieSpecs;
@@ -115,11 +114,6 @@ public class AppConfiguration implements AsyncConfigurer {
     @Bean
     public HttpService httpService() {
         return new HttpService();
-    }
-
-    @Bean
-    public PipelineService pipelineService() {
-        return new PipelineService();
     }
 
     @Bean

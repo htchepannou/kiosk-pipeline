@@ -79,6 +79,7 @@ kiosk:
       workers: 1
       maxDurationSeconds: 2100            # 35 mins
       autostart: false
+      reprocessKey: "${kiosk.environment}/reprocess/go"
 
     Delay:
       sleepMillis:    60000   # 1 min

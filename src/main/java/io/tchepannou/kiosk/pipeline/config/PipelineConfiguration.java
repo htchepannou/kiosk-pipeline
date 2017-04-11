@@ -51,6 +51,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.util.Arrays;
 
 @Configuration
@@ -96,7 +97,8 @@ public class PipelineConfiguration {
 
 
     @PostConstruct
-    public void run() throws InterruptedException {
+    public void run() throws IOException {
+        pipelineService().reprocess();
         pipelineService().run();
     }
 

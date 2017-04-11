@@ -92,4 +92,13 @@ public class S3FileRepositoryTest {
         // When
         repo.write("testWrite/01.txt", in);
     }
+
+    @Test
+    public void testDelete() throws Exception {
+        // When
+        repo.delete("testDelete/01.txt");
+
+        // Then
+        verify(s3).deleteObject("bucket", "testDelete/01.txt");
+    }
 }

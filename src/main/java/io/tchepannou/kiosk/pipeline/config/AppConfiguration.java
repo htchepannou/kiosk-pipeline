@@ -7,7 +7,9 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.tchepannou.kiosk.core.nlp.filter.LowercaseTextFilter;
 import io.tchepannou.kiosk.core.nlp.filter.TextFilterSet;
 import io.tchepannou.kiosk.core.nlp.filter.UnaccentTextFilter;
+import io.tchepannou.kiosk.core.nlp.filter.WhitespaceTextFilter;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
+import io.tchepannou.kiosk.pipeline.service.ShutdownService;
 import io.tchepannou.kiosk.pipeline.service.TagService;
 import io.tchepannou.kiosk.pipeline.service.UrlService;
 import org.apache.http.client.config.CookieSpecs;
@@ -122,10 +124,11 @@ public class AppConfiguration implements AsyncConfigurer {
     }
 
     @Bean
-    public TagService tagService(){
+    public TagService tagService() {
         return new TagService(new TextFilterSet(Arrays.asList(
                 new UnaccentTextFilter(),
-                new LowercaseTextFilter()
+                new LowercaseTextFilter(),
+                new WhitespaceTextFilter()
         )));
     }
 
@@ -133,5 +136,10 @@ public class AppConfiguration implements AsyncConfigurer {
     @ConfigurationProperties("kiosk.service.UrlService")
     UrlService urlService() {
         return new UrlService();
+    }
+
+    @Bean
+    ShutdownService shutdownService() {
+        return new ShutdownService();
     }
 }

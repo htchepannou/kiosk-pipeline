@@ -1,10 +1,12 @@
 package io.tchepannou.kiosk.pipeline.service;
 
+import io.tchepannou.kiosk.core.service.FileRepository;
 import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.core.service.MessageQueueProcessor;
 import io.tchepannou.kiosk.core.service.ThreadCountDown;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
+import io.tchepannou.kiosk.pipeline.persistence.domain.LinkTypeEnum;
 import io.tchepannou.kiosk.pipeline.persistence.repository.FeedRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.step.publish.PublishProducer;
@@ -15,8 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 
-import javax.annotation.PostConstruct;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -25,13 +28,10 @@ public class PipelineService {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineService.class);
 
     @Autowired
-    UrlProducer urlProducer;
-
-    @Autowired
-    PublishProducer publishProducer;
-
-    @Autowired
     Executor executor;
+
+    @Autowired
+    FileRepository fileRepository;
 
     @Autowired
     FeedRepository feedRepository;
@@ -41,6 +41,15 @@ public class PipelineService {
 
     @Autowired
     ThreadCountDown threadCountDown;
+
+    @Autowired
+    ShutdownService shutdownService;
+
+    @Autowired
+    UrlProducer urlProducer;
+
+    @Autowired
+    PublishProducer publishProducer;
 
     @Autowired
     @Qualifier("MetadataMessageQueue")
@@ -81,18 +90,58 @@ public class PipelineService {
     boolean autostart;
     int workers;
     int maxDurationSeconds;
+    String reprocessKey;
 
     //-- Public
-    public void reprocess(final long feedId) {
-        final Feed feed = feedRepository.findOne(feedId);
+    @Async
+    public void reprocess() throws IOException {
+        if (shouldReprocess()) {
+            LOGGER.info("Reprocessing links");
+            try {
+                final Iterable<Feed> feeds = feedRepository.findAll();
+                for (final Feed feed : feeds) {
+                    if (feed.isActive()) {
+                        reprocess(feed);
+                    }
+                }
+            } finally {
+                fileRepository.delete(reprocessKey);
+            }
+        }
+    }
+
+    @Async
+    public void run() {
+        // Schedule shutdown
+        shutdownService.shutdown(maxDurationSeconds * 1000);
+
+        // Process async
+        if (!autostart) {
+            return;
+        }
+
+        try {
+            LOGGER.info("Starting pipeline");
+
+            prePublish();
+            publish();
+
+            shutdownService.shutdownNow();
+        } catch (final InterruptedException e) {
+            LOGGER.warn("Interruped", e);
+        }
+    }
+
+    //-- Private
+    private void reprocess(final Feed feed) {
         final int limit = 200;
         for (int i = 0; ; i++) {
             final Pageable pageable = new PageRequest(i, limit);
-            final List<Link> links = linkRepository.findByFeed(feed, pageable);
+            final List<Link> links = linkRepository.findByFeedAndType(feed, LinkTypeEnum.article, pageable);
+            LOGGER.error("<{}> article(s) from <{}> to reprocess", links.size(), feed.getUrl());
 
             for (final Link link : links) {
                 try {
-                    LOGGER.error("Pushing <{}> to <{}>", link.getId(), metadataMessageQueue.getName());
                     metadataMessageQueue.push(String.valueOf(link.getId()));
                 } catch (final IOException e) {
                     LOGGER.error("Unable to push <{}> to <{}>", link.getId(), metadataMessageQueue.getName());
@@ -106,43 +155,13 @@ public class PipelineService {
 
     }
 
-    @PostConstruct
-    public void run() throws InterruptedException {
-        LOGGER.info("Starting pipeline");
-
-        // Schedule shutdown
-        shutdown(maxDurationSeconds * 1000);
-
-        // Process async
-        if (!autostart) {
-            return;
+    private boolean shouldReprocess() {
+        try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            fileRepository.read(reprocessKey, out);
+            return true;
+        } catch (final Exception e) {
+            return false;
         }
-
-        executor.execute(() -> {
-            try {
-                prePublish();
-                publish();
-
-                shutdown(0);
-            } catch (InterruptedException e) {
-                LOGGER.warn("Interruped", e);
-            }
-        });
-    }
-
-    private void shutdown(final int sleepMillis) {
-        executor.execute(() -> {
-            try {
-                if (sleepMillis > 0) {
-                    Thread.sleep(sleepMillis);
-                }
-
-                LOGGER.info("Shutting down...");
-                System.exit(0);
-            } catch (final InterruptedException e) {
-
-            }
-        });
     }
 
     private void prePublish() throws InterruptedException {
@@ -175,7 +194,6 @@ public class PipelineService {
     }
 
     //-- Getter/Setter
-
     public boolean isAutostart() {
         return autostart;
     }
@@ -198,5 +216,13 @@ public class PipelineService {
 
     public void setMaxDurationSeconds(final int maxDurationSeconds) {
         this.maxDurationSeconds = maxDurationSeconds;
+    }
+
+    public String getReprocessKey() {
+        return reprocessKey;
+    }
+
+    public void setReprocessKey(final String reprocessKey) {
+        this.reprocessKey = reprocessKey;
     }
 }

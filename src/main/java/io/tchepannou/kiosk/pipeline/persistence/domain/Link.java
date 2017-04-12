@@ -67,6 +67,9 @@ public class Link {
     @Column(name="creation_datetime")
     private Date creationDateTime;
 
+    @Column(length = 2)
+    private String language;
+
     //-- Public
     public static String hash(final String url) {
         return DigestUtils.md5Hex(url);
@@ -225,6 +228,14 @@ public class Link {
 
     public void setCreationDateTime(final Date creationDateTime) {
         this.creationDateTime = creationDateTime;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(final String language) {
+        this.language = language;
     }
 
     //-- Object overrides

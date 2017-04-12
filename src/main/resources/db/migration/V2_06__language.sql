@@ -1,0 +1,1 @@
+ALTER TABLE feed ADD COLUMN language CHAR(2);

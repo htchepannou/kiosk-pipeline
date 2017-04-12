@@ -2,6 +2,7 @@ package io.tchepannou.kiosk.pipeline.step.metadata;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
+import io.tchepannou.kiosk.core.nlp.language.LanguageDetector;
 import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
@@ -10,6 +11,7 @@ import io.tchepannou.kiosk.pipeline.service.TagService;
 import io.tchepannou.kiosk.pipeline.step.AbstractLinkConsumer;
 import io.tchepannou.kiosk.pipeline.support.HtmlHelper;
 import org.apache.commons.lang3.time.DateUtils;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -48,6 +50,9 @@ public class MetadataConsumer extends AbstractLinkConsumer {
     @Autowired
     TagService tagService;
 
+    @Autowired
+    LanguageDetector languageDetector;
+
     private int defaultPublishDateOffsetDays = -7;
 
     @Override
@@ -64,12 +69,14 @@ public class MetadataConsumer extends AbstractLinkConsumer {
     private void updateLink(final Link link, final Document doc) {
         final String title = extractTitle(doc);
         final Feed feed = link.getFeed();
+        final String summary = extractSummary(doc);
 
         link.setTitle(title);
-        link.setSummary(extractSummary(doc));
+        link.setSummary(summary);
         link.setPublishedDate(extractPublishedDate(doc, link));
         link.setDisplayTitle(titleFilter.filter(title, feed));
         link.setType(extractType(doc));
+        link.setLanguage(extractLanguage(link));
 
         linkRepository.save(link);
     }
@@ -79,9 +86,19 @@ public class MetadataConsumer extends AbstractLinkConsumer {
         tagService.tag(link, tagNames);
     }
 
+    private String extractLanguage(final Link link){
+        final StringBuilder sb = new StringBuilder();
+        sb.append(link.getTitle());
+        if (link.getSummary() != null){
+            sb.append('\n').append(link.getSummary());
+        }
+        return languageDetector.detect(sb.toString());
+    }
+
     @VisibleForTesting
     protected String extractSummary(final Document doc) {
-        return selectMeta(doc, "meta[property=og:description]");
+        final String summary = selectMeta(doc, "meta[property=og:description]");
+        return summary != null ? Jsoup.parse(summary).text() : null;
     }
 
     @VisibleForTesting

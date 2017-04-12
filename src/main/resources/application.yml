@@ -55,6 +55,7 @@ kiosk:
     MetadataConsumer:
       defaultPublishDateOffsetDays: -7
     ContentConsumer:
+      defaultSummaryMaxLength: 255
       rawFolder: "${kiosk.environment}/html"
       contentFolder: "${kiosk.environment}/content"
     ImageConsumer:

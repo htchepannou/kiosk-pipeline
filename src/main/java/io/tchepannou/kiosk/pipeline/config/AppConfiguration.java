@@ -8,6 +8,7 @@ import io.tchepannou.kiosk.core.nlp.filter.LowercaseTextFilter;
 import io.tchepannou.kiosk.core.nlp.filter.TextFilterSet;
 import io.tchepannou.kiosk.core.nlp.filter.UnaccentTextFilter;
 import io.tchepannou.kiosk.core.nlp.filter.WhitespaceTextFilter;
+import io.tchepannou.kiosk.core.nlp.language.LanguageDetector;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import io.tchepannou.kiosk.pipeline.service.ShutdownService;
 import io.tchepannou.kiosk.pipeline.service.TagService;
@@ -141,5 +142,10 @@ public class AppConfiguration implements AsyncConfigurer {
     @Bean
     ShutdownService shutdownService() {
         return new ShutdownService();
+    }
+
+    @Bean
+    LanguageDetector languageDetector() {
+        return new LanguageDetector();
     }
 }

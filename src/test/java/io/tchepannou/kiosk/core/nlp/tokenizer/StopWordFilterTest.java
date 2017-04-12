@@ -1,6 +1,5 @@
 package io.tchepannou.kiosk.core.nlp.tokenizer;
 
-import io.tchepannou.kiosk.core.nlp.tokenizer.StopWordFilter;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -13,12 +12,11 @@ public class StopWordFilterTest {
 
     @Test
     public void testIs() throws Exception {
-        String in = "le\n"
+        final String in = "le\n"
                 + "la\n"
                 + "un\n"
                 + "une\n"
-                + "les\n"
-                ;
+                + "les\n";
 
         filter.load(new ByteArrayInputStream(in.getBytes()));
 
@@ -27,16 +25,13 @@ public class StopWordFilterTest {
 
     }
 
-
-
     @Test
     public void testIs_CaseInsensitive() throws Exception {
-        String in = "le\n"
+        final String in = "le\n"
                 + "la\n"
                 + "Un\n"
                 + "une\n"
-                + "les\n"
-                ;
+                + "les\n";
 
         filter.load(new ByteArrayInputStream(in.getBytes()));
 

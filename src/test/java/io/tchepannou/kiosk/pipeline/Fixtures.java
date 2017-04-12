@@ -7,10 +7,13 @@ import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.service.similarity.Document;
+import org.apache.commons.io.IOUtils;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -42,6 +45,7 @@ public class Fixtures {
         feed.setUrl("http://ffed.com/" + uuid);
         feed.setName("feed_" + uuid);
         feed.setOnboardDate(new Date());
+        feed.setActive(true);
         return feed;
 
     }
@@ -108,7 +112,7 @@ public class Fixtures {
         return link;
     }
 
-    private static int read(final String content, final byte[] buff){
+    public static int read(final String content, final byte[] buff){
         if (++s3Read % 2 == 0) {
             return -1;
         }
@@ -118,4 +122,13 @@ public class Fixtures {
         }
         return content.length();
     }
+
+    public static Answer readText(final String txt) {
+        return (inv) -> {
+            final OutputStream out = (OutputStream) inv.getArguments()[1];
+            IOUtils.copy(new ByteArrayInputStream(txt.getBytes()), out);
+            return null;
+        };
+    }
+
 }

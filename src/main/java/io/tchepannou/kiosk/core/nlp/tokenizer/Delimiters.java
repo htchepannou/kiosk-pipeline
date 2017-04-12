@@ -29,14 +29,6 @@ public class Delimiters {
         return DELIM.indexOf(ch) >= 0;
     }
 
-    public static boolean isPunctuation(final char ch) {
-        return PUNCTUATION.indexOf(ch) >= 0;
-    }
-
-    public static boolean isPunctuation(final String ch) {
-        return ch != null && ch.length() == 1 && isPunctuation(ch.charAt(0));
-    }
-
     public static boolean isWhitespace(final String ch) {
         return ch != null && ch.length() == 1 && isWhitespace(ch.charAt(0));
     }

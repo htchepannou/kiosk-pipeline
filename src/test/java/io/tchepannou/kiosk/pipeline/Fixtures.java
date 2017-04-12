@@ -6,6 +6,7 @@ import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
+import io.tchepannou.kiosk.pipeline.persistence.domain.Tag;
 import io.tchepannou.kiosk.pipeline.service.similarity.Document;
 import org.apache.commons.io.IOUtils;
 import org.mockito.invocation.InvocationOnMock;
@@ -110,6 +111,13 @@ public class Fixtures {
         link.setUrl("http://gooo.com/" + uuid);
         link.setFeed(createFeed("Test Feed", "http://kiosk.com/test", null));
         return link;
+    }
+
+    public static Tag createTag(final String name){
+        final Tag tag = new Tag();
+        tag.setId(++uuid);
+        tag.setName(name);
+        return tag;
     }
 
     public static int read(final String content, final byte[] buff){

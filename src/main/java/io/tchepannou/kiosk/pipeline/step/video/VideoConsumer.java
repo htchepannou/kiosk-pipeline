@@ -5,7 +5,7 @@ import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.domain.LinkStatusEnum;
 import io.tchepannou.kiosk.pipeline.persistence.domain.LinkTypeEnum;
-import io.tchepannou.kiosk.pipeline.service.TagService;
+import io.tchepannou.kiosk.pipeline.step.metadata.TagService;
 import io.tchepannou.kiosk.pipeline.step.AbstractLinkConsumer;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

@@ -4,16 +4,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaxxer.hikari.HikariDataSource;
-import io.tchepannou.kiosk.core.nlp.filter.HyphenFilter;
-import io.tchepannou.kiosk.core.nlp.filter.LowercaseTextFilter;
-import io.tchepannou.kiosk.core.nlp.filter.QuoteRemoverFilter;
-import io.tchepannou.kiosk.core.nlp.filter.TextFilterSet;
-import io.tchepannou.kiosk.core.nlp.filter.UnaccentTextFilter;
-import io.tchepannou.kiosk.core.nlp.filter.WhitespaceTextFilter;
 import io.tchepannou.kiosk.core.nlp.language.LanguageDetector;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import io.tchepannou.kiosk.pipeline.service.ShutdownService;
-import io.tchepannou.kiosk.pipeline.service.TagService;
 import io.tchepannou.kiosk.pipeline.service.UrlService;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
@@ -37,7 +30,6 @@ import org.springframework.web.client.RestTemplate;
 import javax.net.ssl.SSLContext;
 import javax.sql.DataSource;
 import java.time.Clock;
-import java.util.Arrays;
 import java.util.TimeZone;
 
 @Configuration
@@ -124,17 +116,6 @@ public class AppConfiguration implements AsyncConfigurer {
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
-    }
-
-    @Bean
-    public TagService tagService() {
-        return new TagService(new TextFilterSet(Arrays.asList(
-                new UnaccentTextFilter(),
-                new HyphenFilter(),
-                new QuoteRemoverFilter(),
-                new LowercaseTextFilter(),
-                new WhitespaceTextFilter()
-        )));
     }
 
     @Bean

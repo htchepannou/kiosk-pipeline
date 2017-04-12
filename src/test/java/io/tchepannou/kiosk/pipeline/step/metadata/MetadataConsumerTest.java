@@ -5,7 +5,6 @@ import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.domain.LinkTypeEnum;
-import io.tchepannou.kiosk.pipeline.service.TagService;
 import io.tchepannou.kiosk.pipeline.step.LinkConsumerTestSupport;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.time.DateUtils;

@@ -1,4 +1,4 @@
-package io.tchepannou.kiosk.pipeline.service;
+package io.tchepannou.kiosk.pipeline.step.metadata;
 
 import com.google.common.collect.Maps;
 import io.tchepannou.kiosk.core.nlp.filter.TextFilter;
@@ -7,10 +7,10 @@ import io.tchepannou.kiosk.pipeline.persistence.domain.LinkTag;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Tag;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkTagRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.TagRepository;
-import io.tchepannou.kiosk.pipeline.step.metadata.HtmlTagExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,19 +21,14 @@ public class TagService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TagService.class);
 
     @Autowired
-    HtmlTagExtractor htmlTagExtractor;
-
-    @Autowired
     TagRepository tagRepository;
 
     @Autowired
     LinkTagRepository linkTagRepository;
 
+    @Autowired
+    @Qualifier("TagTextFilter")
     TextFilter textFilter;
-
-    public TagService(final TextFilter textFilter) {
-        this.textFilter = textFilter;
-    }
 
     public void tag(final Link link, final List<String> names) {
         // Save the tags

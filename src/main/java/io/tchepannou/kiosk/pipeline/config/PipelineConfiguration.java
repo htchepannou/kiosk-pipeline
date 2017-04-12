@@ -1,5 +1,12 @@
 package io.tchepannou.kiosk.pipeline.config;
 
+import io.tchepannou.kiosk.core.nlp.filter.HyphenFilter;
+import io.tchepannou.kiosk.core.nlp.filter.LowercaseTextFilter;
+import io.tchepannou.kiosk.core.nlp.filter.QuoteRemoverFilter;
+import io.tchepannou.kiosk.core.nlp.filter.TextFilter;
+import io.tchepannou.kiosk.core.nlp.filter.TextFilterSet;
+import io.tchepannou.kiosk.core.nlp.filter.UnaccentTextFilter;
+import io.tchepannou.kiosk.core.nlp.filter.WhitespaceTextFilter;
 import io.tchepannou.kiosk.core.service.Consumer;
 import io.tchepannou.kiosk.core.service.Delay;
 import io.tchepannou.kiosk.core.service.MessageQueue;
@@ -9,6 +16,7 @@ import io.tchepannou.kiosk.core.service.ThreadCountDown;
 import io.tchepannou.kiosk.core.service.impl.ConstantDelay;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.service.PipelineService;
+import io.tchepannou.kiosk.pipeline.step.metadata.TagService;
 import io.tchepannou.kiosk.pipeline.service.UrlService;
 import io.tchepannou.kiosk.pipeline.step.content.ContentConsumer;
 import io.tchepannou.kiosk.pipeline.step.content.filter.AnchorFilter;
@@ -185,6 +193,21 @@ public class PipelineConfiguration {
         return new HtmlTagExtractor();
     }
 
+    @Bean
+    public TagService tagService() {
+        return new TagService();
+    }
+
+    @Bean("TagTextFilter")
+    TextFilter tagTextFilter(){
+        return new TextFilterSet(Arrays.asList(
+                new UnaccentTextFilter(),
+                new HyphenFilter(),
+                new QuoteRemoverFilter(),
+                new LowercaseTextFilter(),
+                new WhitespaceTextFilter()
+        ));
+    }
 
     //-- Content
     @Bean(name="ContentMessageQueueProcessor")

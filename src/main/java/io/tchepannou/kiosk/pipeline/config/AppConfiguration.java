@@ -130,6 +130,7 @@ public class AppConfiguration implements AsyncConfigurer {
     }
 
     @Bean
+    @ConfigurationProperties("kiosk.service.LanguageDetector")
     LanguageDetector languageDetector() {
         return new LanguageDetector();
     }

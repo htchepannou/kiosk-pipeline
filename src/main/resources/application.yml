@@ -81,6 +81,11 @@ kiosk:
       autostart: false
       reprocessKey: "${kiosk.environment}/reprocess/go"
 
+    LanguageDetector:
+      languageList:
+        - "en"
+        - "fr"
+
     Delay:
       sleepMillis:    60000   # 1 min
       maxSleepMillis: 600000  # 10 mins
@@ -169,6 +174,7 @@ kiosk:
       - "http://www.thara.tv/authors"
       - "http://www.thara.tv/les-programmes"
       - "http://www.thara.tv/partenaires"
+      - "http://www.thara.tv/contacts"
       - "http://www.jewanda-magazine.com/theme/*"         # Jewanda - Magazine
 
 

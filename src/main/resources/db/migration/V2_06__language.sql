@@ -1,1 +1,1 @@
-ALTER TABLE feed ADD COLUMN language CHAR(2);
+ALTER TABLE link ADD COLUMN language VARCHAR(2);

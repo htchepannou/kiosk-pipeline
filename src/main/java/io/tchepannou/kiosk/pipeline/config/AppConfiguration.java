@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaxxer.hikari.HikariDataSource;
+import io.tchepannou.kiosk.core.nlp.filter.HyphenFilter;
 import io.tchepannou.kiosk.core.nlp.filter.LowercaseTextFilter;
+import io.tchepannou.kiosk.core.nlp.filter.QuoteRemoverFilter;
 import io.tchepannou.kiosk.core.nlp.filter.TextFilterSet;
 import io.tchepannou.kiosk.core.nlp.filter.UnaccentTextFilter;
 import io.tchepannou.kiosk.core.nlp.filter.WhitespaceTextFilter;
@@ -128,6 +130,8 @@ public class AppConfiguration implements AsyncConfigurer {
     public TagService tagService() {
         return new TagService(new TextFilterSet(Arrays.asList(
                 new UnaccentTextFilter(),
+                new HyphenFilter(),
+                new QuoteRemoverFilter(),
                 new LowercaseTextFilter(),
                 new WhitespaceTextFilter()
         )));

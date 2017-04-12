@@ -35,11 +35,10 @@ public class TagService {
         this.textFilter = textFilter;
     }
 
-
     public void tag(final Link link, final List<String> names) {
         // Save the tags
         final List<String> tagNames = names.stream()
-                .map(name -> textFilter.filter(name))
+                .map(name -> textFilter.filter(name).trim())
                 .collect(Collectors.toList());
 
         final List<Tag> tags = save(tagNames);

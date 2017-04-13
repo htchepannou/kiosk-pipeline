@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaxxer.hikari.HikariDataSource;
 import io.tchepannou.kiosk.core.nlp.language.LanguageDetector;
+import io.tchepannou.kiosk.core.nlp.toolkit.NLPToolkitFactory;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import io.tchepannou.kiosk.pipeline.service.ShutdownService;
 import io.tchepannou.kiosk.pipeline.service.UrlService;
@@ -133,5 +134,10 @@ public class AppConfiguration implements AsyncConfigurer {
     @ConfigurationProperties("kiosk.service.LanguageDetector")
     LanguageDetector languageDetector() {
         return new LanguageDetector();
+    }
+
+    @Bean
+    NLPToolkitFactory nlpToolkitFactory(){
+        return new NLPToolkitFactory();
     }
 }

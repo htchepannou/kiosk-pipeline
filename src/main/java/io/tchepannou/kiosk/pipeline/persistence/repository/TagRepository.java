@@ -8,5 +8,6 @@ import java.util.List;
 
 @Repository
 public interface TagRepository extends CrudRepository<Tag, Long> {
+    Tag findByName(String name);
     List<Tag> findByNameIn(List<String> name);
 }

@@ -7,8 +7,8 @@ import java.io.ByteArrayInputStream;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class StopWordFilterTest {
-    StopWordFilter filter = new StopWordFilter();
+public class StopWordsTest {
+    StopWords filter = new StopWords();
 
     @Test
     public void testIs() throws Exception {
@@ -20,8 +20,8 @@ public class StopWordFilterTest {
 
         filter.load(new ByteArrayInputStream(in.getBytes()));
 
-        assertFalse(filter.accept("le"));
-        assertTrue(filter.accept("machine"));
+        assertFalse(filter.is("le"));
+        assertTrue(filter.is("machine"));
 
     }
 
@@ -35,8 +35,8 @@ public class StopWordFilterTest {
 
         filter.load(new ByteArrayInputStream(in.getBytes()));
 
-        assertFalse(filter.accept("un"));
-        assertFalse(filter.accept("Un"));
+        assertFalse(filter.is("un"));
+        assertFalse(filter.is("Un"));
 
     }
 }

@@ -1,6 +1,5 @@
 package io.tchepannou.kiosk.pipeline.step.metadata;
 
-import io.tchepannou.kiosk.core.nlp.language.LanguageDetector;
 import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
@@ -26,7 +25,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -44,9 +42,6 @@ public class MetadataConsumerTest extends LinkConsumerTestSupport  {
 
     @Mock
     TagService tagService;
-
-    @Mock
-    LanguageDetector languageDetector;
 
     @Mock
     Feed feed;
@@ -79,8 +74,6 @@ public class MetadataConsumerTest extends LinkConsumerTestSupport  {
         final List<String> tagNames = Arrays.asList("A", "B", "C");
         when(tagExtractor.extract(any())).thenReturn(tagNames);
 
-        when(languageDetector.detect(anyString())).thenReturn("fr");
-
         // When
         consumer.consume(link);
 
@@ -96,7 +89,6 @@ public class MetadataConsumerTest extends LinkConsumerTestSupport  {
                 "Et soudain, Rigobert Song apparaît dans l’embrasure de la porte. Quelques kilos en moins, des cheveux coupés courts, mais un sourire toujours aussi éclatant, communicatif. L’ancien capitaine du Cameroun, victime d’un accident vasculaire cérébral (AVC) avec rupture d’anévrisme (1), le 1er octobre dernier à Yaoundé, rejoint la salle de rééducation de l’hôpital parisien de la Pitié-Salpêtrière. Il marche à son rythme, ne présente quasiment aucune séquelle, si ce n’est trois orteils du pied droit encore faibles, (...)");
         assertThat(fmt.format(lk.getValue().getPublishedDate())).startsWith("2016-12-29");
         assertThat(lk.getValue().getType()).isEqualTo(LinkTypeEnum.article);
-        assertThat(lk.getValue().getLanguage()).isEqualTo("fr");
 
         verify(tagService).tag(link, tagNames);
     }

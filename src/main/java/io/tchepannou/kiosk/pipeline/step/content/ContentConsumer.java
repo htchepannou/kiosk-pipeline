@@ -63,20 +63,18 @@ public class ContentConsumer extends AbstractLinkConsumer {
 
     private void updateLink(final Link link, final String key, final String html){
         final String text = Jsoup.parse(html).text();
+        final String ltext = link.getTitle() + "\n" + text;
 
         link.setContentKey(key);
         link.setContentLength(text.length());
         link.setContentType("text/html");
+        link.setLanguage(languageDetector.detect(ltext));
 
         if (link.getSummary() == null){
             final String summary = StringUtils.left(text, defaultSummaryMaxLength);
             link.setSummary(summary);
         }
 
-        if (link.getLanguage() == null){
-            final String ltext = link.getTitle() + "\n" + link.getSummary();
-            link.setLanguage(languageDetector.detect(ltext));
-        }
 
         linkRepository.save(link);
     }

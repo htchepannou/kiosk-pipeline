@@ -2,7 +2,6 @@ package io.tchepannou.kiosk.pipeline.step.metadata;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
-import io.tchepannou.kiosk.core.nlp.language.LanguageDetector;
 import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
@@ -49,9 +48,6 @@ public class MetadataConsumer extends AbstractLinkConsumer {
     @Autowired
     TagService tagService;
 
-    @Autowired
-    LanguageDetector languageDetector;
-
     private int defaultPublishDateOffsetDays = -7;
 
     @Override
@@ -75,7 +71,6 @@ public class MetadataConsumer extends AbstractLinkConsumer {
         link.setPublishedDate(extractPublishedDate(doc, link));
         link.setDisplayTitle(titleFilter.filter(title, feed));
         link.setType(extractType(doc));
-        link.setLanguage(extractLanguage(link));
 
         linkRepository.save(link);
     }
@@ -83,15 +78,6 @@ public class MetadataConsumer extends AbstractLinkConsumer {
     private void tag(final Link link, final Document doc){
         final List<String> tagNames = tagExtractor.extract(doc);
         tagService.tag(link, tagNames);
-    }
-
-    private String extractLanguage(final Link link){
-        final StringBuilder sb = new StringBuilder();
-        sb.append(link.getTitle());
-        if (link.getSummary() != null){
-            sb.append('\n').append(link.getSummary());
-        }
-        return languageDetector.detect(sb.toString());
     }
 
     @VisibleForTesting

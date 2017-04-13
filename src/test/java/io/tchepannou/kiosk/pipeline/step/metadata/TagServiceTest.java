@@ -1,6 +1,10 @@
 package io.tchepannou.kiosk.pipeline.step.metadata;
 
 import io.tchepannou.kiosk.core.nlp.filter.TextFilter;
+import io.tchepannou.kiosk.core.nlp.tokenizer.BasicTokenizer;
+import io.tchepannou.kiosk.core.nlp.tokenizer.StopWords;
+import io.tchepannou.kiosk.core.nlp.toolkit.NLPToolkit;
+import io.tchepannou.kiosk.core.nlp.toolkit.NLPToolkitFactory;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.domain.LinkTag;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Tag;
@@ -23,6 +27,7 @@ import static io.tchepannou.kiosk.pipeline.Fixtures.createTag;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,12 +42,48 @@ public class TagServiceTest {
     @Mock
     TextFilter textFilter;
 
+    @Mock
+    NLPToolkitFactory nlpToolkitFactory;
+
     @InjectMocks
     TagService service;
 
     @Before
     public void setUp() {
         when(textFilter.filter(anyString())).then((inv) -> inv.getArguments()[0]);
+    }
+
+    @Test
+    public void shouldExtractTokens() {
+        // Given
+        final StopWords stopWords = mock(StopWords.class);
+        when(stopWords.is("est")).thenReturn(true);
+        when(stopWords.is("son")).thenReturn(true);
+        when(stopWords.is("a")).thenReturn(true);
+
+        final NLPToolkit toolkit = mock(NLPToolkit.class);
+        when(toolkit.getTokenizer(anyString())).then((inv) -> new BasicTokenizer((String) inv.getArguments()[0]));
+        when(toolkit.getStopWords()).thenReturn(stopWords);
+        when(nlpToolkitFactory.get(anyString())).thenReturn(toolkit);
+
+        when(tagRepository.findByName("Jean-Paul Lemaire")).thenReturn(createTag("Jean-Paul Lemaire"));
+        when(tagRepository.findByName("Yaounde")).thenReturn(createTag("Yaounde"));
+
+        // When
+        final String text = "Jean-Paul Lemaire est alle voir son ami a Yaounde";
+        final List<String> result = service.extractTags(text, "fr");
+
+        // Then
+        assertThat(result).containsExactly("Jean-Paul Lemaire", "Yaounde");
+    }
+
+    @Test
+    public void shouldExtractTokenWhenLanguageIsInvalid() {
+        when(nlpToolkitFactory.get(anyString())).thenReturn(null);
+
+        final List<String> result = service.extractTags("Hello", "???");
+
+        assertThat(result).isEmpty();
     }
 
     @Test

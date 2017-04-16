@@ -39,7 +39,19 @@ public abstract class AbstractLinkConsumer implements Consumer {
         queue.push(String.valueOf(link.getId()));
     }
 
-    protected final String getRawHtml(final Link link) throws IOException {
+    protected String getContentHtml(final Link link) throws IOException {
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        repository.read(link.getContentKey(), out);
+
+        return IOUtils.toString(new ByteArrayInputStream(out.toByteArray()), "utf-8");
+    }
+
+    protected Document getContentDocument(final Link link) throws IOException {
+        final String html = getContentHtml(link);
+        return Jsoup.parse(html);
+    }
+
+    protected String getRawHtml(final Link link) throws IOException {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         repository.read(link.getS3Key(), out);
 

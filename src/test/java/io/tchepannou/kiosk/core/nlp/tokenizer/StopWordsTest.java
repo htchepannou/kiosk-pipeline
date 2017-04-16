@@ -20,8 +20,8 @@ public class StopWordsTest {
 
         filter.load(new ByteArrayInputStream(in.getBytes()));
 
-        assertFalse(filter.is("le"));
-        assertTrue(filter.is("machine"));
+        assertTrue(filter.is("le"));
+        assertFalse(filter.is("machine"));
 
     }
 
@@ -35,8 +35,8 @@ public class StopWordsTest {
 
         filter.load(new ByteArrayInputStream(in.getBytes()));
 
-        assertFalse(filter.is("un"));
-        assertFalse(filter.is("Un"));
+        assertTrue(filter.is("un"));
+        assertTrue(filter.is("Un"));
 
     }
 }

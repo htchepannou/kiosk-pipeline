@@ -1,4 +1,4 @@
-package io.tchepannou.kiosk.pipeline.step.metadata;
+package io.tchepannou.kiosk.pipeline.step.tag;
 
 import io.tchepannou.kiosk.core.nlp.filter.TextFilter;
 import io.tchepannou.kiosk.core.nlp.tokenizer.BasicTokenizer;
@@ -10,6 +10,9 @@ import io.tchepannou.kiosk.pipeline.persistence.domain.LinkTag;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Tag;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkTagRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.TagRepository;
+import org.apache.commons.io.IOUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,7 +31,6 @@ import static io.tchepannou.kiosk.pipeline.Fixtures.createTag;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -43,6 +46,12 @@ public class TagServiceTest {
     TextFilter textFilter;
 
     @Mock
+    StopWords stopWords;
+
+    @Mock
+    NLPToolkit toolkit;
+
+    @Mock
     NLPToolkitFactory nlpToolkitFactory;
 
     @InjectMocks
@@ -51,39 +60,58 @@ public class TagServiceTest {
     @Before
     public void setUp() {
         when(textFilter.filter(anyString())).then((inv) -> inv.getArguments()[0]);
-    }
 
-    @Test
-    public void shouldExtractTokens() {
-        // Given
-        final StopWords stopWords = mock(StopWords.class);
         when(stopWords.is("est")).thenReturn(true);
         when(stopWords.is("son")).thenReturn(true);
         when(stopWords.is("a")).thenReturn(true);
+        when(stopWords.is("Les")).thenReturn(true);
+        when(stopWords.is("s")).thenReturn(true);
+        when(stopWords.is("est")).thenReturn(true);
+        when(stopWords.is("de")).thenReturn(true);
+        when(stopWords.is("la")).thenReturn(true);
 
-        final NLPToolkit toolkit = mock(NLPToolkit.class);
         when(toolkit.getTokenizer(anyString())).then((inv) -> new BasicTokenizer((String) inv.getArguments()[0]));
         when(toolkit.getStopWords()).thenReturn(stopWords);
-        when(nlpToolkitFactory.get(anyString())).thenReturn(toolkit);
 
-        when(tagRepository.findByName("Jean-Paul Lemaire")).thenReturn(createTag("Jean-Paul Lemaire"));
-        when(tagRepository.findByName("Yaounde")).thenReturn(createTag("Yaounde"));
+        when(nlpToolkitFactory.get(anyString())).thenReturn(toolkit);
+    }
+
+
+    @Test
+    public void testExtractFromHeader() throws Exception {
+        // Given
+        final String html = IOUtils.toString(getClass().getResourceAsStream("/tag/article.html"));
+        final Document doc = Jsoup.parse(html);
 
         // When
-        final String text = "Jean-Paul Lemaire est alle voir son ami a Yaounde";
-        final List<String> result = service.extractTags(text, "fr");
+        final Collection<String> result = service.extractTagsFromHeader(doc, "fr");
 
         // Then
-        assertThat(result).containsExactly("Jean-Paul Lemaire", "Yaounde");
+        assertThat(result).contains(
+                "Cameroun",
+                "Céline Victoria Fotso",
+                "Churchill Mambe",
+                "Je Wanda Magazine",
+                "Développement de soi",
+                "Jeunesse",
+                "Njorku",
+                "Partenariat",
+                "Valérie Ayena",
+                "Vodafone"
+        );
     }
 
     @Test
-    public void shouldExtractTokenWhenLanguageIsInvalid() {
-        when(nlpToolkitFactory.get(anyString())).thenReturn(null);
+    public void shouldExtractEntitties() {
+        // Given
 
-        final List<String> result = service.extractTags("Hello", "???");
+        // When
+        final String text = "Jean-Paul Lemaire est alle voir son ami a Yaounde." +
+                "Les assises de la Fecafoot s'est deroule a Douala";
+        final Collection<String> result = service.extractEntities(text, "fr");
 
-        assertThat(result).isEmpty();
+        // Then
+        assertThat(result).contains("Jean-Paul Lemaire", "Yaounde", "Fecafoot", "Douala");
     }
 
     @Test

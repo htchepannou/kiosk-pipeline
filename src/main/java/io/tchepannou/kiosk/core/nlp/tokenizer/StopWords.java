@@ -23,6 +23,6 @@ public class StopWords {
 
     //-- StopWords implementation
     public boolean is(final String text) {
-        return !words.contains(text.toLowerCase());
+        return words.contains(text.toLowerCase());
     }
 }

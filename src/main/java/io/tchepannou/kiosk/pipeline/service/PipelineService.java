@@ -87,6 +87,10 @@ public class PipelineService {
     @Qualifier("PublishMessageQueueProcessor")
     MessageQueueProcessor publishMessageQueueProcessor;
 
+    @Autowired
+    @Qualifier("TagMessageQueueProcessor")
+    MessageQueueProcessor tagMessageQueueProcessor;
+
     boolean autostart;
     int workers;
     int maxDurationSeconds;
@@ -175,6 +179,7 @@ public class PipelineService {
         execute(imageMessageQueueProcessor);
         execute(thumbnailMessageQueueProcessor);
         execute(videoMessageQueueProcessor);
+        execute(tagMessageQueueProcessor);
 
         threadCountDown.await();
     }

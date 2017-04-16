@@ -89,6 +89,12 @@ public class AwsConfiguration {
         return new SqsMessageQueue();
     }
 
+    @Bean(name = "TagMessageQueue")
+    @ConfigurationProperties("kiosk.aws.queue.TagMessageQueue")
+    MessageQueue tagMessageQueue() {
+        return new SqsMessageQueue();
+    }
+
     //-- AWS Bean
     @Bean
     AmazonS3 amazonS3() {

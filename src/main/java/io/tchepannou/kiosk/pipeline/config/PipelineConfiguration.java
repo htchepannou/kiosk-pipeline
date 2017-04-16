@@ -2,7 +2,6 @@ package io.tchepannou.kiosk.pipeline.config;
 
 import io.tchepannou.kiosk.core.nlp.filter.HyphenFilter;
 import io.tchepannou.kiosk.core.nlp.filter.LowercaseTextFilter;
-import io.tchepannou.kiosk.core.nlp.filter.QuoteRemoverFilter;
 import io.tchepannou.kiosk.core.nlp.filter.TextFilter;
 import io.tchepannou.kiosk.core.nlp.filter.TextFilterSet;
 import io.tchepannou.kiosk.core.nlp.filter.UnaccentTextFilter;
@@ -16,7 +15,6 @@ import io.tchepannou.kiosk.core.service.ThreadCountDown;
 import io.tchepannou.kiosk.core.service.impl.ConstantDelay;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.service.PipelineService;
-import io.tchepannou.kiosk.pipeline.step.metadata.TagService;
 import io.tchepannou.kiosk.pipeline.service.UrlService;
 import io.tchepannou.kiosk.pipeline.step.content.ContentConsumer;
 import io.tchepannou.kiosk.pipeline.step.content.filter.AnchorFilter;
@@ -30,7 +28,6 @@ import io.tchepannou.kiosk.pipeline.step.content.filter.TrimFilter;
 import io.tchepannou.kiosk.pipeline.step.download.DownloadConsumer;
 import io.tchepannou.kiosk.pipeline.step.image.ImageConsumer;
 import io.tchepannou.kiosk.pipeline.step.image.ThumbnailConsumer;
-import io.tchepannou.kiosk.pipeline.step.metadata.HtmlTagExtractor;
 import io.tchepannou.kiosk.pipeline.step.metadata.MetadataConsumer;
 import io.tchepannou.kiosk.pipeline.step.metadata.TitleFilter;
 import io.tchepannou.kiosk.pipeline.step.metadata.TitleFilterSet;
@@ -41,6 +38,8 @@ import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleSuffixFilter;
 import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleVideoFilter;
 import io.tchepannou.kiosk.pipeline.step.publish.PublishConsumer;
 import io.tchepannou.kiosk.pipeline.step.publish.PublishProducer;
+import io.tchepannou.kiosk.pipeline.step.tag.TagConsumer;
+import io.tchepannou.kiosk.pipeline.step.tag.TagService;
 import io.tchepannou.kiosk.pipeline.step.url.FeedUrlProducer;
 import io.tchepannou.kiosk.pipeline.step.url.UrlProducer;
 import io.tchepannou.kiosk.pipeline.step.validation.ValidationConsumer;
@@ -103,13 +102,15 @@ public class PipelineConfiguration {
     @Qualifier("PublishMessageQueue")
     MessageQueue publishMessageQueue;
 
+    @Autowired
+    @Qualifier("TagMessageQueue")
+    MessageQueue tagMessageQueue;
 
     @PostConstruct
     public void run() throws IOException {
         pipelineService().reprocess();
         pipelineService().run();
     }
-
 
     //-- Commons
     @Bean
@@ -128,8 +129,6 @@ public class PipelineConfiguration {
     ThreadCountDown threadCountDown() {
         return new ThreadCountDown();
     }
-
-
 
     //-- Url
     @Bean
@@ -160,7 +159,7 @@ public class PipelineConfiguration {
     }
 
     //-- Metadata
-    @Bean(name="MetadataMessageQueueProcessor")
+    @Bean(name = "MetadataMessageQueueProcessor")
     MessageQueueProcessor metadataMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 metadataMessageQueue,
@@ -188,29 +187,8 @@ public class PipelineConfiguration {
         ));
     }
 
-    @Bean
-    HtmlTagExtractor htmlTagExtractor(){
-        return new HtmlTagExtractor();
-    }
-
-    @Bean
-    public TagService tagService() {
-        return new TagService();
-    }
-
-    @Bean("TagTextFilter")
-    TextFilter tagTextFilter(){
-        return new TextFilterSet(Arrays.asList(
-                new UnaccentTextFilter(),
-                new HyphenFilter(),
-                new QuoteRemoverFilter(),
-                new LowercaseTextFilter(),
-                new WhitespaceTextFilter()
-        ));
-    }
-
     //-- Content
-    @Bean(name="ContentMessageQueueProcessor")
+    @Bean(name = "ContentMessageQueueProcessor")
     MessageQueueProcessor contentMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 contentMessageQueue,
@@ -240,7 +218,7 @@ public class PipelineConfiguration {
     }
 
     //-- Validation
-    @Bean(name="ValidationMessageQueueProcessor")
+    @Bean(name = "ValidationMessageQueueProcessor")
     MessageQueueProcessor validationMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 validationMessageQueue,
@@ -259,7 +237,7 @@ public class PipelineConfiguration {
     MessageQueue validationTopic() {
         return new MessageQueueSet(
                 "validated",
-                Arrays.asList(imageMessageQueue, videoMessageQueue)
+                Arrays.asList(imageMessageQueue, videoMessageQueue, tagMessageQueue)
         );
     }
 
@@ -275,8 +253,39 @@ public class PipelineConfiguration {
         );
     }
 
+    //-- Tag
+    @Bean(name = "TagMessageQueueProcessor")
+    MessageQueueProcessor tagMessageQueueProcessor() {
+        return new MessageQueueProcessor(
+                tagMessageQueue,
+                tagConsumer(),
+                delay(),
+                threadCountDown()
+        );
+    }
+
+    @Bean
+    Consumer tagConsumer() {
+        return new TagConsumer();
+    }
+
+    @Bean
+    public TagService tagService() {
+        return new TagService();
+    }
+
+    @Bean("TagTextFilter")
+    TextFilter tagTextFilter() {
+        return new TextFilterSet(Arrays.asList(
+                new UnaccentTextFilter(),
+                new HyphenFilter(),
+                new LowercaseTextFilter(),
+                new WhitespaceTextFilter()
+        ));
+    }
+
     //-- Video
-    @Bean(name="VideoMessageQueueProcessor")
+    @Bean(name = "VideoMessageQueueProcessor")
     MessageQueueProcessor videoMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 videoMessageQueue,
@@ -300,7 +309,7 @@ public class PipelineConfiguration {
     }
 
     //-- Image
-    @Bean(name="ImageMessageQueueProcessor")
+    @Bean(name = "ImageMessageQueueProcessor")
     MessageQueueProcessor imageMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 imageMessageQueue,
@@ -317,7 +326,7 @@ public class PipelineConfiguration {
     }
 
     //-- Thubmnail
-    @Bean(name="ThumbnailMessageQueueProcessor")
+    @Bean(name = "ThumbnailMessageQueueProcessor")
     MessageQueueProcessor thumbnailMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 thumbnailMessageQueue,
@@ -334,7 +343,7 @@ public class PipelineConfiguration {
     }
 
     //-- Thubmnail
-    @Bean(name="PublishMessageQueueProcessor")
+    @Bean(name = "PublishMessageQueueProcessor")
     MessageQueueProcessor publishMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 publishMessageQueue,

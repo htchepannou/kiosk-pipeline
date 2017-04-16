@@ -5,7 +5,7 @@ import io.tchepannou.kiosk.pipeline.persistence.domain.AssetTypeEnum;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.persistence.domain.LinkStatusEnum;
 import io.tchepannou.kiosk.pipeline.persistence.domain.LinkTypeEnum;
-import io.tchepannou.kiosk.pipeline.step.metadata.TagService;
+import io.tchepannou.kiosk.pipeline.step.tag.TagService;
 import io.tchepannou.kiosk.pipeline.step.LinkConsumerTestSupport;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Before;

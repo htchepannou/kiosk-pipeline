@@ -16,6 +16,8 @@ kiosk:
         url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-content-queue"
       ValidationMessageQueue:
         url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-validation-queue"
+      TagMessageQueue:
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-tag-queue"
       ImageMessageQueue:
         url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-image-queue"
       ThumbnailMessageQueue:
@@ -40,6 +42,8 @@ kiosk:
         home: "${kiosk.local.queue.home}/content"
       ValidationMessageQueue:
         home: "${kiosk.local.queue.home}/validation"
+      TagMessageQueue:
+        home: "${kiosk.local.queue.home}/tag"
       ImageMessageQueue:
         home: "${kiosk.local.queue.home}/image"
       ThumbnailMessageQueue:

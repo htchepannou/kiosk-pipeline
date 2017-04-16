@@ -4,10 +4,9 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
-import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
-import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
-import io.tchepannou.kiosk.pipeline.persistence.domain.Tag;
-import io.tchepannou.kiosk.pipeline.service.similarity.Document;
+import io.tchepannou.kiosk.persistence.domain.Feed;
+import io.tchepannou.kiosk.persistence.domain.Link;
+import io.tchepannou.kiosk.persistence.domain.Tag;
 import org.apache.commons.io.IOUtils;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -89,20 +88,6 @@ public class Fixtures {
         });
 
         return in;
-    }
-
-    public static Document createDocument(final long id, final String content) {
-        return new Document() {
-            @Override
-            public long getId() {
-                return id;
-            }
-
-            @Override
-            public String getContent() {
-                return content;
-            }
-        };
     }
 
     public static Link createLink(){

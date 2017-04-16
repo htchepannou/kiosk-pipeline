@@ -1,9 +1,9 @@
 package io.tchepannou.kiosk.pipeline.step.url;
 
 import io.tchepannou.kiosk.core.service.MessageQueue;
-import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
-import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
-import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
+import io.tchepannou.kiosk.persistence.domain.Feed;
+import io.tchepannou.kiosk.persistence.domain.Link;
+import io.tchepannou.kiosk.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.UrlService;
 import org.junit.Before;
 import org.junit.Test;

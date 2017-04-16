@@ -1,7 +1,7 @@
 package io.tchepannou.kiosk.pipeline.service;
 
 import com.google.common.base.Strings;
-import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
+import io.tchepannou.kiosk.persistence.domain.Feed;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;

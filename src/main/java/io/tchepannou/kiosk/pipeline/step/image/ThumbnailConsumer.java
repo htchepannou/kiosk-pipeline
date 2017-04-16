@@ -1,9 +1,9 @@
 package io.tchepannou.kiosk.pipeline.step.image;
 
 import com.google.common.io.Files;
-import io.tchepannou.kiosk.pipeline.persistence.domain.Asset;
-import io.tchepannou.kiosk.pipeline.persistence.domain.AssetTypeEnum;
-import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
+import io.tchepannou.kiosk.persistence.domain.Asset;
+import io.tchepannou.kiosk.persistence.domain.AssetTypeEnum;
+import io.tchepannou.kiosk.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.step.AbstractImageConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

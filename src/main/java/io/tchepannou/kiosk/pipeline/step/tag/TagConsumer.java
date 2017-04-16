@@ -1,7 +1,7 @@
 package io.tchepannou.kiosk.pipeline.step.tag;
 
-import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
-import io.tchepannou.kiosk.pipeline.persistence.repository.LinkTagRepository;
+import io.tchepannou.kiosk.persistence.domain.Link;
+import io.tchepannou.kiosk.persistence.repository.LinkTagRepository;
 import io.tchepannou.kiosk.pipeline.step.AbstractLinkConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,6 +1,6 @@
 package io.tchepannou.kiosk.pipeline.step.metadata.filter;
 
-import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
+import io.tchepannou.kiosk.persistence.domain.Feed;
 import io.tchepannou.kiosk.pipeline.step.metadata.TitleFilter;
 
 /**

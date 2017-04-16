@@ -1,6 +1,6 @@
 package io.tchepannou.kiosk.pipeline.service;
 
-import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
+import io.tchepannou.kiosk.persistence.domain.Feed;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

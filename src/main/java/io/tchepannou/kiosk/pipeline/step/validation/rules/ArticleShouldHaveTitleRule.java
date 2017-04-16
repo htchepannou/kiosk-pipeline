@@ -1,7 +1,7 @@
 package io.tchepannou.kiosk.pipeline.step.validation.rules;
 
 import com.google.common.base.Strings;
-import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
+import io.tchepannou.kiosk.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.step.validation.Validation;
 
 public class ArticleShouldHaveTitleRule implements ArticleRule{

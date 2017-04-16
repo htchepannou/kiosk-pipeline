@@ -2,7 +2,7 @@ package io.tchepannou.kiosk.pipeline.step.content;
 
 import io.tchepannou.kiosk.core.nlp.language.LanguageDetector;
 import io.tchepannou.kiosk.core.service.MessageQueue;
-import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
+import io.tchepannou.kiosk.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.step.AbstractLinkConsumer;
 import io.tchepannou.kiosk.pipeline.step.content.filter.ContentExtractor;
 import org.flywaydb.core.internal.util.StringUtils;

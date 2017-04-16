@@ -13,7 +13,6 @@ import io.tchepannou.kiosk.pipeline.persistence.domain.LinkTag;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Tag;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkTagRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.TagRepository;
-import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,18 +42,6 @@ public class TagService {
     @Autowired
     @Qualifier("TagTextFilter")
     TextFilter textFilter;
-
-    public Collection<String> extractTagsFromHeader(final Document doc, final String language) {
-        final NLPToolkit nlp = nlpToolkitFactory.get(language);
-        if (nlp == null) {
-            return Collections.emptyList();
-        }
-
-        final Collection<String> tags = extractMeta("article:tag", doc);
-        return tags.stream()
-                .map(t -> sanitize(t, nlp))
-                .collect(Collectors.toSet());
-    }
 
     public Collection<String> extractEntities(final String text, final String language) {
         final NLPToolkit nlp = nlpToolkitFactory.get(language);
@@ -126,53 +113,6 @@ public class TagService {
             }
         }
         return true;
-    }
-
-    private String removeStopWords(final String text, final NLPToolkit nlp) {
-        final StringBuilder buff = new StringBuilder();
-        final Tokenizer tokenizer = nlp.getTokenizer(text);
-        final StopWords stopWords = nlp.getStopWords();
-
-        String token;
-        while ((token = tokenizer.nextToken()) != null) {
-            if (token.length() == 0 || stopWords.is(token)) {
-                continue;
-            }
-
-            buff.append(token);
-        }
-        return buff.toString();
-    }
-
-    private String sanitize(final String text, final NLPToolkit nlp) {
-        final StringBuilder buff = new StringBuilder();
-        final Tokenizer tokenizer = nlp.getTokenizer(text);
-        final StopWords stopWords = nlp.getStopWords();
-
-        String token;
-        while ((token = tokenizer.nextToken()) != null) {
-            if (token.length() == 0 || Delimiters.isDelimiter(token) || stopWords.is(token)) {
-                continue;
-            }
-
-            if (buff.length() > 0) {
-                buff.append(' ');
-            }
-            buff.append(textFilter.filter(token));
-        }
-        return buff.toString();
-    }
-
-    private List<String> extractMeta(final String name, final Document doc) {
-        return doc.select("meta[property=" + name + "]")
-                .stream()
-                .map(e -> e.attr("content"))
-                .collect(Collectors.toList());
-
-    }
-
-    private boolean isTag(final String name) {
-        return tagRepository.findByName(name) != null;
     }
 
     private List<Tag> save(final List<String> names) {

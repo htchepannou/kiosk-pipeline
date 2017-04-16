@@ -10,9 +10,6 @@ import io.tchepannou.kiosk.pipeline.persistence.domain.LinkTag;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Tag;
 import io.tchepannou.kiosk.pipeline.persistence.repository.LinkTagRepository;
 import io.tchepannou.kiosk.pipeline.persistence.repository.TagRepository;
-import org.apache.commons.io.IOUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,30 +73,6 @@ public class TagServiceTest {
         when(nlpToolkitFactory.get(anyString())).thenReturn(toolkit);
     }
 
-
-    @Test
-    public void testExtractFromHeader() throws Exception {
-        // Given
-        final String html = IOUtils.toString(getClass().getResourceAsStream("/tag/article.html"));
-        final Document doc = Jsoup.parse(html);
-
-        // When
-        final Collection<String> result = service.extractTagsFromHeader(doc, "fr");
-
-        // Then
-        assertThat(result).contains(
-                "Cameroun",
-                "Céline Victoria Fotso",
-                "Churchill Mambe",
-                "Je Wanda Magazine",
-                "Développement de soi",
-                "Jeunesse",
-                "Njorku",
-                "Partenariat",
-                "Valérie Ayena",
-                "Vodafone"
-        );
-    }
 
     @Test
     public void shouldExtractEntitties() {

@@ -8,6 +8,7 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -20,7 +21,7 @@ public class LocalMessageQueueTest {
 
     @Before
     public void setUp() throws Exception {
-        home = folder.newFolder();
+        home = new File(folder.getRoot(), UUID.randomUUID().toString());
         queue.setHome(home.getAbsolutePath());
         queue.setPollMaxSize(5);
     }

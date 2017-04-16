@@ -43,6 +43,15 @@ public class S3FileRepository implements FileRepository {
         }
     }
 
+    @Override
+    public void delete(final String path) throws IOException {
+        try{
+            s3.deleteObject(bucket, path);
+        } catch (AmazonClientException e){
+            throw new IOException(String.format("Unable to delete s3://%s/%s", bucket, path), e);
+        }
+    }
+
     private ObjectMetadata createObjectMetadata(final String path, final int len) {
         final ObjectMetadata meta = new ObjectMetadata();
 

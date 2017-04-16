@@ -39,6 +39,11 @@ public class LocalFileRepository implements FileRepository {
         }
     }
 
+    @Override
+    public void delete(final String path) throws IOException {
+        toFile(path).delete();
+    }
+
     private File toFile (final String path){
         return Paths.get(home, path).toFile();
     }

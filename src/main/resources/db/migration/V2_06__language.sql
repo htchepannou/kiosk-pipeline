@@ -1,0 +1,1 @@
+ALTER TABLE link ADD COLUMN language VARCHAR(2);

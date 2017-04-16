@@ -53,4 +53,18 @@ public class LocalFileRepositoryTest {
         assertThat(file).exists();
         assertThat(file).hasContent("toto");
     }
+
+    @Test
+    public void testDelete () throws Exception {
+        // Given
+        File file = new File(home, "testRead.txt");
+        Files.write(file.toPath(), "toto".getBytes());
+
+        // When
+        repo.delete("testRead.txt");
+
+        // Then
+        assertThat(file).doesNotExist();
+
+    }
 }

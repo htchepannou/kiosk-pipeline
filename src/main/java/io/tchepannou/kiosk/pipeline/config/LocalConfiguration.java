@@ -71,6 +71,12 @@ public class LocalConfiguration {
         return new LocalMessageQueue();
     }
 
+    @Bean(name = "TagMessageQueue")
+    @ConfigurationProperties("kiosk.local.queue.TagMessageQueue")
+    MessageQueue tagMessageQueue() {
+        return new LocalMessageQueue();
+    }
+
     //-- Getter/Setter
     public String getHome() {
         return home;

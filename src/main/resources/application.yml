@@ -16,6 +16,8 @@ kiosk:
         url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-content-queue"
       ValidationMessageQueue:
         url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-validation-queue"
+      TagMessageQueue:
+        url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-tag-queue"
       ImageMessageQueue:
         url: "https://sqs.us-east-1.amazonaws.com/828725992074/kiosk-image-queue"
       ThumbnailMessageQueue:
@@ -40,6 +42,8 @@ kiosk:
         home: "${kiosk.local.queue.home}/content"
       ValidationMessageQueue:
         home: "${kiosk.local.queue.home}/validation"
+      TagMessageQueue:
+        home: "${kiosk.local.queue.home}/tag"
       ImageMessageQueue:
         home: "${kiosk.local.queue.home}/image"
       ThumbnailMessageQueue:
@@ -50,19 +54,12 @@ kiosk:
         home: "${kiosk.local.queue.home}/publish"
 
   step:
-    workers: 1
-    maxDurationSeconds: 2100            # 35 mins
-    autostart: false
-
-    Delay:
-      sleepMillis:    60000   # 1 min
-      maxSleepMillis: 600000  # 10 mins
-
     DownloadConsumer:
       folder: "${kiosk.environment}/html"
     MetadataConsumer:
       defaultPublishDateOffsetDays: -7
     ContentConsumer:
+      defaultSummaryMaxLength: 255
       rawFolder: "${kiosk.environment}/html"
       contentFolder: "${kiosk.environment}/content"
     ImageConsumer:
@@ -83,6 +80,21 @@ kiosk:
     minContentLength: 100
 
   service:
+    PipelineService:
+      workers: 1
+      maxDurationSeconds: 2100            # 35 mins
+      autostart: false
+      reprocessKey: "${kiosk.environment}/reprocess/go"
+
+    LanguageDetector:
+      languageList:
+        - "en"
+        - "fr"
+
+    Delay:
+      sleepMillis:    60000   # 1 min
+      maxSleepMillis: 600000  # 10 mins
+
     UrlService:
       blacklist:
       - "*.pdf"         # PDF
@@ -162,11 +174,12 @@ kiosk:
       - "http://www.thara.tv/notre-vision"
       - "http://www.thara.tv/le-concept"
       - "http://www.thara.tv/promoteur"
-      - "http://www.thara.tv/acceuil"
+      - "http://www.thara.tv/accueil"
       - "http://www.thara.tv/galerie"
       - "http://www.thara.tv/authors"
       - "http://www.thara.tv/les-programmes"
       - "http://www.thara.tv/partenaires"
+      - "http://www.thara.tv/contacts"
       - "http://www.jewanda-magazine.com/theme/*"         # Jewanda - Magazine
 
 

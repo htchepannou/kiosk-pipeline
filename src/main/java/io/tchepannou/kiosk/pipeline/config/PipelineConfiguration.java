@@ -1,14 +1,20 @@
 package io.tchepannou.kiosk.pipeline.config;
 
+import io.tchepannou.kiosk.core.nlp.filter.HyphenFilter;
+import io.tchepannou.kiosk.core.nlp.filter.LowercaseTextFilter;
+import io.tchepannou.kiosk.core.nlp.filter.TextFilter;
+import io.tchepannou.kiosk.core.nlp.filter.TextFilterSet;
+import io.tchepannou.kiosk.core.nlp.filter.UnaccentTextFilter;
+import io.tchepannou.kiosk.core.nlp.filter.WhitespaceTextFilter;
 import io.tchepannou.kiosk.core.service.Consumer;
 import io.tchepannou.kiosk.core.service.Delay;
 import io.tchepannou.kiosk.core.service.MessageQueue;
 import io.tchepannou.kiosk.core.service.MessageQueueProcessor;
 import io.tchepannou.kiosk.core.service.MessageQueueSet;
-import io.tchepannou.kiosk.core.service.Producer;
 import io.tchepannou.kiosk.core.service.ThreadCountDown;
 import io.tchepannou.kiosk.core.service.impl.ConstantDelay;
 import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
+import io.tchepannou.kiosk.pipeline.service.PipelineService;
 import io.tchepannou.kiosk.pipeline.service.UrlService;
 import io.tchepannou.kiosk.pipeline.step.content.ContentConsumer;
 import io.tchepannou.kiosk.pipeline.step.content.filter.AnchorFilter;
@@ -22,7 +28,6 @@ import io.tchepannou.kiosk.pipeline.step.content.filter.TrimFilter;
 import io.tchepannou.kiosk.pipeline.step.download.DownloadConsumer;
 import io.tchepannou.kiosk.pipeline.step.image.ImageConsumer;
 import io.tchepannou.kiosk.pipeline.step.image.ThumbnailConsumer;
-import io.tchepannou.kiosk.pipeline.step.metadata.HtmlTagExtractor;
 import io.tchepannou.kiosk.pipeline.step.metadata.MetadataConsumer;
 import io.tchepannou.kiosk.pipeline.step.metadata.TitleFilter;
 import io.tchepannou.kiosk.pipeline.step.metadata.TitleFilterSet;
@@ -33,6 +38,8 @@ import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleSuffixFilter;
 import io.tchepannou.kiosk.pipeline.step.metadata.filter.TitleVideoFilter;
 import io.tchepannou.kiosk.pipeline.step.publish.PublishConsumer;
 import io.tchepannou.kiosk.pipeline.step.publish.PublishProducer;
+import io.tchepannou.kiosk.pipeline.step.tag.TagConsumer;
+import io.tchepannou.kiosk.pipeline.step.tag.TagService;
 import io.tchepannou.kiosk.pipeline.step.url.FeedUrlProducer;
 import io.tchepannou.kiosk.pipeline.step.url.UrlProducer;
 import io.tchepannou.kiosk.pipeline.step.validation.ValidationConsumer;
@@ -43,8 +50,6 @@ import io.tchepannou.kiosk.pipeline.step.validation.rules.ArticleShouldHaveTitle
 import io.tchepannou.kiosk.pipeline.step.validation.rules.ArticleUrlShouldNotBeBlacklistedRule;
 import io.tchepannou.kiosk.pipeline.step.video.VideoConsumer;
 import io.tchepannou.kiosk.pipeline.step.video.providers.YouTube;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -53,14 +58,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.util.Arrays;
-import java.util.concurrent.CountDownLatch;
 
 @Configuration
 @ConfigurationProperties("kiosk.step")
 public class PipelineConfiguration {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PipelineConfiguration.class);
-
     @Autowired
     ThreadPoolTaskExecutor executor;
 
@@ -99,85 +102,25 @@ public class PipelineConfiguration {
     @Qualifier("PublishMessageQueue")
     MessageQueue publishMessageQueue;
 
-    boolean autostart;
-    int workers;
-    int maxDurationSeconds;
+    @Autowired
+    @Qualifier("TagMessageQueue")
+    MessageQueue tagMessageQueue;
 
     @PostConstruct
-    public void run() throws InterruptedException {
-        LOGGER.info("Starting pipeline");
-
-        // Schedule shutdown
-        shutdown(maxDurationSeconds * 1000);
-
-        // Process async
-        if (!autostart) {
-            return;
-        }
-        executor.execute(() -> {
-            try {
-                prePublish();
-                publish();
-
-                shutdown(0);
-            } catch (InterruptedException e) {
-                LOGGER.warn("Interruped", e);
-            }
-        });
+    public void run() throws IOException {
+        pipelineService().reprocess();
+        pipelineService().run();
     }
 
-    private void shutdown(final int sleepMillis) {
-        executor.execute(() -> {
-            try {
-                if (sleepMillis > 0) {
-                    Thread.sleep(sleepMillis);
-                }
-
-                LOGGER.info("Shutting down...");
-                System.exit(0);
-            } catch (final InterruptedException e) {
-
-            }
-        });
-    }
-
-    private void prePublish() throws InterruptedException {
-        LOGGER.info("Processing URL");
-
-        urlProducer().produce();
-        execute(downloadMessageQueueProcessor());
-        execute(metadataMessageQueueProcessor());
-        execute(contentMessageQueueProcessor());
-        execute(validationMessageQueueProcessor());
-        execute(imageMessageQueueProcessor());
-        execute(thumbnailMessageQueueProcessor());
-        execute(videoMessageQueueProcessor());
-
-        threadCountDown().await();
-    }
-
-    private void publish() throws InterruptedException {
-        LOGGER.info("Publishing Articles");
-
-        publishProducer().produce();
-        execute(publishMessageQueueProcessor());
-        threadCountDown().await();
-    }
-
-    private void execute(final Runnable runnable) {
-        for (int i = 0; i < workers; i++) {
-            executor.execute(runnable);
-        }
+    //-- Commons
+    @Bean
+    @ConfigurationProperties("kiosk.service.PipelineService")
+    PipelineService pipelineService() {
+        return new PipelineService();
     }
 
     @Bean
-    CountDownLatch countDownLatch() {
-        return new CountDownLatch(7);
-    }
-
-    //-- Common
-    @Bean
-    @ConfigurationProperties("kiosk.step.Delay")
+    @ConfigurationProperties("kiosk.service.Delay")
     Delay delay() {
         return new ConstantDelay();
     }
@@ -186,8 +129,6 @@ public class PipelineConfiguration {
     ThreadCountDown threadCountDown() {
         return new ThreadCountDown();
     }
-
-
 
     //-- Url
     @Bean
@@ -201,7 +142,7 @@ public class PipelineConfiguration {
     }
 
     //-- Download
-    @Bean
+    @Bean(name = "DownloadMessageQueueProcessor")
     MessageQueueProcessor downloadMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 urlMessageQueue,
@@ -218,7 +159,7 @@ public class PipelineConfiguration {
     }
 
     //-- Metadata
-    @Bean
+    @Bean(name = "MetadataMessageQueueProcessor")
     MessageQueueProcessor metadataMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 metadataMessageQueue,
@@ -246,14 +187,8 @@ public class PipelineConfiguration {
         ));
     }
 
-    @Bean
-    HtmlTagExtractor htmlTagExtractor(){
-        return new HtmlTagExtractor();
-    }
-
-
     //-- Content
-    @Bean
+    @Bean(name = "ContentMessageQueueProcessor")
     MessageQueueProcessor contentMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 contentMessageQueue,
@@ -283,7 +218,7 @@ public class PipelineConfiguration {
     }
 
     //-- Validation
-    @Bean
+    @Bean(name = "ValidationMessageQueueProcessor")
     MessageQueueProcessor validationMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 validationMessageQueue,
@@ -302,7 +237,7 @@ public class PipelineConfiguration {
     MessageQueue validationTopic() {
         return new MessageQueueSet(
                 "validated",
-                Arrays.asList(imageMessageQueue, videoMessageQueue)
+                Arrays.asList(imageMessageQueue, videoMessageQueue, tagMessageQueue)
         );
     }
 
@@ -318,8 +253,39 @@ public class PipelineConfiguration {
         );
     }
 
-    //-- Video
+    //-- Tag
+    @Bean(name = "TagMessageQueueProcessor")
+    MessageQueueProcessor tagMessageQueueProcessor() {
+        return new MessageQueueProcessor(
+                tagMessageQueue,
+                tagConsumer(),
+                delay(),
+                threadCountDown()
+        );
+    }
+
     @Bean
+    Consumer tagConsumer() {
+        return new TagConsumer();
+    }
+
+    @Bean
+    public TagService tagService() {
+        return new TagService();
+    }
+
+    @Bean("TagTextFilter")
+    TextFilter tagTextFilter() {
+        return new TextFilterSet(Arrays.asList(
+                new UnaccentTextFilter(),
+                new HyphenFilter(),
+                new LowercaseTextFilter(),
+                new WhitespaceTextFilter()
+        ));
+    }
+
+    //-- Video
+    @Bean(name = "VideoMessageQueueProcessor")
     MessageQueueProcessor videoMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 videoMessageQueue,
@@ -343,7 +309,7 @@ public class PipelineConfiguration {
     }
 
     //-- Image
-    @Bean
+    @Bean(name = "ImageMessageQueueProcessor")
     MessageQueueProcessor imageMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 imageMessageQueue,
@@ -360,7 +326,7 @@ public class PipelineConfiguration {
     }
 
     //-- Thubmnail
-    @Bean
+    @Bean(name = "ThumbnailMessageQueueProcessor")
     MessageQueueProcessor thumbnailMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 thumbnailMessageQueue,
@@ -377,7 +343,7 @@ public class PipelineConfiguration {
     }
 
     //-- Thubmnail
-    @Bean
+    @Bean(name = "PublishMessageQueueProcessor")
     MessageQueueProcessor publishMessageQueueProcessor() {
         return new MessageQueueProcessor(
                 publishMessageQueue,
@@ -394,32 +360,7 @@ public class PipelineConfiguration {
     }
 
     @Bean
-    Producer publishProducer() {
+    PublishProducer publishProducer() {
         return new PublishProducer();
-    }
-
-    //-- Getter/Setter
-    public int getWorkers() {
-        return workers;
-    }
-
-    public void setWorkers(final int workers) {
-        this.workers = workers;
-    }
-
-    public int getMaxDurationSeconds() {
-        return maxDurationSeconds;
-    }
-
-    public void setMaxDurationSeconds(final int maxDurationSeconds) {
-        this.maxDurationSeconds = maxDurationSeconds;
-    }
-
-    public boolean isAutostart() {
-        return autostart;
-    }
-
-    public void setAutostart(final boolean autostart) {
-        this.autostart = autostart;
     }
 }

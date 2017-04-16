@@ -4,12 +4,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaxxer.hikari.HikariDataSource;
-import io.tchepannou.kiosk.core.nlp.filter.LowercaseTextFilter;
-import io.tchepannou.kiosk.core.nlp.filter.TextFilterSet;
-import io.tchepannou.kiosk.core.nlp.filter.UnaccentTextFilter;
+import io.tchepannou.kiosk.core.nlp.language.LanguageDetector;
+import io.tchepannou.kiosk.core.nlp.toolkit.NLPToolkitFactory;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
-import io.tchepannou.kiosk.pipeline.service.PipelineService;
-import io.tchepannou.kiosk.pipeline.service.TagService;
+import io.tchepannou.kiosk.pipeline.service.ShutdownService;
 import io.tchepannou.kiosk.pipeline.service.UrlService;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
@@ -33,7 +31,6 @@ import org.springframework.web.client.RestTemplate;
 import javax.net.ssl.SSLContext;
 import javax.sql.DataSource;
 import java.time.Clock;
-import java.util.Arrays;
 import java.util.TimeZone;
 
 @Configuration
@@ -118,26 +115,29 @@ public class AppConfiguration implements AsyncConfigurer {
     }
 
     @Bean
-    public PipelineService pipelineService() {
-        return new PipelineService();
-    }
-
-    @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
-    }
-
-    @Bean
-    public TagService tagService(){
-        return new TagService(new TextFilterSet(Arrays.asList(
-                new UnaccentTextFilter(),
-                new LowercaseTextFilter()
-        )));
     }
 
     @Bean
     @ConfigurationProperties("kiosk.service.UrlService")
     UrlService urlService() {
         return new UrlService();
+    }
+
+    @Bean
+    ShutdownService shutdownService() {
+        return new ShutdownService();
+    }
+
+    @Bean
+    @ConfigurationProperties("kiosk.service.LanguageDetector")
+    LanguageDetector languageDetector() {
+        return new LanguageDetector();
+    }
+
+    @Bean
+    NLPToolkitFactory nlpToolkitFactory(){
+        return new NLPToolkitFactory();
     }
 }

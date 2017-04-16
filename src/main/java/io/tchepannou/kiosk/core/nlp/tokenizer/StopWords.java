@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.Set;
 
-public class StopWordFilter {
+public class StopWords {
     //-- Attributes
     private final Set<String> words = new HashSet<>();
 
@@ -22,7 +22,7 @@ public class StopWordFilter {
     }
 
     //-- StopWords implementation
-    public boolean accept(final String text) {
-        return !words.contains(text.toLowerCase());
+    public boolean is(final String text) {
+        return words.contains(text.toLowerCase());
     }
 }

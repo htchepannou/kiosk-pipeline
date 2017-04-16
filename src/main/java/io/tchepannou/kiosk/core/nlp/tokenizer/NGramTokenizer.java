@@ -1,7 +1,5 @@
 package io.tchepannou.kiosk.core.nlp.tokenizer;
 
-import io.tchepannou.kiosk.core.nlp.tokenizer.Tokenizer;
-
 import java.util.ArrayList;
 import java.util.List;
 

@@ -55,6 +55,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.annotation.PostConstruct;
@@ -121,6 +122,7 @@ public class PipelineConfiguration {
 
     @Bean
     @ConfigurationProperties("kiosk.service.Delay")
+    @Scope("prototype")
     Delay delay() {
         return new ConstantDelay();
     }

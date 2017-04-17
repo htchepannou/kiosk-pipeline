@@ -1,8 +1,8 @@
 package io.tchepannou.kiosk.pipeline.step.validation;
 
 import io.tchepannou.kiosk.core.service.MessageQueue;
-import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
-import io.tchepannou.kiosk.pipeline.persistence.domain.LinkStatusEnum;
+import io.tchepannou.kiosk.persistence.domain.Link;
+import io.tchepannou.kiosk.persistence.domain.LinkStatusEnum;
 import io.tchepannou.kiosk.pipeline.step.AbstractLinkConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

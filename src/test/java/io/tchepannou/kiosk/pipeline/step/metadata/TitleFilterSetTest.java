@@ -1,6 +1,6 @@
 package io.tchepannou.kiosk.pipeline.step.metadata;
 
-import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
+import io.tchepannou.kiosk.persistence.domain.Feed;
 import org.junit.Test;
 
 import java.util.Arrays;

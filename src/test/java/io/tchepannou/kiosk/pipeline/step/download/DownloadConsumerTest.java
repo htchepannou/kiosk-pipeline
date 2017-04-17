@@ -2,11 +2,11 @@ package io.tchepannou.kiosk.pipeline.step.download;
 
 import io.tchepannou.kiosk.core.service.FileRepository;
 import io.tchepannou.kiosk.core.service.MessageQueue;
-import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
-import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
-import io.tchepannou.kiosk.pipeline.persistence.domain.LinkStatusEnum;
-import io.tchepannou.kiosk.pipeline.persistence.repository.FeedRepository;
-import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
+import io.tchepannou.kiosk.persistence.domain.Feed;
+import io.tchepannou.kiosk.persistence.domain.Link;
+import io.tchepannou.kiosk.persistence.domain.LinkStatusEnum;
+import io.tchepannou.kiosk.persistence.repository.FeedRepository;
+import io.tchepannou.kiosk.persistence.repository.LinkRepository;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import io.tchepannou.kiosk.pipeline.service.InvalidContentTypeException;
 import org.apache.commons.codec.digest.DigestUtils;

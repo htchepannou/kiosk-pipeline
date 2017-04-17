@@ -1,9 +1,9 @@
 package io.tchepannou.kiosk.pipeline.step.publish;
 
 import io.tchepannou.kiosk.core.service.MessageQueue;
-import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
-import io.tchepannou.kiosk.pipeline.persistence.domain.LinkStatusEnum;
-import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
+import io.tchepannou.kiosk.persistence.domain.Link;
+import io.tchepannou.kiosk.persistence.domain.LinkStatusEnum;
+import io.tchepannou.kiosk.persistence.repository.LinkRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

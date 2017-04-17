@@ -20,6 +20,8 @@
         <project.sourceEncoding>UTF-8</project.sourceEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <kiosk-persistence.version>2.7.0</kiosk-persistence.version>
+
         <aws-java-sdk.version>1.11.63</aws-java-sdk.version>
         <commons-io.version>2.4</commons-io.version>
         <commons-codec.version>1.10</commons-codec.version>
@@ -49,6 +51,27 @@
             <version>1.3.0.581.1</version>
         </dependency>
 
+
+        <!-- KIOSK -->
+        <dependency>
+            <groupId>io.tchepannou.kiosk</groupId>
+            <artifactId>kiosk-persistence</artifactId>
+            <version>${kiosk-persistence.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.data</groupId>
+                    <artifactId>spring-data-jpa</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.persistence</groupId>
+                    <artifactId>persistence-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-codec</groupId>
+                    <artifactId>commons-codec</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
         <!-- ==== AWS ==== -->
         <dependency>
@@ -441,9 +464,8 @@
             <url>http://dl.bintray.com/readytalk/maven</url>
         </repository>
         <repository>
-            <id>maven-s3-release-repo</id>
-            <name>S3 Release Repository</name>
-            <url>s3://repository.tchepannou/release</url>
+            <id>io.tchepannou.maven</id>
+            <url>s3://io.tchepannou.maven/release</url>
         </repository>
     </repositories>
 </project>

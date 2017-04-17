@@ -1,9 +1,9 @@
 package io.tchepannou.kiosk.pipeline.step;
 
-import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
-import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
-import io.tchepannou.kiosk.pipeline.persistence.domain.LinkStatusEnum;
-import io.tchepannou.kiosk.pipeline.persistence.domain.LinkTypeEnum;
+import io.tchepannou.kiosk.persistence.domain.Feed;
+import io.tchepannou.kiosk.persistence.domain.Link;
+import io.tchepannou.kiosk.persistence.domain.LinkStatusEnum;
+import io.tchepannou.kiosk.persistence.domain.LinkTypeEnum;
 
 public abstract class AbstractImageConsumer extends AbstractLinkConsumer {
 

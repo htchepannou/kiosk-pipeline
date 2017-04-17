@@ -1,10 +1,8 @@
 package io.tchepannou.kiosk.pipeline.step.validation.rules;
 
-import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
+import io.tchepannou.kiosk.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.service.UrlService;
 import io.tchepannou.kiosk.pipeline.step.validation.Validation;
-import io.tchepannou.kiosk.pipeline.step.validation.rules.ArticleRule;
-import io.tchepannou.kiosk.pipeline.step.validation.rules.ArticleUrlShouldNotBeBlacklistedRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

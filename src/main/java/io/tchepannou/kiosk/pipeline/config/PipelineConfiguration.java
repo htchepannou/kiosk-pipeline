@@ -13,7 +13,7 @@ import io.tchepannou.kiosk.core.service.MessageQueueProcessor;
 import io.tchepannou.kiosk.core.service.MessageQueueSet;
 import io.tchepannou.kiosk.core.service.ThreadCountDown;
 import io.tchepannou.kiosk.core.service.impl.ConstantDelay;
-import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
+import io.tchepannou.kiosk.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.service.PipelineService;
 import io.tchepannou.kiosk.pipeline.service.UrlService;
 import io.tchepannou.kiosk.pipeline.step.content.ContentConsumer;

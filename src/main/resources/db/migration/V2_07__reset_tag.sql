@@ -1,2 +1,0 @@
-DELETE FROM link_tag;
-DELETE FROM tag;

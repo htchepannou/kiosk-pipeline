@@ -1,7 +1,7 @@
 package io.tchepannou.kiosk.pipeline.step.publish;
 
-import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
-import io.tchepannou.kiosk.pipeline.persistence.domain.LinkStatusEnum;
+import io.tchepannou.kiosk.persistence.domain.Link;
+import io.tchepannou.kiosk.persistence.domain.LinkStatusEnum;
 import io.tchepannou.kiosk.pipeline.step.LinkConsumerTestSupport;
 import org.junit.Test;
 import org.junit.runner.RunWith;

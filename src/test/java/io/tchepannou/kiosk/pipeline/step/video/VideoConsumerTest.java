@@ -1,10 +1,10 @@
 package io.tchepannou.kiosk.pipeline.step.video;
 
-import io.tchepannou.kiosk.pipeline.persistence.domain.Asset;
-import io.tchepannou.kiosk.pipeline.persistence.domain.AssetTypeEnum;
-import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
-import io.tchepannou.kiosk.pipeline.persistence.domain.LinkStatusEnum;
-import io.tchepannou.kiosk.pipeline.persistence.domain.LinkTypeEnum;
+import io.tchepannou.kiosk.persistence.domain.Asset;
+import io.tchepannou.kiosk.persistence.domain.AssetTypeEnum;
+import io.tchepannou.kiosk.persistence.domain.Link;
+import io.tchepannou.kiosk.persistence.domain.LinkStatusEnum;
+import io.tchepannou.kiosk.persistence.domain.LinkTypeEnum;
 import io.tchepannou.kiosk.pipeline.step.tag.TagService;
 import io.tchepannou.kiosk.pipeline.step.LinkConsumerTestSupport;
 import org.apache.commons.lang3.time.DateUtils;

@@ -1,6 +1,6 @@
 package io.tchepannou.kiosk.pipeline.step.validation.rules;
 
-import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
+import io.tchepannou.kiosk.persistence.domain.Link;
 import io.tchepannou.kiosk.pipeline.step.validation.Validation;
 
 public class ArticleShouldHaveMinContentLengthRule implements ArticleRule {

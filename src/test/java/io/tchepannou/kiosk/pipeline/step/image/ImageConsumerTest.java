@@ -1,11 +1,11 @@
 package io.tchepannou.kiosk.pipeline.step.image;
 
 import io.tchepannou.kiosk.core.service.MessageQueue;
-import io.tchepannou.kiosk.pipeline.persistence.domain.Asset;
-import io.tchepannou.kiosk.pipeline.persistence.domain.AssetTypeEnum;
-import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
-import io.tchepannou.kiosk.pipeline.persistence.domain.LinkStatusEnum;
-import io.tchepannou.kiosk.pipeline.persistence.domain.LinkTypeEnum;
+import io.tchepannou.kiosk.persistence.domain.Asset;
+import io.tchepannou.kiosk.persistence.domain.AssetTypeEnum;
+import io.tchepannou.kiosk.persistence.domain.Link;
+import io.tchepannou.kiosk.persistence.domain.LinkStatusEnum;
+import io.tchepannou.kiosk.persistence.domain.LinkTypeEnum;
 import io.tchepannou.kiosk.pipeline.service.HttpService;
 import io.tchepannou.kiosk.pipeline.step.LinkConsumerTestSupport;
 import org.apache.commons.io.IOUtils;

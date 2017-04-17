@@ -1,7 +1,7 @@
 package io.tchepannou.kiosk.pipeline.step.url;
 
-import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
-import io.tchepannou.kiosk.pipeline.persistence.repository.FeedRepository;
+import io.tchepannou.kiosk.persistence.domain.Feed;
+import io.tchepannou.kiosk.persistence.repository.FeedRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

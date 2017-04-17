@@ -1,8 +1,8 @@
 package io.tchepannou.kiosk.pipeline.step.url;
 
 import io.tchepannou.kiosk.core.service.Producer;
-import io.tchepannou.kiosk.pipeline.persistence.domain.Feed;
-import io.tchepannou.kiosk.pipeline.persistence.repository.FeedRepository;
+import io.tchepannou.kiosk.persistence.domain.Feed;
+import io.tchepannou.kiosk.persistence.repository.FeedRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,9 +1,9 @@
 package io.tchepannou.kiosk.pipeline.step;
 
 import io.tchepannou.kiosk.core.service.FileRepository;
-import io.tchepannou.kiosk.pipeline.persistence.domain.Link;
-import io.tchepannou.kiosk.pipeline.persistence.repository.AssetRepository;
-import io.tchepannou.kiosk.pipeline.persistence.repository.LinkRepository;
+import io.tchepannou.kiosk.persistence.domain.Link;
+import io.tchepannou.kiosk.persistence.repository.AssetRepository;
+import io.tchepannou.kiosk.persistence.repository.LinkRepository;
 import org.apache.commons.io.IOUtils;
 import org.mockito.Mock;
 import org.mockito.stubbing.Answer;

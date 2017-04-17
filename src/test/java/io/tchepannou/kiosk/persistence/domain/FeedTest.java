@@ -1,4 +1,4 @@
-package io.tchepannou.kiosk.pipeline.persistence.domain;
+package io.tchepannou.kiosk.persistence.domain;
 
 import org.junit.Test;
 

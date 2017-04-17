@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -66,27 +67,27 @@ public class TagService {
         final StringBuilder entity = new StringBuilder();
 
         String token;
-        for (int i=0 ; (token = tokeninzer.nextToken()) != null ; i++) {
-            if (Delimiters.isWhitespace(token)){
+        for (int i = 0; (token = tokeninzer.nextToken()) != null; i++) {
+            if (Delimiters.isWhitespace(token)) {
                 continue;
             } else if (isEntity(token)) {
-                if (i==0 && stopWords.is(token)){
+                if (i == 0 && stopWords.is(token)) {
                     continue;
-                } else{
-                    if (entity.length() > 0){
+                } else {
+                    if (entity.length() > 0) {
                         entity.append(' ');
                     }
                     entity.append(token);
                 }
             } else {
-                if (entity.length() > 0){
+                if (entity.length() > 0) {
                     tags.add(entity.toString());
                     entity.setLength(0);
                 }
             }
         }
 
-        if (entity.length() > 0){
+        if (entity.length() > 0) {
             tags.add(entity.toString());
         }
         return tags;
@@ -124,21 +125,29 @@ public class TagService {
 
         // Filter tags not already persisted
         final List<Tag> result = new ArrayList<>();
-        final List<Tag> tags = new ArrayList<>();
         for (final String name : names) {
             Tag tag = tagMap.get(name);
             if (tag == null) {
-                tag = new Tag(name);
-                tags.add(tag);
+                tag = save(name);
             }
-
-            result.add(tag);
+            if (tag != null) {
+                result.add(tag);
+            }
         }
 
-        // Save
-        tagRepository.save(tags);
-
         return result;
+    }
+
+    private Tag save(final String name) {
+        try {
+
+            final Tag tag = new Tag(name);
+            tagRepository.save(tag);
+            return tag;
+
+        } catch (DataIntegrityViolationException e) {
+            return tagRepository.findByName(name);
+        }
     }
 
     private void associate(final Link link, final List<Tag> tags) {

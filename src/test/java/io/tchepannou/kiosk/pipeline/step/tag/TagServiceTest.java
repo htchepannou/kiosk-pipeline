@@ -22,12 +22,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static io.tchepannou.kiosk.pipeline.Fixtures.createTag;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -99,9 +99,11 @@ public class TagServiceTest {
         service.tag(link, Arrays.asList("a", "b", "c", "d"));
 
         // Then
-        final ArgumentCaptor<List> tags = ArgumentCaptor.forClass(List.class);
-        verify(tagRepository).save(tags.capture());
-        assertThat(toNames(tags.getValue())).containsExactly("a", "b", "c", "d");
+        final ArgumentCaptor<Tag> tags = ArgumentCaptor.forClass(Tag.class);
+        verify(tagRepository, times(4)).save(tags.capture());
+        for (Tag tag : tags.getAllValues()){
+            assertThat(Arrays.asList("a", "b", "c", "d")).contains(tag.getName());
+        }
 
         final ArgumentCaptor<List> linkTags = ArgumentCaptor.forClass(List.class);
         verify(linkTagRepository).save(linkTags.capture());
@@ -129,9 +131,9 @@ public class TagServiceTest {
         service.tag(link, Arrays.asList("a"));
 
         // Then
-        final ArgumentCaptor<List> tags = ArgumentCaptor.forClass(List.class);
-        verify(tagRepository).save(tags.capture());
-        assertThat(toNames(tags.getValue())).containsExactly("a");
+        final ArgumentCaptor<Tag> tag = ArgumentCaptor.forClass(Tag.class);
+        verify(tagRepository).save(tag.capture());
+        assertThat(tag.getValue().getName()).isEqualTo("a");
 
         final ArgumentCaptor<List> linkTags = ArgumentCaptor.forClass(List.class);
         verify(linkTagRepository).save(linkTags.capture());
@@ -143,9 +145,5 @@ public class TagServiceTest {
             assertThat(linkTag.getLink()).isEqualTo(link);
             assertThat(Arrays.asList("x", "y")).contains(linkTag.getTag().getName());
         }
-    }
-
-    private List<String> toNames(final List<Tag> tags) {
-        return tags.stream().map(t -> t.getName()).collect(Collectors.toList());
     }
 }

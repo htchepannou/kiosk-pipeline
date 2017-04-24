@@ -28,12 +28,25 @@ public class ThumbnailConsumer extends AbstractImageConsumer {
 
     @Override
     protected void consume(final Link img) throws IOException {
-        final int resizeWidth = width;
-        final int resizeHeight = (width * img.getHeight()) / img.getWidth();
-
         Link thumbnail;
-        if (shouldResize(img, resizeWidth, resizeHeight)) {
-            thumbnail = resize(img, width, height);
+        float resizeWidth = 0;
+        float resizeHeight = 0;
+        float ratio;
+
+        if (img.getWidth() > width){
+            ratio = width/img.getWidth();
+
+            resizeWidth = width;
+            resizeHeight = img.getHeight()*ratio;
+        } else if (img.getHeight() > height){
+            ratio = height/img.getHeight();
+
+            resizeHeight = height;
+            resizeWidth = img.getWidth() * ratio;
+        }
+
+        if (resizeHeight != 0 && resizeWidth != 0) {
+            thumbnail = resize(img, (int) resizeWidth, (int) resizeHeight);
         } else {
             thumbnail = img;
         }
@@ -49,13 +62,6 @@ public class ThumbnailConsumer extends AbstractImageConsumer {
 
 
     //-- Private
-    private boolean shouldResize(final Link img, final int resizeWidth, final int resizeHeight) {
-        final int imageSize = img.getWidth() * img.getHeight();
-        final int size = resizeWidth * resizeHeight;
-
-        return imageSize >= size;
-    }
-
     private Link resize (final Link img, final int resizeWidth, final int resizeHeight) throws IOException {
         // Load image
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
